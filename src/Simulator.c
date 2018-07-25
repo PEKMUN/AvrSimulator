@@ -26,8 +26,8 @@ int add(uint8_t *codePtr)
 {
   uint8_t rd, rr;
   
-  //rd = ((*codePtr[1] & 0x1) << 7) | (*codePtr[0] & 0xf0);
-  //rr = ((*codePtr[1] & 0x2) << 3) | (*codePtr[0] & 0xf);
+  rd = ((*codePtr[1] & 0x1) << 7) | (*codePtr[0] & 0xf0);
+  rr = ((*codePtr[1] & 0x2) << 3) | (*codePtr[0] & 0xf);
   return 0;
 }
 
@@ -51,7 +51,7 @@ int andi(uint8_t *codePtr)
  * 		ADIW Rd + 1:Rd, K
  *		1001 0110 KKdd KKKK
  * where
- *		0 <= KKKK <= 63
+ *		0 <= KKKKKK <= 63
  * 		dd is {
  *			00 => 24,
  *			01 => 26, 
