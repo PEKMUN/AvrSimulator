@@ -11,5 +11,6 @@ int adiw(uint8_t *codePtr);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];
+extern uint8_t r[32];
 
 #endif // _SIMULATOR_H

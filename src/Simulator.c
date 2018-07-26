@@ -3,7 +3,7 @@
 #include "Simulator.h"
 
 AvrOperator AvrOperatorTable[256] = {
-  [0xc] = add, add, add, add,
+  [0xc]  = add, add, add, add,
   [0x1c] = adc, adc, adc, adc,
   [0x20] = and, and, and, and,
   [0x70] = andi, andi, andi, andi, andi, andi, andi, andi,
@@ -26,9 +26,11 @@ int add(uint8_t *codePtr)
 {
   uint8_t rd, rr;
   
-  rd = ((*codePtr[1] & 0x1) << 7) | (*codePtr[0] & 0xf0);
-  rr = ((*codePtr[1] & 0x2) << 3) | (*codePtr[0] & 0xf);
-  return 0;
+  rd = ((codePtr[1] & 0x1) << 7) | (codePtr[0] & 0xf0);
+  rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+  
+  r[rd] = r[rd] + r[rr];
+  return rd;
 }
 
 int adc(uint8_t *codePtr)
