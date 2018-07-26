@@ -25,24 +25,24 @@ void tearDown(void){}
  *		1001 0110 0001 1101
  *		  9    6    1    d
  */
-/*void test_AvrOperatorTable_given_adiw_r27_r26_3(void)
+void test_AvrOperatorTable_given_adiw_r27_r26_2(void)
 {
+  int k;
 	uint8_t *codePtr;
-    uint8_t codeMemory[] = {
+  uint8_t codeMemory[] = {
 		0x1d, 0x96,
 	};
 	uint8_t *progCounter = codeMemory;
 	AvrOperatorTable [*(progCounter + 1)](progCounter);
-	
-	r[27] = 23;
-	r[26] = 5;
-	k = 13;
-	
+
+	r[26] = 24;
+	r[27] = 10;
+		
 	adiw(codeMemory);
 	
-	TEST_ASSERT_EQUAL(23, r[27]);
-	TEST_ASSERT_EQUAL(18, r[26]);
-}*/
+  TEST_ASSERT_EQUAL(37, r[26]);
+	TEST_ASSERT_EQUAL(10, r[27]);
+}
 
 /**
  * Instruction:
@@ -69,7 +69,7 @@ void test_AvrOperatorTable_given_add_r4_r7(void)
 	r[7] = 23;
 	r[4] = 5;
 	
-	r[4] = add(codeMemory);
+	add(codeMemory);
 	
 	TEST_ASSERT_EQUAL(23, r[7]);
 	TEST_ASSERT_EQUAL(28, r[4]);

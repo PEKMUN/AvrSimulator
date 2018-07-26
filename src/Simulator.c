@@ -26,11 +26,11 @@ int add(uint8_t *codePtr)
 {
   uint8_t rd, rr;
   
-  rd = ((codePtr[1] & 0x1) << 7) | (codePtr[0] & 0xf0);
+  rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
   
   r[rd] = r[rd] + r[rr];
-  return rd;
+  return 0;
 }
 
 int adc(uint8_t *codePtr)
@@ -68,11 +68,12 @@ int adiw(uint8_t *codePtr)
   
   k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
   rd = ((*codePtr & 0x30) >> 3) + 24;
-  
-  word = (((uint8_t)r[rd+2]) << 8) | r[rd];
+ 
+  word = (((uint16_t)r[rd+1]) << 8) | r[rd];
   word += k;
 
-  r[rd+1] = word >> 8;
-  r[rd] = word & 0xf;
+  r[rd] = word;
+  r[rd+1] = (word & 0xff00) >> 8;
+
   return 0;
 }
