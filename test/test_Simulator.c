@@ -65,7 +65,6 @@ void test_AvrOperatorTable_given_adiw_r27_r26_13(void)
  */
 void test_AvrOperatorTable_given_adiw_r31_r30_2(void)
 {
-  int k;
 	uint8_t *codePtr;
   uint8_t codeMemory[] = {
 		0x32, 0x96,
@@ -111,4 +110,114 @@ void test_AvrOperatorTable_given_add_r4_r7(void)
 	
 	TEST_ASSERT_EQUAL(23, r[7]);
 	TEST_ASSERT_EQUAL(28, r[4]);
+}
+
+/**
+ * Instruction:
+ * 		AND Rd,Rr
+ *		0010 00rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31
+ *
+ * Simulate and R2,R3
+ * 		ddddd = 2 = b'00010'
+ * 		rrrrr = 3 = b'00011'
+ *		0010 0000 0010 0011
+ *		  2    0    2    3
+ */
+void test_AvrOperatorTable_given_and_r2_r3(void)
+{
+  uint8_t codeMemory[] = {
+		0x23, 0x20,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[2] = 0b0101;
+	r[3] = 0b1111;
+	
+	and(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0b0101, r[2]);
+	TEST_ASSERT_EQUAL(0b1111, r[3]);
+}
+
+/**
+ * Instruction:
+ * 		AND Rd,Rr
+ *		0010 00rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31
+ *
+ * Simulate and R4,R31
+ * 		ddddd = 4  = b'00100'
+ * 		rrrrr = 31 = b'11111'
+ *		0010 0010 0100 1111
+ *		  2    2    4    f
+ */
+void test_AvrOperatorTable_given_and_r4_r31(void)
+{
+  uint8_t codeMemory[] = {
+		0x4f, 0x22,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[4]  = 0b1110101;
+	r[31] = 0b1111000;
+	
+	and(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0b1110000, r[4]);
+	TEST_ASSERT_EQUAL(0b1111000, r[31]);
+}
+
+/**
+ * Instruction:
+ * 		ANDI Rd, K
+ *		0111 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ * 
+ * Simulate andi R20, 42
+ * 		KKKKKKKK = 42 = b'00101010'
+ *		    dddd = b'0100' ==> 20
+ *		0111 0010 0100 1010
+ *		  7    2    4    a
+ */
+void test_AvrOperatorTable_given_andi_r20_42(void)
+{
+	uint8_t *codePtr;
+  uint8_t codeMemory[] = {
+		0x4a, 0x72,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+
+	r[20] = 0b11110000;
+	
+	andi(codeMemory);
+	
+  TEST_ASSERT_EQUAL(0b00100000, r[20]);
 }

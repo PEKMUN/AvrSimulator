@@ -38,13 +38,59 @@ int adc(uint8_t *codePtr)
   return 0;
 }
 
+/**
+ * Instruction:
+ * 		AND Rd,Rr
+ *		0010 00rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31
+ */
 int and(uint8_t *codePtr)
 {
+  uint8_t rd, rr;
+  
+  rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+  
+  r[rd] = r[rd] & r[rr];
   return 0;
 }
 
+/**
+ * Instruction:
+ * 		ANDI Rd, K
+ *		0111 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ */
 int andi(uint8_t *codePtr)
 {
+  uint8_t rd, k;
+  
+  rd = ((codePtr[0] & 0xf0) >> 4) + 16;
+  k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
+ 
+  r[rd] = r[rd] & k;
   return 0;
 }
 
