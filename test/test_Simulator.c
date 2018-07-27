@@ -25,7 +25,7 @@ void tearDown(void){}
  *		1001 0110 0001 1101
  *		  9    6    1    d
  */
-void test_AvrOperatorTable_given_adiw_r27_r26_2(void)
+void test_AvrOperatorTable_given_adiw_r27_r26_13(void)
 {
   int k;
 	uint8_t *codePtr;
@@ -42,6 +42,44 @@ void test_AvrOperatorTable_given_adiw_r27_r26_2(void)
 	
   TEST_ASSERT_EQUAL(37, r[26]);
 	TEST_ASSERT_EQUAL(10, r[27]);
+}
+
+/**
+ * Instruction:
+ * 		ADIW Rd + 1:Rd, K
+ *		1001 0110 KKdd KKKK
+ * where
+ *		0 <= KKKKKK <= 63
+ * 		dd is {
+ *			00 => 24,
+ *			01 => 26, 
+ *			10 => 28, 
+ *			11 => 30
+ *		}
+ * 
+ * Simulate adiw R31,30, 63
+ * 		KKKKKK = 2 = 0x2 = b'000010'
+ *		    dd = b'11' ==> 30
+ *		1001 0110 0011 0010
+ *		  9    6    3    2
+ */
+void test_AvrOperatorTable_given_adiw_r31_r30_2(void)
+{
+  int k;
+	uint8_t *codePtr;
+  uint8_t codeMemory[] = {
+		0x32, 0x96,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+
+	r[30] = 0xff;
+	r[31] = 0x10;
+		
+	adiw(codeMemory);
+	
+  TEST_ASSERT_EQUAL(0x01, r[30]);
+	TEST_ASSERT_EQUAL(0x11, r[31]);
 }
 
 /**
