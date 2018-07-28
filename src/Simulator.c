@@ -33,8 +33,22 @@ int add(uint8_t *codePtr)
   return 0;
 }
 
+/**
+ * Instruction:
+ * 		ADC Rd,Rr
+ *		0001 11rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31
+ */
 int adc(uint8_t *codePtr)
 {
+	uint8_t rd, rr;
+	
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+	
+	r[rd] = r[rd] + r[rr];
   return 0;
 }
 

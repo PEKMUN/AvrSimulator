@@ -221,3 +221,34 @@ void test_AvrOperatorTable_given_andi_r20_42(void)
 	
   TEST_ASSERT_EQUAL(0b00100000, r[20]);
 }
+
+/**
+ * Instruction:
+ * 		ADC Rd,Rr
+ *		0001 11rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31
+ *
+ * Simulate add R5,R9
+ * 		ddddd = 5 = b'00101'
+ * 		rrrrr = 9 = b'01001'
+ *		0000 1100 0101 1001
+ *		  0    c    5    9
+ */
+void test_AvrOperatorTable_given_add_r5_r9(void)
+{
+    uint8_t codeMemory[] = {
+		0x59, 0x0c,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[5] = 0x7dc0;
+	r[9] = 0x1c7b;
+	
+	add(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0x9a3b, r[5]);
+	TEST_ASSERT_EQUAL(0x1c7b, r[9]);
+}
