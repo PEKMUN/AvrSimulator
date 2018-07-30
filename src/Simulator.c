@@ -20,7 +20,6 @@ AvrOperator AvrOperatorTable[256] = {
   [0x60] = ori, ori, ori, ori, ori, ori, ori, ori,
 			ori, ori, ori, ori, ori, ori, ori, ori,
   [0x24] = eor, eor, eor, eor,
-  //[0x94] = negOrCom, negOrCom,
   [0xef] = ser,
   [0x9c] = mul, mul, mul, mul,
   [0x02] = muls,
@@ -378,35 +377,73 @@ int eor(uint8_t *codePtr)
 	return 0;
 }
 
-/*int itIsCom(uint8_t *codePtr)
-{
-	uint8_t bitZero;
-	
-	bitZero = *codePtr & 0x1;
-	
-	if(bitZero == 0x1)
-		return 1;
-	else
-		return 0;
-}
-
-int negOrCom(uint8_t *codePtr)
-{
-	if(itIsCom(codePtr))
-		return com(codePtr);
-	else
-		return neg(codePtr);
-}
-
+/**
+ * Instruction:
+ * 		COM Rd
+ *		1001 010d dddd 0000
+ * where
+ *		0 <= ddddd <= 31
+ */
 int com(uint8_t *codePtr)
 {
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = 0xff - r[rd];
 	return 0;
 }
 
+/**
+ * Instruction:
+ * 		NEG Rd
+ *		1001 010d dddd 0001
+ * where
+ *		0 <= ddddd <= 31
+ */
 int neg(uint8_t *codePtr)
 {
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = 0x00 - r[rd];
 	return 0;
-}*/
+}
+
+/**
+ * Instruction:
+ * 		DEC Rd
+ *		1001 010d dddd 1010
+ * where
+ *		0 <= ddddd <= 31
+ */
+int dec(uint8_t *codePtr)
+{
+	uint8_t rd;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	
+	r[rd] = r[rd] - 1;
+	return 0;
+}
+
+/**
+ * Instruction:
+ * 		INC Rd
+ *		1001 010d dddd 0011
+ * where
+ *		0 <= ddddd <= 31
+ */
+int inc(uint8_t *codePtr)
+{
+	uint8_t rd;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	
+	r[rd] = r[rd] + 1;
+	return 0;
+} 
 
 /**
  * Instruction:
@@ -581,9 +618,8 @@ int muls(uint8_t *codePtr)
 	rd = ((*codePtr & 0xf0) >> 4) + 16;
 	rr = (*codePtr & 0x0f) + 16;
 
-	result = r[rd] * r[rr];
-	printf("result: %d\n", result);
-	
+	result = (int8_t)r[rd] * (int8_t)r[rr];
+
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
 	return 0;
@@ -710,15 +746,88 @@ int swap(uint8_t *codePtr)
  * where
  *		0 <= sss <= 7
  */
-/*int bset(uint8_t *codePtr)
+int bset(uint8_t *codePtr)
 {
 	uint8_t s;
   
 	s = (*codePtr & 0x70) >> 4;
 	
-	sreg[s] = 1;
+	switch(s)
+	{
+		case 0b000: 
+			sreg->C = 1;
+			break;
+		case 0b001: 
+			sreg->Z = 1;
+			break;
+		case 0b010: 
+			sreg->N = 1;
+			break;
+		case 0b011: 
+			sreg->V = 1;
+			break;
+		case 0b100: 
+			sreg->S = 1;
+			break;
+		case 0b101: 
+			sreg->H = 1;
+			break;
+		case 0b110: 
+			sreg->T = 1;
+			break;
+		case 0b111: 
+			sreg->I = 1;
+			break;
+		default: 
+			printf("error!");
+	} 
 	return 0;
-}*/
+}
+
+/**
+ * Instruction:
+ * 		BCLR s
+ *		1001 0100 1sss 1000
+ * where
+ *		0 <= sss <= 7
+ */
+int bclr(uint8_t *codePtr)
+{
+	uint8_t s;
+  
+	s = (*codePtr & 0x70) >> 4;
+	
+	switch(s)
+	{
+		case 0b000: 
+			sreg->C = 0;
+			break;
+		case 0b001: 
+			sreg->Z = 0;
+			break;
+		case 0b010: 
+			sreg->N = 0;
+			break;
+		case 0b011: 
+			sreg->V = 0;
+			break;
+		case 0b100: 
+			sreg->S = 0;
+			break;
+		case 0b101: 
+			sreg->H = 0;
+			break;
+		case 0b110: 
+			sreg->T = 0;
+			break;
+		case 0b111: 
+			sreg->I = 0;
+			break;
+		default: 
+			printf("error!");
+	} 
+	return 0;
+}
 
 /**
  * Instruction:

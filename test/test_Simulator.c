@@ -570,20 +570,107 @@ void test_AvrOperatorTable_given_eor_r16_r10(void)
  *		1001 010d dddd 0000
  * where
  *		0 <= ddddd <= 31
+ *
+ * Simulate com R9
+ * 		ddddd = 9 = b'01001'
+ *		1001 0100 1001 0000
+ *		  9     4      9      0
  */
-/*void test_itIsCom_given_bitZero_for_16BitOpcode_is_1_expect_1(void)
+void test_AvrOperatorTable_given_com_r9(void)
 {
-	uint8_t retVal;
-	uint8_t codeMemory[] = {
-		0xf0, 0x95,
+    uint8_t codeMemory[] = {
+		0x90, 0x94,
 	};
 	uint8_t *progCounter = codeMemory;
 	AvrOperatorTable [*(progCounter + 1)](progCounter);
 	
-	retVal = itIsCom(codeMemory);
+	r[9] = 0x66;
 	
-	TEST_ASSERT_EQUAL(1, retVal);
-}*/
+	com(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0x99, r[9]);
+}
+
+/**
+ * Instruction:
+ * 		NEG Rd
+ *		1001 010d dddd 0001
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate neg R9
+ * 		ddddd = 9 = b'01001'
+ *		1001 0100 1001 0001
+ *		  9     4      9      1
+ */
+void test_AvrOperatorTable_given_neg_r9(void)
+{
+    uint8_t codeMemory[] = {
+		0x91, 0x94,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[9] = 0x1;
+	
+	neg(codeMemory);
+	
+	TEST_ASSERT_EQUAL(255, r[9]);
+}
+
+/**
+ * Instruction:
+ * 		DEC Rd
+ *		1001 010d dddd 1010
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate dec R16
+ * 		ddddd = 16 = b'10000'
+ *		1001 0101 0000 1010
+ *		  9     5     0      a
+ */
+void test_AvrOperatorTable_given_dec_r16(void)
+{
+    uint8_t codeMemory[] = {
+		0x0a, 0x95,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[16] = 0x9b;
+	
+	dec(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0x9a, r[16]);
+}
+
+/**
+ * Instruction:
+ * 		INC Rd
+ *		1001 010d dddd 0011
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate inc R16
+ * 		ddddd = 16 = b'10000'
+ *		1001 0101 0000 0011
+ *		  9     5      0      3
+ */
+void test_AvrOperatorTable_given_inc_r16(void)
+{
+    uint8_t codeMemory[] = {
+		0x03, 0x95,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[16] = 0x9b;
+	
+	inc(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0x9c, r[16]);
+}
 
 /**
  * Instruction:
@@ -862,7 +949,7 @@ void test_AvrOperatorTable_given_mul_r4_r5(void)
  *		0000 0010 0101 0100
  *		  0      2      5     4
  */
-/*void test_AvrOperatorTable_given_muls_r21_r20(void)
+void test_AvrOperatorTable_given_muls_r21_r20(void)
 {
 	uint8_t codeMemory[] = {
 		0x54, 0x02,
@@ -870,14 +957,14 @@ void test_AvrOperatorTable_given_mul_r4_r5(void)
 	uint8_t *progCounter = codeMemory;
 	AvrOperatorTable [*(progCounter + 1)](progCounter);
 	
-	r[21] = 0xffffffe0;
-	r[20] = 0xfffffff6;
+	r[21] = -32;
+	r[20] = -10;
 	
 	muls(codeMemory);
 	
 	TEST_ASSERT_EQUAL(0x1, r[1]);
 	TEST_ASSERT_EQUAL(0x40, r[0]);
-}*/
+}
 
 /**
  * Instruction:
@@ -1060,7 +1147,7 @@ void test_AvrOperatorTable_given_swap_r7(void)
  *		1001 0100 0011 1000
  *		  9      4     3      8
  */
-/*void test_AvrOperatorTable_given_bset_3(void)
+void test_AvrOperatorTable_given_bset_3(void)
 {
 	uint8_t codeMemory[] = {
 		0x38, 0x94,
@@ -1071,7 +1158,82 @@ void test_AvrOperatorTable_given_swap_r7(void)
 	bset(codeMemory);
 	
 	TEST_ASSERT_EQUAL(1, sreg->V);
-}*/
+}
+
+/**
+ * Instruction:
+ * 		BSET s
+ *		1001 0100 0sss 1000
+ * where
+ *		0 <= sss <= 7
+ *
+ * Simulate bset 7
+ * 		sss = 3 = b'011'
+ *		1001 0100 0111 1000
+ *		  9      4     7      8
+ */
+void test_AvrOperatorTable_given_bset_7(void)
+{
+	uint8_t codeMemory[] = {
+		0x78, 0x94,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+
+	bset(codeMemory);
+	
+	TEST_ASSERT_EQUAL(1, sreg->I);
+}
+
+/**
+ * Instruction:
+ * 		BCLR s
+ *		1001 0100 1sss 1000
+ * where
+ *		0 <= sss <= 7
+ *
+ * Simulate bclr 3
+ * 		sss = 3 = b'011'
+ *		1001 0100 1011 1000
+ *		  9      4     b      8
+ */
+void test_AvrOperatorTable_given_bclr_3(void)
+{
+	uint8_t codeMemory[] = {
+		0xb8, 0x94,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+
+	bclr(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0, sreg->V);
+}
+
+/**
+ * Instruction:
+ * 		BCLR s
+ *		1001 0100 1sss 1000
+ * where
+ *		0 <= sss <= 7
+ *
+ * Simulate bclr 7
+ * 		sss = 7 = b'111'
+ *		1001 0100 1111 1000
+ *		  9      4     f      8
+ */
+void test_AvrOperatorTable_given_bclr_7(void)
+{
+	uint8_t codeMemory[] = {
+		0xf8, 0x94,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+
+	bclr(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0, sreg->I);
+}
 
 /**
  * Instruction:
