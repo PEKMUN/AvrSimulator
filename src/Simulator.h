@@ -40,6 +40,7 @@ int clr(uint8_t *codePtr);
 int ser(uint8_t *codePtr);
 int mul(uint8_t *codePtr);
 int muls(uint8_t *codePtr);
+int mulsu(uint8_t *codePtr);
 int lsl(uint8_t *codePtr);
 int lsr(uint8_t *codePtr);
 int rol(uint8_t *codePtr);

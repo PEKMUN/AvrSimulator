@@ -968,6 +968,58 @@ void test_AvrOperatorTable_given_muls_r21_r20(void)
 
 /**
  * Instruction:
+ * 		MULSU Rd, Rr
+ *		0000 0010 0ddd 0rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ * 
+ * Simulate mulsu R23, R20
+ *		    ddd = b'111' ==> 21
+ *		    rrr = b'100' ==> 20
+ *		0000 0010 0111 0100
+ *		  0      2      7     4
+ */
+void test_AvrOperatorTable_given_mulsu_r23_r20(void)
+{
+	uint8_t codeMemory[] = {
+		0x74, 0x02,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[23] = -32;
+	r[20] = 10;
+	
+	mulsu(codeMemory);
+	
+	TEST_ASSERT_EQUAL(0xfe, r[1]);
+	TEST_ASSERT_EQUAL(0xc0, r[0]);
+}
+
+/**
+ * Instruction:
  * 		LSL Rd
  *		0000 11dd dddd dddd
  * where

@@ -26,6 +26,7 @@ AvrOperator AvrOperatorTable[256] = {
   [0x94] = lsr, lsr,
   [0xfa] = bst, bst,
   [0xf8] = bld, bld,
+  [0x03] = mulsu,
 };
 
 //AVR SRAM
@@ -610,6 +611,51 @@ int mul(uint8_t *codePtr)
 	return 0;
 }
 
+/**
+ * Instruction:
+ * 		MULS Rd, Rr
+ *		0000 0010 dddd rrrr
+ * where
+ *      16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ *
+ *      16 <= rrrr <= 31
+ * 		rrrr is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ */
 int muls(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
@@ -620,6 +666,50 @@ int muls(uint8_t *codePtr)
 
 	result = (int8_t)r[rd] * (int8_t)r[rr];
 
+	r[0] = result;
+	r[1] = (result & 0xff00) >> 8;
+	return 0;
+}
+
+/**
+ * Instruction:
+ * 		MULSU Rd, Rr
+ *		0000 0010 0ddd 0rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ */
+int mulsu(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+	uint16_t result;
+	
+	rd = ((*codePtr & 0x70) >> 4) + 16;
+	rr = (*codePtr & 0x07) + 16;
+
+	result = (int8_t)r[rd] * r[rr];
+	
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
 	return 0;
