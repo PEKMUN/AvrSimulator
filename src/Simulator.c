@@ -39,6 +39,20 @@ uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
 
 /**
+ * Z:
+ *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ */
+int Zfor8bit(uint8_t *codePtr)
+{
+	uint8_t z;
+	
+	z = ((~(*codePtr) & 0x80) >> 7) & ((~(*codePtr) & 0x40) >> 6) & ((~(*codePtr) & 0x20) >> 5) & ((~(*codePtr) & 0x10) >> 4) & ((~(*codePtr) & 0x8) >> 3) & ((~(*codePtr) & 0x4) >> 2) & ((~(*codePtr) & 0x2) >> 1) & (~(*codePtr) & 0x1);
+	
+	sreg->Z = ~z;
+	return 0;
+}
+
+/**
  * Instruction:
  * 		ADD Rd,Rr
  *		0000 11rd dddd rrrr
@@ -52,6 +66,8 @@ int add(uint8_t *codePtr)
   
   rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+  
+  Zfor8bit(codePtr);
   
   r[rd] = r[rd] + r[rr];
   return 0;
@@ -148,16 +164,28 @@ int andi(uint8_t *codePtr)
 int adiw(uint8_t *codePtr)
 {
   uint8_t rd, k;
-  uint16_t word;
+  uint16_t *word, before, z;
   
   k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
   rd = ((*codePtr & 0x30) >> 3) + 24;
  
-  word = (((uint16_t)r[rd+1]) << 8) | r[rd];
-  word += k;
+  word = (uint16_t*)&r[rd];
+  before = *word;
+  *word += k;
 
-  r[rd] = word;
-  r[rd+1] = (word & 0xff00) >> 8;
+  sreg->C = (~(*word) & before) >> 15;
+  
+  z = ((~(*word) & 0x8000) >> 15) & ((~(*word) & 0x4000) >> 14) & ((~(*word) & 0x2000) >> 13) & ((~(*word) & 0x1000) >> 12) & ((~(*word) & 0x800) >> 11) & ((~(*word) & 0x400) >> 10) & ((~(*word) & 0x200) >> 9) & ((~(*word) & 0x100) >> 8) & ((~(*word) & 0x80) >> 7) & ((~(*word) & 0x40) >> 6) & ((~(*word) & 0x20) >> 5) & ((~(*word) & 0x10) >> 4) & ((~(*word) & 0x8) >> 3) & ((~(*word) & 0x4) >> 2) & ((~(*word) & 0x2) >> 1) & (~(*word) & 0x1);
+  sreg->Z = ~z;
+  
+  sreg->N = ((*word) & 0x8000) >> 15;
+  
+  sreg->V = (~before & (*word)) >> 15;
+  
+  sreg->S = (sreg->N & ~(sreg->V)) | (~(sreg->N) & sreg->V);
+  
+  r[rd] = *word;
+  r[rd+1] = (*word & 0xff00) >> 8;
 
   return 0;
 }

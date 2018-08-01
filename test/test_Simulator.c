@@ -7,6 +7,26 @@ void setUp(void){}
 void tearDown(void){}
 
 /**
+ * Z:
+ *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ */
+/*void test_Zfor8bit_given_add_r4_r7(void)
+{
+    uint8_t codeMemory[] = {
+		0x47, 0x0c,
+	};
+	uint8_t *progCounter = codeMemory;
+	AvrOperatorTable [*(progCounter + 1)](progCounter);
+	
+	r[7] = 18;
+	r[4] = 5;
+	
+	Zfor8bit(codeMemory);
+	
+	TEST_ASSERT_EQUAL(1, sreg->Z);
+}*/
+
+/**
  * Instruction:
  * 		ADIW Rd + 1:Rd, K
  *		1001 0110 KKdd KKKK
@@ -42,6 +62,11 @@ void test_AvrOperatorTable_given_adiw_r27_r26_13(void)
 	
 	TEST_ASSERT_EQUAL(37, r[26]);
 	TEST_ASSERT_EQUAL(10, r[27]);
+	TEST_ASSERT_EQUAL(0, sreg->C);
+	TEST_ASSERT_EQUAL(1, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(0, sreg->V);
 }
 
 /**
@@ -110,6 +135,7 @@ void test_AvrOperatorTable_given_add_r4_r7(void)
 	
 	TEST_ASSERT_EQUAL(23, r[7]);
 	TEST_ASSERT_EQUAL(28, r[4]);
+	TEST_ASSERT_EQUAL(1, sreg->Z);
 }
 
 /**

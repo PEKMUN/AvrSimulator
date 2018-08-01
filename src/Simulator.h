@@ -68,6 +68,9 @@ int clt(uint8_t *codePtr);
 int seh(uint8_t *codePtr);
 int clh(uint8_t *codePtr);
 
+//for the 8 bit function that need Z
+int Zfor8bit(uint8_t *codePtr);
+
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];
 extern uint8_t sram[SRAM_SIZE];
