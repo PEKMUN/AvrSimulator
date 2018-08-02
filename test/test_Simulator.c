@@ -10,21 +10,219 @@ void tearDown(void){}
  * Z:
  *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
  */
-/*void test_Zfor8bit_given_add_r4_r7(void)
+void test_is8bitZero_given_data8bit_is_0b00010100(void)
 {
-    uint8_t codeMemory[] = {
-		0x47, 0x0c,
-	};
-	uint8_t *progCounter = codeMemory;
-	AvrOperatorTable [*(progCounter + 1)](progCounter);
+    uint8_t data8bit, z;
+	data8bit = 0b00010100;
 	
-	r[7] = 18;
-	r[4] = 5;
+	z = is8bitZero(data8bit);
 	
-	Zfor8bit(codeMemory);
+	TEST_ASSERT_EQUAL(1, z);
+}
+
+void test_is8bitZero_given_data8bit_is_0b00000000(void)
+{
+    uint8_t data8bit, z;
+	data8bit = 0b00000000;
 	
-	TEST_ASSERT_EQUAL(1, sreg->Z);
-}*/
+	z = is8bitZero(data8bit);
+	
+	TEST_ASSERT_EQUAL(0, z);
+}
+
+/**
+ * C:
+ *		R15 ¯ • Rdh7
+ */
+void test_is16bitCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
+{
+    uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0x46f6;
+	
+	c = is16bitCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitCarry_given_result_is_0xff4d_operand_is_0xc6f6(void)
+{
+    uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0xc6f6;
+	
+	c = is16bitCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitCarry_given_result_is_0x4f4d_operand_is_0x46f6(void)
+{
+    uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0x46f6;
+	
+	c = is16bitCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+{
+    uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0xf6f6;
+	
+	c = is16bitCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+/**
+ * Z:
+ *		R15 ¯ • R14 ¯ • R13 ¯ • R12 ¯ • R11 ¯ • R10 ¯ • R9 ¯ • R8 ¯ • R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ */
+void test_is16bitZero_given_data8bit_is_0x6f94(void)
+{
+    uint16_t data16Bit, z;
+	data16Bit = 0x6f94;
+	
+	z = is16BitZero(data16Bit);
+	
+	TEST_ASSERT_EQUAL(1, z);
+}
+
+void test_is16bitZero_given_data8bit_is_0x0000(void)
+{
+    uint16_t data16Bit, z;
+	data16Bit = 0x0000;
+	
+	z = is16BitZero(data16Bit);
+	
+	TEST_ASSERT_EQUAL(0, z);
+}
+
+/**
+ * N:
+ *		R15 
+ */
+void test_is16bitNeg_given_result_is_0x4f4d(void)
+{
+    uint8_t n;
+	uint16_t result;
+	
+	result = 0x4f4d;
+	
+	n = is16bitNeg(result);
+	
+	TEST_ASSERT_EQUAL(0, n);
+}
+
+void test_is16bitNeg_given_result_is_0xff4d(void)
+{
+    uint8_t n;
+	uint16_t result;
+	
+	result = 0xff4d;
+	
+	n = is16bitNeg(result);
+	
+	TEST_ASSERT_EQUAL(1, n);
+}
+
+/**
+ * V:
+ *		R15 • Rdh7 ¯
+ */
+void test_is16bitOverflow_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+{
+    uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0xf6f6;
+	
+	v = is16bitOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitOverflow_given_result_is_0x4f4d_operand_is_0x46f6(void)
+{
+    uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0x46f6;
+	
+	v = is16bitOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitOverflow_given_result_is_0xff4d_operand_is_0xf6f6(void)
+{
+    uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0xf6f6;
+	
+	v = is16bitOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
+{
+    uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0x46f6;
+	
+	v = is16bitOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+void test_is16bitSigned_given_n_is_0_v_is_0(void)
+{
+    uint8_t s;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0xf6f6;
+	
+	s = is16bitSigned(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is16bitSigned_given_n_is_1_v_is_1(void)
+{
+    uint8_t s;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0x46f6;
+	
+	s = is16bitSigned(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
 
 /**
  * Instruction:
@@ -62,11 +260,6 @@ void test_AvrOperatorTable_given_adiw_r27_r26_13(void)
 	
 	TEST_ASSERT_EQUAL(37, r[26]);
 	TEST_ASSERT_EQUAL(10, r[27]);
-	TEST_ASSERT_EQUAL(0, sreg->C);
-	TEST_ASSERT_EQUAL(1, sreg->Z);
-	TEST_ASSERT_EQUAL(0, sreg->N);
-	TEST_ASSERT_EQUAL(0, sreg->V);
-	TEST_ASSERT_EQUAL(0, sreg->V);
 }
 
 /**
@@ -135,7 +328,6 @@ void test_AvrOperatorTable_given_add_r4_r7(void)
 	
 	TEST_ASSERT_EQUAL(23, r[7]);
 	TEST_ASSERT_EQUAL(28, r[4]);
-	TEST_ASSERT_EQUAL(1, sreg->Z);
 }
 
 /**

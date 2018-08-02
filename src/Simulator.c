@@ -31,26 +31,95 @@ AvrOperator AvrOperatorTable[256] = {
 
 //AVR SRAM
 uint8_t sram[SRAM_SIZE];
+uint8_t flashMemory[FLASH_SIZE];
 
 //AVR Register
 uint8_t *r = &sram[0];
 SregRegister *sreg = (SregRegister*)&sram[0x5f];
 uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
+uint32_t *pc = &flashMemory;
 
 /**
  * Z:
  *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
  */
-int Zfor8bit(uint8_t *codePtr)
+int is8bitZero(uint8_t data8bit)
 {
-	uint8_t z;
+	data8bit = ((~data8bit & 0x80) >> 7) & ((~data8bit & 0x40) >> 6) & ((~data8bit & 0x20) >> 5) & ((~data8bit & 0x10) >> 4) & ((~data8bit & 0x8) >> 3) & ((~data8bit & 0x4) >> 2) & ((~data8bit & 0x2) >> 1) & (~data8bit & 0x1);
 	
-	z = ((~(*codePtr) & 0x80) >> 7) & ((~(*codePtr) & 0x40) >> 6) & ((~(*codePtr) & 0x20) >> 5) & ((~(*codePtr) & 0x10) >> 4) & ((~(*codePtr) & 0x8) >> 3) & ((~(*codePtr) & 0x4) >> 2) & ((~(*codePtr) & 0x2) >> 1) & (~(*codePtr) & 0x1);
-	
-	sreg->Z = ~z;
-	return 0;
+	if(data8bit == 0)
+		return 1;
+	else
+		return 0;
 }
+
+/**
+ * C:
+ *		R15 ¯ • Rdh7
+ */
+int is16bitCarry(uint16_t result, uint16_t operand)
+{
+	result = (~result & operand) >> 15;
+	return result;
+}
+
+/**
+ * Z:
+ *		R15 ¯ • R14 ¯ • R13 ¯ • R12 ¯ • R11 ¯ • R10 ¯ • R9 ¯ • R8 ¯ • R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ */
+int is16BitZero(uint16_t data16Bit)
+{
+	data16Bit = ((~data16Bit & 0x8000) >> 15) & ((~data16Bit & 0x4000) >> 14) & ((~data16Bit & 0x2000) >> 13) & ((~data16Bit & 0x1000) >> 12) & ((~data16Bit & 0x800) >> 11) & ((~data16Bit & 0x400) >> 10) & ((~data16Bit & 0x200) >> 9) & ((~data16Bit & 0x100) >> 8) & ((~data16Bit & 0x80) >> 7) & ((~data16Bit & 0x40) >> 6) & ((~data16Bit & 0x20) >> 5) & ((~data16Bit & 0x10) >> 4) & ((~data16Bit & 0x8) >> 3) & ((~data16Bit & 0x4) >> 2) & ((~data16Bit & 0x2) >> 1) & (~data16Bit & 0x1);
+	
+	if(data16Bit == 0)
+		return 1;
+	else
+		return 0;
+}
+
+/**
+ * N:
+ *		R15 
+ */
+int is16bitNeg(uint16_t result)
+{
+	result = result >> 15;
+	return result;
+}
+
+/**
+ * V:
+ *		R15 • Rdh7 ¯
+ */
+int is16bitOverflow(uint16_t result, uint16_t operand)
+{
+	result = (~operand & result) >> 15;
+	return result;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is16bitSigned(uint16_t result, uint16_t operand)
+{
+	uint8_t n, v, s;
+	n = is16bitNeg(result);
+	v = is16bitOverflow(result, operand);
+	s = n ^ v;
+	return s;
+}
+
+/*int handleStatusRegForImmWordOperation(uint16_t result, uint16_t operand)
+{	
+	sreg->C = is16bitCarry(result, operand);
+	sreg->Z = is16BitZero(result);
+	sreg->N = result >> 15;
+	sreg->V = (~operand & result) >> 15;
+	sreg->S = sreg->N ^ sreg->V;
+	return 0;
+}*/
 
 /**
  * Instruction:
@@ -66,8 +135,6 @@ int add(uint8_t *codePtr)
   
   rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-  
-  Zfor8bit(codePtr);
   
   r[rd] = r[rd] + r[rr];
   return 0;
@@ -173,17 +240,6 @@ int adiw(uint8_t *codePtr)
   before = *word;
   *word += k;
 
-  sreg->C = (~(*word) & before) >> 15;
-  
-  z = ((~(*word) & 0x8000) >> 15) & ((~(*word) & 0x4000) >> 14) & ((~(*word) & 0x2000) >> 13) & ((~(*word) & 0x1000) >> 12) & ((~(*word) & 0x800) >> 11) & ((~(*word) & 0x400) >> 10) & ((~(*word) & 0x200) >> 9) & ((~(*word) & 0x100) >> 8) & ((~(*word) & 0x80) >> 7) & ((~(*word) & 0x40) >> 6) & ((~(*word) & 0x20) >> 5) & ((~(*word) & 0x10) >> 4) & ((~(*word) & 0x8) >> 3) & ((~(*word) & 0x4) >> 2) & ((~(*word) & 0x2) >> 1) & (~(*word) & 0x1);
-  sreg->Z = ~z;
-  
-  sreg->N = ((*word) & 0x8000) >> 15;
-  
-  sreg->V = (~before & (*word)) >> 15;
-  
-  sreg->S = (sreg->N & ~(sreg->V)) | (~(sreg->N) & sreg->V);
-  
   r[rd] = *word;
   r[rd+1] = (*word & 0xff00) >> 8;
 

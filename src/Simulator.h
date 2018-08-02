@@ -1,7 +1,10 @@
 #ifndef _SIMULATOR_H
 #define _SIMULATOR_H
 
-#define SRAM_SIZE 0x900
+#define K			1024
+
+#define SRAM_SIZE   0x900
+#define FLASH_SIZE  (8 * K)
 
 typedef int (*AvrOperator)(uint8_t *codePtr);
 typedef struct SregRegister SregRegister;
@@ -68,12 +71,19 @@ int clt(uint8_t *codePtr);
 int seh(uint8_t *codePtr);
 int clh(uint8_t *codePtr);
 
-//for the 8 bit function that need Z
-int Zfor8bit(uint8_t *codePtr);
+//Status Register
+int is8bitZero(uint8_t data8bit);
+int is16bitCarry(uint16_t result, uint16_t operand);
+int is16BitZero(uint16_t data16Bit);
+int is16bitNeg(uint16_t result);
+int is16bitOverflow(uint16_t result, uint16_t operand);
+int is16bitSigned(uint16_t result, uint16_t operand);
+int handleStatusRegForWordOperation(uint16_t input1, uint16_t input2, uint16_t result);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];
 extern uint8_t sram[SRAM_SIZE];
+extern uint8_t flashMemory[FLASH_SIZE];
 
 //AVR Register
 extern uint8_t *r;
