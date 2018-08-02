@@ -73,12 +73,15 @@ int clh(uint8_t *codePtr);
 
 //Status Register
 int is8bitZero(uint8_t data8bit);
-int is16bitCarry(uint16_t result, uint16_t operand);
+int is16bitADIWCarry(uint16_t result, uint16_t operand);
 int is16BitZero(uint16_t data16Bit);
 int is16bitNeg(uint16_t result);
-int is16bitOverflow(uint16_t result, uint16_t operand);
+int is16bitADIWOverflow(uint16_t result, uint16_t operand);
 int is16bitSigned(uint16_t result, uint16_t operand);
-int handleStatusRegForWordOperation(uint16_t input1, uint16_t input2, uint16_t result);
+int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand);
+int is16bitSBIWCarry(uint16_t result, uint16_t operand);
+int is16bitSBIWOverflow(uint16_t result, uint16_t operand);
+int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];

@@ -12,76 +12,76 @@ void tearDown(void){}
  */
 void test_is8bitZero_given_data8bit_is_0b00010100(void)
 {
-    uint8_t data8bit, z;
+  uint8_t data8bit, z;
 	data8bit = 0b00010100;
-	
-	z = is8bitZero(data8bit);
-	
-	TEST_ASSERT_EQUAL(1, z);
-}
-
-void test_is8bitZero_given_data8bit_is_0b00000000(void)
-{
-    uint8_t data8bit, z;
-	data8bit = 0b00000000;
 	
 	z = is8bitZero(data8bit);
 	
 	TEST_ASSERT_EQUAL(0, z);
 }
 
+void test_is8bitZero_given_data8bit_is_0b00000000(void)
+{
+  uint8_t data8bit, z;
+	data8bit = 0b00000000;
+	
+	z = is8bitZero(data8bit);
+	
+	TEST_ASSERT_EQUAL(1, z);
+}
+
 /**
  * C:
  *		R15 ¯ • Rdh7
  */
-void test_is16bitCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
+void test_is16bitADIWCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
 {
-    uint8_t c;
+  uint8_t c;
 	uint16_t result, operand;
 	
 	result = 0xff4d;
 	operand = 0x46f6;
 	
-	c = is16bitCarry(result, operand);
+	c = is16bitADIWCarry(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, c);
 }
 
-void test_is16bitCarry_given_result_is_0xff4d_operand_is_0xc6f6(void)
+void test_is16bitADIWCarry_given_result_is_0xff4d_operand_is_0xc6f6(void)
 {
-    uint8_t c;
+  uint8_t c;
 	uint16_t result, operand;
 	
 	result = 0xff4d;
 	operand = 0xc6f6;
 	
-	c = is16bitCarry(result, operand);
+	c = is16bitADIWCarry(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, c);
 }
 
-void test_is16bitCarry_given_result_is_0x4f4d_operand_is_0x46f6(void)
+void test_is16bitADIWCarry_given_result_is_0x4f4d_operand_is_0x46f6(void)
 {
-    uint8_t c;
+  uint8_t c;
 	uint16_t result, operand;
 	
 	result = 0x4f4d;
 	operand = 0x46f6;
 	
-	c = is16bitCarry(result, operand);
+	c = is16bitADIWCarry(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, c);
 }
 
-void test_is16bitCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+void test_is16bitADIWCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
 {
-    uint8_t c;
+  uint8_t c;
 	uint16_t result, operand;
 	
 	result = 0x4f4d;
 	operand = 0xf6f6;
 	
-	c = is16bitCarry(result, operand);
+	c = is16bitADIWCarry(result, operand);
 	
 	TEST_ASSERT_EQUAL(1, c);
 }
@@ -92,22 +92,22 @@ void test_is16bitCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
  */
 void test_is16bitZero_given_data8bit_is_0x6f94(void)
 {
-    uint16_t data16Bit, z;
+  uint16_t data16Bit, z;
 	data16Bit = 0x6f94;
 	
 	z = is16BitZero(data16Bit);
 	
-	TEST_ASSERT_EQUAL(1, z);
+	TEST_ASSERT_EQUAL(0, z);
 }
 
 void test_is16bitZero_given_data8bit_is_0x0000(void)
 {
-    uint16_t data16Bit, z;
+  uint16_t data16Bit, z;
 	data16Bit = 0x0000;
 	
 	z = is16BitZero(data16Bit);
 	
-	TEST_ASSERT_EQUAL(0, z);
+	TEST_ASSERT_EQUAL(1, z);
 }
 
 /**
@@ -116,7 +116,7 @@ void test_is16bitZero_given_data8bit_is_0x0000(void)
  */
 void test_is16bitNeg_given_result_is_0x4f4d(void)
 {
-    uint8_t n;
+  uint8_t n;
 	uint16_t result;
 	
 	result = 0x4f4d;
@@ -128,7 +128,7 @@ void test_is16bitNeg_given_result_is_0x4f4d(void)
 
 void test_is16bitNeg_given_result_is_0xff4d(void)
 {
-    uint8_t n;
+  uint8_t n;
 	uint16_t result;
 	
 	result = 0xff4d;
@@ -142,54 +142,54 @@ void test_is16bitNeg_given_result_is_0xff4d(void)
  * V:
  *		R15 • Rdh7 ¯
  */
-void test_is16bitOverflow_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+void test_is16bitADIWOverflow_given_result_is_0x4f4d_operand_is_0xf6f6(void)
 {
-    uint8_t v;
+  uint8_t v;
 	uint16_t result, operand;
 	
 	result = 0x4f4d;
 	operand = 0xf6f6;
 	
-	v = is16bitOverflow(result, operand);
+	v = is16bitADIWOverflow(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is16bitOverflow_given_result_is_0x4f4d_operand_is_0x46f6(void)
+void test_is16bitADIWOverflow_given_result_is_0x4f4d_operand_is_0x46f6(void)
 {
-    uint8_t v;
+  uint8_t v;
 	uint16_t result, operand;
 	
 	result = 0x4f4d;
 	operand = 0x46f6;
 	
-	v = is16bitOverflow(result, operand);
+	v = is16bitADIWOverflow(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is16bitOverflow_given_result_is_0xff4d_operand_is_0xf6f6(void)
+void test_is16bitADIWOverflow_given_result_is_0xff4d_operand_is_0xf6f6(void)
 {
-    uint8_t v;
+  uint8_t v;
 	uint16_t result, operand;
 	
 	result = 0xff4d;
 	operand = 0xf6f6;
 	
-	v = is16bitOverflow(result, operand);
+	v = is16bitADIWOverflow(result, operand);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is16bitOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
+void test_is16bitADIWOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
 {
-    uint8_t v;
+  uint8_t v;
 	uint16_t result, operand;
 	
 	result = 0xff4d;
 	operand = 0x46f6;
 	
-	v = is16bitOverflow(result, operand);
+	v = is16bitADIWOverflow(result, operand);
 	
 	TEST_ASSERT_EQUAL(1, v);
 }
@@ -200,7 +200,7 @@ void test_is16bitOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
  */
 void test_is16bitSigned_given_n_is_0_v_is_0(void)
 {
-    uint8_t s;
+  uint8_t s;
 	uint16_t result, operand;
 	
 	result = 0x4f4d;
@@ -213,7 +213,7 @@ void test_is16bitSigned_given_n_is_0_v_is_0(void)
 
 void test_is16bitSigned_given_n_is_1_v_is_1(void)
 {
-    uint8_t s;
+  uint8_t s;
 	uint16_t result, operand;
 	
 	result = 0xff4d;
@@ -221,7 +221,151 @@ void test_is16bitSigned_given_n_is_1_v_is_1(void)
 	
 	s = is16bitSigned(result, operand);
 	
-	TEST_ASSERT_EQUAL(1, s);
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_handleStatusRegForAddImmWordOperation_given_result_is_0x54d6_operand_is_0xdd82(void)
+{
+	uint16_t result, operand;
+	
+	result = 0x54d6;
+	operand = 0xdd82;
+	
+	handleStatusRegForAddImmWordOperation(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+  TEST_ASSERT_EQUAL(0, sreg->Z);
+  TEST_ASSERT_EQUAL(0, sreg->N);
+  TEST_ASSERT_EQUAL(0, sreg->V);
+  TEST_ASSERT_EQUAL(0, sreg->S);
+}
+
+/**
+ * C:
+ *		R15 • Rdh7¯
+ */
+void test_is16bitSBIWCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+{
+  uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0xf6f6;
+	
+	c = is16bitSBIWCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitSBIWCarry_given_result_is_0x4f4d_operand_is_0x46f6(void)
+{
+  uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0x46f6;
+	
+	c = is16bitSBIWCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitSBIWCarry_given_result_is_0xff4d_operand_is_0xf6f6(void)
+{
+  uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0xf6f6;
+	
+	c = is16bitSBIWCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is16bitSBIWCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
+{
+  uint8_t c;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0x46f6;
+	
+	c = is16bitSBIWCarry(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, c);
+} 
+
+/**
+ * V:
+ *		R15 ¯ • Rdh7
+ */
+void test_is16bitSBIWOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
+{
+  uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0x46f6;
+	
+	v = is16bitSBIWOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitSBIWOverflow_given_result_is_0xff4d_operand_is_0xf6f6(void)
+{
+  uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0xff4d;
+	operand = 0xf6f6;
+	
+	v = is16bitSBIWOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitSBIWOverflow_given_result_is_0x4f4d_operand_is_0x46f6(void)
+{
+  uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0x46f6;
+	
+	v = is16bitSBIWOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is16bitSBIWOverflow_given_result_is_0x4f4d_operand_is_0xf6f6(void)
+{
+  uint8_t v;
+	uint16_t result, operand;
+	
+	result = 0x4f4d;
+	operand = 0xf6f6;
+	
+	v = is16bitSBIWOverflow(result, operand);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_handleStatusRegForSubImmWordOperation_given_result_is_0x83f5_operand_is_0x98a2(void)
+{
+	uint16_t result, operand;
+	
+	result = 0x83f5;
+	operand = 0x98a2;
+	
+	handleStatusRegForAddImmWordOperation(result, operand);
+	
+	TEST_ASSERT_EQUAL(0, sreg->C);
+  TEST_ASSERT_EQUAL(0, sreg->Z);
+  TEST_ASSERT_EQUAL(1, sreg->N);
+  TEST_ASSERT_EQUAL(0, sreg->V);
+  TEST_ASSERT_EQUAL(1, sreg->S);
 }
 
 /**

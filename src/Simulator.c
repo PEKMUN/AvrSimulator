@@ -46,8 +46,6 @@ uint32_t *pc = &flashMemory;
  */
 int is8bitZero(uint8_t data8bit)
 {
-	data8bit = ((~data8bit & 0x80) >> 7) & ((~data8bit & 0x40) >> 6) & ((~data8bit & 0x20) >> 5) & ((~data8bit & 0x10) >> 4) & ((~data8bit & 0x8) >> 3) & ((~data8bit & 0x4) >> 2) & ((~data8bit & 0x2) >> 1) & (~data8bit & 0x1);
-	
 	if(data8bit == 0)
 		return 1;
 	else
@@ -58,7 +56,7 @@ int is8bitZero(uint8_t data8bit)
  * C:
  *		R15 ¯ • Rdh7
  */
-int is16bitCarry(uint16_t result, uint16_t operand)
+int is16bitADIWCarry(uint16_t result, uint16_t operand)
 {
 	result = (~result & operand) >> 15;
 	return result;
@@ -70,8 +68,6 @@ int is16bitCarry(uint16_t result, uint16_t operand)
  */
 int is16BitZero(uint16_t data16Bit)
 {
-	data16Bit = ((~data16Bit & 0x8000) >> 15) & ((~data16Bit & 0x4000) >> 14) & ((~data16Bit & 0x2000) >> 13) & ((~data16Bit & 0x1000) >> 12) & ((~data16Bit & 0x800) >> 11) & ((~data16Bit & 0x400) >> 10) & ((~data16Bit & 0x200) >> 9) & ((~data16Bit & 0x100) >> 8) & ((~data16Bit & 0x80) >> 7) & ((~data16Bit & 0x40) >> 6) & ((~data16Bit & 0x20) >> 5) & ((~data16Bit & 0x10) >> 4) & ((~data16Bit & 0x8) >> 3) & ((~data16Bit & 0x4) >> 2) & ((~data16Bit & 0x2) >> 1) & (~data16Bit & 0x1);
-	
 	if(data16Bit == 0)
 		return 1;
 	else
@@ -92,7 +88,7 @@ int is16bitNeg(uint16_t result)
  * V:
  *		R15 • Rdh7 ¯
  */
-int is16bitOverflow(uint16_t result, uint16_t operand)
+int is16bitADIWOverflow(uint16_t result, uint16_t operand)
 {
 	result = (~operand & result) >> 15;
 	return result;
@@ -106,20 +102,50 @@ int is16bitSigned(uint16_t result, uint16_t operand)
 {
 	uint8_t n, v, s;
 	n = is16bitNeg(result);
-	v = is16bitOverflow(result, operand);
+	v = is16bitADIWOverflow(result, operand);
 	s = n ^ v;
 	return s;
 }
 
-/*int handleStatusRegForImmWordOperation(uint16_t result, uint16_t operand)
+int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand)
 {	
-	sreg->C = is16bitCarry(result, operand);
+	sreg->C = is16bitADIWCarry(result, operand);
 	sreg->Z = is16BitZero(result);
-	sreg->N = result >> 15;
-	sreg->V = (~operand & result) >> 15;
-	sreg->S = sreg->N ^ sreg->V;
+	sreg->N = is16bitNeg(result);
+	sreg->V = is16bitADIWOverflow(result, operand);
+	sreg->S = is16bitSigned(result, operand);
 	return 0;
-}*/
+}
+
+/**
+ * C:
+ *		R15 • Rdh7 ¯
+ */
+int is16bitSBIWCarry(uint16_t result, uint16_t operand)
+{
+	result = (~operand & result) >> 15;
+	return result;
+}
+
+/**
+ * V:
+ *		R15 ¯ • Rdh7
+ */
+int is16bitSBIWOverflow(uint16_t result, uint16_t operand)
+{
+	result = (~result & operand) >> 15;
+	return result;
+}
+
+int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
+{	
+	sreg->C = is16bitSBIWCarry(result, operand);
+	sreg->Z = is16BitZero(result);
+	sreg->N = is16bitNeg(result);
+	sreg->V = is16bitSBIWOverflow(result, operand);
+	sreg->S = is16bitSigned(result, operand);
+	return 0;
+}
 
 /**
  * Instruction:
@@ -240,6 +266,8 @@ int adiw(uint8_t *codePtr)
   before = *word;
   *word += k;
 
+  handleStatusRegForAddImmWordOperation(*word, before);
+  
   r[rd] = *word;
   r[rd+1] = (*word & 0xff00) >> 8;
 
