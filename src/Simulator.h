@@ -82,6 +82,7 @@ int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand);
 int is16bitSBIWCarry(uint16_t result, uint16_t operand);
 int is16bitSBIWOverflow(uint16_t result, uint16_t operand);
 int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand);
+int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint16_t result);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];

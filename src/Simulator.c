@@ -34,11 +34,11 @@ uint8_t sram[SRAM_SIZE];
 uint8_t flashMemory[FLASH_SIZE];
 
 //AVR Register
-uint8_t *r = &sram[0];
+uint8_t *r = sram;
 SregRegister *sreg = (SregRegister*)&sram[0x5f];
 uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
-uint32_t *pc = &flashMemory;
+uint8_t *pc = flashMemory;
 
 /**
  * Z:
@@ -145,6 +145,17 @@ int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
 	sreg->V = is16bitSBIWOverflow(result, operand);
 	sreg->S = is16bitSigned(result, operand);
 	return 0;
+}
+
+/**
+ * C: 
+ *    Rd7 • Rr7 + Rr7 • R7 ¯ + R7 ¯ • Rd7
+ */
+int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint16_t result)
+{
+  result = (operand1 & operand2 + operand2 & (~result) + (~result) & operand1);
+  printf("result: %x\n", result);
+  return result;
 }
 
 /**
@@ -257,7 +268,7 @@ int andi(uint8_t *codePtr)
 int adiw(uint8_t *codePtr)
 {
   uint8_t rd, k;
-  uint16_t *word, before, z;
+  uint16_t *word, before;
   
   k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
   rd = ((*codePtr & 0x30) >> 3) + 24;
@@ -402,14 +413,17 @@ int sbci(uint8_t *codePtr)
 int sbiw(uint8_t *codePtr)
 {
 	uint8_t rd, k;
-	uint16_t word;
+	uint16_t word, before;
   
 	k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
 	rd = ((*codePtr & 0x30) >> 3) + 24;
 
 	word = (((uint16_t)r[rd+1]) << 8) | r[rd];
+  before = word;
 	word -= k;
 
+  handleStatusRegForSubImmWordOperation(word, before);
+  
 	r[rd] = word;
 	r[rd+1] = (word & 0xff00) >> 8;
 	return 0;

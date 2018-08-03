@@ -369,6 +369,80 @@ void test_handleStatusRegForSubImmWordOperation_given_result_is_0x83f5_operand_i
 }
 
 /**
+ * C: 
+ *    Rd7 • Rr7 + Rr7 • R7 ¯ + R7 ¯ • Rd7
+ */
+/*void test_is8bitAdcAddCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x09(void)
+{
+  uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+  operand2 = 0x01;
+	result = 0x09;
+  
+	c = is8bitAdcAddCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitAdcAddCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0xf9(void)
+{
+  uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+  operand2 = 0x01;
+	result = 0xf9;
+  
+	c = is8bitAdcAddCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitAdcAddCarry_given_operand1_is_0x00_operand2_is_0xf1_result_is_0x09(void)
+{
+  uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+  operand2 = 0xf1;
+	result = 0x09;
+  
+	c = is8bitAdcAddCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitAdcAddCarry_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x09(void)
+{
+  uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+  operand2 = 0x11;
+	result = 0x09;
+  
+	c = is8bitAdcAddCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}*/
+
+void test_is8bitAdcAddCarry_given_operand1_is_0xf6_operand2_is_0xf1_result_is_0xf9(void)
+{
+  uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+  operand2 = 0x81;
+	result = 0x09;
+  
+	c = is8bitAdcAddCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+/**
  * Instruction:
  * 		ADIW Rd + 1:Rd, K
  *		1001 0110 KKdd KKKK
