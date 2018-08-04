@@ -354,6 +354,60 @@ int handleStatusRegForNegOperation(uint8_t operand1, uint8_t result)
 	sreg->H = is8bitNegHalfCarry(operand1, result);
 }
 
+int handleStatusRegForIncOperation(uint8_t result)
+{
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitNegOverflow(result);
+	sreg->S = is8bitNegSigned(result);
+}
+
+/**
+ * V:
+ *		R7 ¯ • R6 • R5 • R4 • R3 • R2 • R1 • R0
+ */
+int is8bitDecOverflow(uint8_t data8bit)
+{
+	if(data8bit == 0x7f)
+		return 1;
+	else
+		return 0;
+}
+
+int handleStatusRegForDecOperation(uint8_t result)
+{
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitDecOverflow(result);
+	sreg->S = is8bitNegSigned(result);
+}
+
+int handleStatusRegForClrOperation()
+{
+	sreg->Z = 1;
+	sreg->N = 0;
+	sreg->V = 0;
+	sreg->S = 0;
+}
+
+/**
+ * C:
+ *		R15
+ */
+int is16bitMulMulsMulsuCarry(uint16_t result)
+{
+	uint16_t c;
+	
+	c = result >> 15;
+	return c;
+}
+
+int handleStatusRegForMulMulsMulsuOperation(uint16_t result)
+{
+	sreg->C = is16bitMulMulsMulsuCarry(result);
+	sreg->Z = is16BitZero(result);
+}
+
 /**
  * Instruction:
  * 		ADD Rd,Rr
@@ -623,7 +677,7 @@ int sbiw(uint8_t *codePtr)
 	rd = ((*codePtr & 0x30) >> 3) + 24;
 
 	word = (((uint16_t)r[rd+1]) << 8) | r[rd];
-  before = word;
+	before = word;
 	word -= k;
 
   handleStatusRegForSubImmWordOperation(word, before);
@@ -761,6 +815,7 @@ int dec(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	
 	r[rd] = r[rd] - 1;
+	handleStatusRegForDecOperation(r[rd]);
 	return 0;
 }
 
@@ -778,6 +833,7 @@ int inc(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	
 	r[rd] = r[rd] + 1;
+	handleStatusRegForIncOperation(r[rd]);
 	return 0;
 } 
 
@@ -889,6 +945,7 @@ int clr(uint8_t *codePtr)
   rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
   
   r[rd] = r[rd] | r[rd];
+  handleStatusRegForClrOperation();
   return 0;
 }
 
@@ -946,6 +1003,7 @@ int mul(uint8_t *codePtr)
 	result = r[rd] * r[rr];
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
 	return 0;
 }
 
@@ -1006,6 +1064,7 @@ int muls(uint8_t *codePtr)
 
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
 	return 0;
 }
 
@@ -1050,6 +1109,7 @@ int mulsu(uint8_t *codePtr)
 	
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
 	return 0;
 }
 

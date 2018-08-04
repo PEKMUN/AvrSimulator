@@ -101,6 +101,12 @@ int is8bitNegOverflow(uint8_t data8bit);
 int is8bitNegSigned(uint8_t result);
 int is8bitNegHalfCarry(uint8_t operand1, uint8_t result);
 int handleStatusRegForNegOperation(uint8_t operand1, uint8_t result);
+int handleStatusRegForIncOperation(uint8_t result);
+int is8bitDecOverflow(uint8_t data8bit);
+int handleStatusRegForDecOperation(uint8_t result);
+int handleStatusRegForClrOperation();
+int is16bitMulMulsMulsuCarry(uint16_t result);
+int handleStatusRegForMulMulsMulsuOperation(uint16_t result);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];
