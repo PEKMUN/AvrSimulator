@@ -82,7 +82,25 @@ int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand);
 int is16bitSBIWCarry(uint16_t result, uint16_t operand);
 int is16bitSBIWOverflow(uint16_t result, uint16_t operand);
 int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand);
-int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint16_t result);
+int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitNeg(uint8_t result);
+int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitAdcAddHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
+int handleStatusRegForAddAdcOperation(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+int is8bitAndAndiOrOriEorCbrSbrTstSigned(uint8_t result);
+int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result);
+int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
+int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitComCarry();
+int handleStatusRegForComOperation(uint8_t result);
+int is8bitNegCarry(uint8_t data8bit);
+int is8bitNegOverflow(uint8_t data8bit);
+int is8bitNegSigned(uint8_t result);
+int is8bitNegHalfCarry(uint8_t operand1, uint8_t result);
+int handleStatusRegForNegOperation(uint8_t operand1, uint8_t result);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];

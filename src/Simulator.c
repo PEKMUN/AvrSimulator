@@ -151,11 +151,207 @@ int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
  * C: 
  *    Rd7 • Rr7 + Rr7 • R7 ¯ + R7 ¯ • Rd7
  */
-int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint16_t result)
+int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
-  result = (operand1 & operand2 + operand2 & (~result) + (~result) & operand1);
-  printf("result: %x\n", result);
+  result = (operand1 & operand2 | operand2 & (~result) | (~result) & operand1) >> 7;
   return result;
+}
+
+/**
+ * N: 
+ *    R7
+ */
+int is8bitNeg(uint8_t result)
+{
+  result = result >> 7;
+  return result;
+}
+
+/**
+ * V: 
+ *    Rd7 • Rr7 • R7 ¯ + Rd7 ¯ • Rr7 ¯ • R7
+ */
+int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+  result = (operand1 & operand2 & (~result) | (~operand1) & (~operand2) & result) >> 7;
+  return result;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+	uint8_t n, v, s;
+	n = is8bitNeg(result);
+	v = is8bitOverflow(operand1, operand2, result);
+	s = n ^ v;
+	return s;
+}
+
+/**
+ * H: 
+ *    Rd3 • Rr3 + Rr3 • R3 ¯ + R3 ¯ • Rd3
+ */
+int is8bitAdcAddHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+  result = ((operand1 & operand2 | operand2 & (~result) | (~result) & operand1) & 0x8) >> 3;
+  return result;
+}
+
+int handleStatusRegForAddAdcOperation(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+	sreg->C = is8bitAdcAddCarry(operand1, operand2, result);
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitOverflow(operand1, operand2, result);
+	sreg->S = is8bitSigned(operand1, operand2, result);
+	sreg->H = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	return 0;
+}
+
+/**
+ * V:
+ *		0
+ */
+int is8bitAndAndiOrOriEorCbrSbrTstOverflow()
+{
+	uint8_t v;
+	sreg->V = 0;
+	v = sreg->V;
+	return 0;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitAndAndiOrOriEorCbrSbrTstSigned(uint8_t result)
+{
+	uint8_t n, v, s;
+	n = is8bitNeg(result);
+	v = is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+	s = n ^ v;
+	return s;
+}
+
+int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result)
+{
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+	sreg->S = is8bitAndAndiOrOriEorCbrSbrTstSigned(result);
+}
+
+/**
+ * C: 
+ *		Rd7 ¯ • Rr7 + Rr7 • R7 + R7 • Rd7 ¯
+ */
+int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+  result = ((~operand1) & operand2 | operand2 & result | result & (~operand1)) >> 7;
+  return result;
+}
+
+/**
+ * H: 
+ *		Rd3 ¯ • Rr3 + Rr3 • R3 + R3 • Rd3 ¯
+ */
+int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+  result = (((~operand1) & operand2 | operand2 & result | result & (~operand1)) & 0x8) >> 3;
+  return result;
+}
+
+int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+	sreg->C = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitOverflow(operand1, operand2, result);
+	sreg->S = is8bitSigned(operand1, operand2, result);
+	sreg->H = is8bitSubSubiSbcSbciHalfCarry(operand1, operand2, result);
+	return 0;
+}
+
+/**
+ * C:
+ *		1
+ */
+int is8bitComCarry()
+{
+	uint8_t c;
+	sreg->C = 1;
+	c = sreg->C;
+	return c;
+}
+
+int handleStatusRegForComOperation(uint8_t result)
+{
+	sreg->C = is8bitComCarry();
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+	sreg->S = is8bitAndAndiOrOriEorCbrSbrTstSigned(result);
+}
+
+/**
+ * C:
+ *		R7 + R6 + R5 + R4 + R3 + R2 + R1 + R0
+ */
+int is8bitNegCarry(uint8_t data8bit)
+{
+	if(data8bit == 0x00)
+		return 0;
+	else
+		return 1;
+}
+
+/**
+ * V:
+ *		R7 • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ */
+int is8bitNegOverflow(uint8_t data8bit)
+{
+	if(data8bit == 0x80)
+		return 1;
+	else
+		return 0;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitNegSigned(uint8_t result)
+{
+	uint8_t n, v, s;
+	n = is8bitNeg(result);
+	v = is8bitNegOverflow(result);
+	s = n ^ v;
+	return s;
+}
+
+/**
+ * H:
+ *		R3 + Rd3
+ */
+int is8bitNegHalfCarry(uint8_t operand1, uint8_t result)
+{
+	uint8_t h;
+	h = ((result | operand1) & 0x8) >> 3;
+	return h;
+}
+
+int handleStatusRegForNegOperation(uint8_t operand1, uint8_t result)
+{
+	sreg->C = is8bitNegCarry(result);
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitNegOverflow(result);
+	sreg->S = is8bitNegSigned(result);
+	sreg->H = is8bitNegHalfCarry(operand1, result);
 }
 
 /**
@@ -174,6 +370,7 @@ int add(uint8_t *codePtr)
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
   
   r[rd] = r[rd] + r[rr];
+  handleStatusRegForAddAdcOperation(rd, rr, r[rd]);
   return 0;
 }
 
@@ -193,6 +390,7 @@ int adc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 	
 	r[rd] = r[rd] + r[rr] + sreg->C;
+	handleStatusRegForAddAdcOperation(rd, rr, r[rd]);
   return 0;
 }
 
@@ -212,6 +410,7 @@ int and(uint8_t *codePtr)
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
   
   r[rd] = r[rd] & r[rr];
+  handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 0;
 }
 
@@ -249,6 +448,7 @@ int andi(uint8_t *codePtr)
   k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
  
   r[rd] = r[rd] & k;
+  handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 0;
 }
 
@@ -301,6 +501,7 @@ int sub(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] - r[rr];
+	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, r[rd]);
 	return 0;
 }
 
@@ -338,6 +539,7 @@ int subi(uint8_t *codePtr)
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] - k;
+	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
 	return 0;
 }
 
@@ -357,6 +559,7 @@ int sbc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 	
 	r[rd] = r[rd] - r[rr] - sreg->C;
+	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, r[rd]);
 	return 0;
 }
 
@@ -394,6 +597,7 @@ int sbci(uint8_t *codePtr)
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] - k - sreg->C;
+	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
 	return 0;
 }
 
@@ -445,6 +649,7 @@ int or(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 	
 	r[rd] = r[rd] | r[rr];
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 0;
 }
 
@@ -482,6 +687,7 @@ int ori(uint8_t *codePtr)
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] | k;
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 0;
 }
 
@@ -501,6 +707,7 @@ int eor(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 	
 	r[rd] = (~(r[rd]) & r[rr]) | (r[rd] & ~(r[rr]));
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 0;
 }
 
@@ -518,6 +725,7 @@ int com(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	r[rd] = 0xff - r[rd];
+	handleStatusRegForComOperation(r[rd]);
 	return 0;
 }
 
@@ -535,6 +743,7 @@ int neg(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	r[rd] = 0x00 - r[rd];
+	handleStatusRegForNegOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -606,6 +815,7 @@ int cbr(uint8_t *codePtr)
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] & (0xff - k);
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 0;
 }
 
@@ -643,6 +853,7 @@ int sbr(uint8_t *codePtr)
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
 	r[rd] = r[rd] | k;
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 0;
 }
 
@@ -660,6 +871,7 @@ int tst(uint8_t *codePtr)
   rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
   
   r[rd] = r[rd] & r[rd];
+  handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 0;
 }
 
