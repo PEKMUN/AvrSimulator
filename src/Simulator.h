@@ -107,6 +107,19 @@ int handleStatusRegForDecOperation(uint8_t result);
 int handleStatusRegForClrOperation();
 int is16bitMulMulsMulsuCarry(uint16_t result);
 int handleStatusRegForMulMulsMulsuOperation(uint16_t result);
+int is8bitLslRolCarry(uint8_t operand1);
+int is8bitLslRolOverflow(uint8_t operand1, uint8_t result);
+int is8bitLslRolSigned(uint8_t operand1, uint8_t result);
+int is8bitLslRolHalfCarry(uint8_t operand1);
+int handleStatusRegForLslRolOperation(uint8_t operand1, uint8_t result);
+int is8bitLsrRorCarry(uint8_t operand1);
+int is8bitLsrOverflow(uint8_t operand1);
+int is8bitLsrSigned(uint8_t operand1);
+int handleStatusRegForLsrOperation(uint8_t operand1, uint8_t result);
+int is8bitRorOverflow(uint8_t operand1, uint8_t result);
+int is8bitRorSigned(uint8_t operand1, uint8_t result);
+int handleStatusRegForRorAsrOperation(uint8_t operand1, uint8_t result);
+int handleStatusRegForRorBstOperation(uint8_t operand1);
 
 //Export Variable(s)
 extern AvrOperator AvrOperatorTable[256];

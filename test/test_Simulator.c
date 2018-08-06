@@ -1412,6 +1412,374 @@ void test_handleStatusRegForMulMulsMulsuOperation_given_reult_is_0x1234(void)
 }
 
 /**
+ * C:
+ *		Rd7
+ */
+void test_is8bitLslRolCarry_given_operand1_is_0x6f(void)
+{
+	uint8_t operand1, c;
+	operand1 = 0x6f;
+	
+	c = is8bitLslRolCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitLslRolCarry_given_operand1_is_0xf6(void)
+{
+	uint8_t operand1, c;
+	operand1 = 0xf6;
+	
+	c = is8bitLslRolCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+void test_is8bitLslRolOverflow_given_operand1_is_0x6f_result_is_0x47(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x6f;
+	result = 0x47;
+	
+	v = is8bitLslRolOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitLslRolOverflow_given_operand1_is_0x6f_result_is_0x89(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x6f;
+	result = 0x89;
+	
+	v = is8bitLslRolOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitLslRolOverflow_given_operand1_is_0x92_result_is_0x47(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x92;
+	result = 0x47;
+	
+	v = is8bitLslRolOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitLslRolOverflow_given_operand1_is_0xff_result_is_0x96(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0xff;
+	result = 0x96;
+	
+	v = is8bitLslRolOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+void test_is8bitLslRolSigned_given_operand1_is_0x6f_result_is_0x47(void)
+{
+	uint8_t operand1, result, s;
+	operand1 = 0x6f;
+	result = 0x47;
+	
+	s = is8bitLslRolSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is8bitLslRolSigned_given_operand1_is_0x6f_result_is_0x89(void)
+{
+	uint8_t operand1, result, s;
+	operand1 = 0x6f;
+	result = 0x89;
+	
+	s = is8bitLslRolSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is8bitLslRolSigned_given_operand1_is_0x92_result_is_0x47(void)
+{
+	uint8_t operand1, result, s;
+	operand1 = 0x92;
+	result = 0x47;
+	
+	s = is8bitLslRolSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+void test_is8bitLslRolSigned_given_operand1_is_0xff_result_is_0x96(void)
+{
+	uint8_t operand1, result, s;
+	operand1 = 0xff;
+	result = 0x96;
+	
+	s = is8bitLslRolSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+/**
+ * H:
+ *		Rd3
+ */
+void test_is8bitLslRolHalfCarry_given_operand1_is_0x34(void)
+{
+	uint8_t operand1, h;
+	operand1 = 0x34;
+	
+	h = is8bitLslRolHalfCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(0, h);
+}
+
+void test_is8bitLslRolHalfCarry_given_operand1_is_0xff(void)
+{
+	uint8_t operand1, h;
+	operand1 = 0xff;
+	
+	h = is8bitLslRolHalfCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(1, h);
+}
+
+void test_handleStatusRegForLslRolOperation_given_operand1_is_0x87_result_is_0x43(void)
+{
+	uint8_t operand1, result;
+	operand1 = 0x87;
+	result = 0x43;
+	
+	handleStatusRegForLslRolOperation(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(1, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+	TEST_ASSERT_EQUAL(0, sreg->H);
+}
+
+/**
+ * C:
+ *		Rd0
+ */
+void test_is8bitLsrRorCarry_given_operand1_is_0x68(void)
+{
+	uint8_t operand1, c;
+	operand1 = 0x68;
+	
+	c = is8bitLsrRorCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitLsrRorCarry_given_operand1_is_0xf9(void)
+{
+	uint8_t operand1, c;
+	operand1 = 0xf9;
+	
+	c = is8bitLsrRorCarry(operand1);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+void test_is8bitLsrOverflow_given_operand1_is_0x68(void)
+{
+	uint8_t operand1, v;
+	operand1 = 0x68;
+	
+	v = is8bitLsrOverflow(operand1);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitLsrOverflow_given_operand1_is_0x6f_operand1_is_0x89(void)
+{
+	uint8_t operand1, v;
+	operand1 = 0x89;
+	
+	v = is8bitLsrOverflow(operand1);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+void test_is8bitLsrSigned_given_operand1_is_0x68(void)
+{
+	uint8_t operand1, s;
+	operand1 = 0x68;
+	
+	s = is8bitLsrSigned(operand1);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is8bitLsrSigned_given_operand1_is_0x6f_operand1_is_0x89(void)
+{
+	uint8_t operand1, s;
+	operand1 = 0x89;
+	
+	s = is8bitLsrSigned(operand1);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+void test_handleStatusRegForLsrOperation_given_operand1_is_0x87_result_is_0x43(void)
+{
+	uint8_t operand1, result;
+	operand1 = 0x87;
+	result = 0x43;
+	
+	handleStatusRegForLsrOperation(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(1, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+void test_is8bitRorOverflow_given_operand1_is_0x67_result_is_0x04(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x68;
+	result = 0x04;
+	
+	v = is8bitRorOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitRorOverflow_given_operand1_is_0x67_result_is_0x94(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x68;
+	result = 0x94;
+	
+	v = is8bitRorOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitRorOverflow_given_operand1_is_0x89_result_is_0x04(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x89;
+	result = 0x04;
+	
+	v = is8bitRorOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitRorOverflow_given_operand1_is_0x89_result_is_0x94(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x89;
+	result = 0x94;
+	
+	v = is8bitRorOverflow(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+void test_is8bitRorSigned_given_operand1_is_0x68_result_is_0x04(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x68;
+	result = 0x04;
+	
+	v = is8bitRorSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitRorSigned_given_operand1_is_0x67_result_is_0x04(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x67;
+	result = 0x04;
+	
+	v = is8bitRorSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitRorSigned_given_operand1_is_0x88_result_is_0x94(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x88;
+	result = 0x94;
+	
+	v = is8bitRorSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitRorSigned_given_operand1_is_0x87_result_is_0x94(void)
+{
+	uint8_t operand1, result, v;
+	operand1 = 0x87;
+	result = 0x94;
+	
+	v = is8bitRorSigned(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_handleStatusRegForRorAsrOperation_given_operand1_is_0x87_result_is_0x43(void)
+{
+	uint8_t operand1, result;
+	operand1 = 0x87;
+	result = 0x43;
+	
+	handleStatusRegForLsrOperation(operand1, result);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(1, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+}
+
+void test_handleStatusRegForRorBstOperation_given_operand1_is_0b010(void)
+{
+	uint8_t operand1, t;
+	operand1 = 0b010;
+	
+	t = handleStatusRegForRorBstOperation(operand1);
+	
+	TEST_ASSERT_EQUAL(1, t);
+}
+
+/**
  * Instruction:
  * 		ADIW Rd + 1:Rd, K
  *		1001 0110 KKdd KKKK
@@ -2448,7 +2816,6 @@ void test_AvrOperatorTable_given_lsl_r0(void)
 	lsl(codeMemory);
 	
 	TEST_ASSERT_EQUAL(0b00101110, r[0]);
-	TEST_ASSERT_EQUAL(1, sreg->C);
 }
 
 /**
@@ -2505,7 +2872,6 @@ void test_AvrOperatorTable_given_rol_r6(void)
 	rol(codeMemory);
 	
 	TEST_ASSERT_EQUAL(0b00101100, r[6]);
-	TEST_ASSERT_EQUAL(1, sreg->C);
 }
 
 /**
@@ -2534,7 +2900,6 @@ void test_AvrOperatorTable_given_ror_r3(void)
 	ror(codeMemory);
 	
 	TEST_ASSERT_EQUAL(0b11001000, r[3]);
-	TEST_ASSERT_EQUAL(0, sreg->C);
 }
 
 /**
@@ -2562,7 +2927,6 @@ void test_AvrOperatorTable_given_asr_r4(void)
 	asr(codeMemory);
 	
 	TEST_ASSERT_EQUAL(0b11001000, r[4]);
-	TEST_ASSERT_EQUAL(0, sreg->C);
 }
 
 /**

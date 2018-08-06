@@ -409,6 +409,162 @@ int handleStatusRegForMulMulsMulsuOperation(uint16_t result)
 }
 
 /**
+ * C:
+ *		Rd7
+ */
+int is8bitLslRolCarry(uint8_t operand1)
+{
+	uint8_t c;
+	
+	c = operand1 >> 7;
+	return c;
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+int is8bitLslRolOverflow(uint8_t operand1, uint8_t result)
+{
+	uint8_t n, c, v;
+	
+	n = is8bitNeg(result);
+	c = is8bitLslRolCarry(operand1);
+	v = n ^ c;
+	return v;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitLslRolSigned(uint8_t operand1, uint8_t result)
+{
+	uint8_t n, v, s;
+	
+	n = is8bitNeg(result);
+	v = is8bitLslRolOverflow(operand1, result);
+	s = n ^ v;
+	return s;
+}
+
+/**
+ * H:
+ *		Rd3
+ */
+int is8bitLslRolHalfCarry(uint8_t operand1)
+{
+	uint8_t h;
+	
+	h = (operand1 & 0x8) >> 3;
+	return h;
+}
+
+int handleStatusRegForLslRolOperation(uint8_t operand1, uint8_t result)
+{
+	sreg->C = is8bitLslRolCarry(operand1);
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitLslRolOverflow(operand1, result);
+	sreg->S = is8bitLslRolSigned(operand1, result);
+	sreg->H = is8bitLslRolHalfCarry(operand1);
+}
+
+/**
+ * C:
+ *		Rd0
+ */
+int is8bitLsrRorCarry(uint8_t operand1)
+{
+	uint8_t c;
+	
+	c = operand1 & 0x1;
+	return c;
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+int is8bitLsrOverflow(uint8_t operand1)
+{
+	uint8_t n, c, v;
+	
+	n = 0;
+	c = is8bitLsrRorCarry(operand1);
+	v = n ^ c;
+	return v;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitLsrSigned(uint8_t operand1)
+{
+	uint8_t n, v, s;
+	
+	n = 0;
+	v = is8bitLsrOverflow(operand1);
+	s = n ^ v;
+	return s;
+}
+
+int handleStatusRegForLsrOperation(uint8_t operand1, uint8_t result)
+{
+	sreg->C = is8bitLsrRorCarry(operand1);
+	sreg->Z = is8bitZero(result);
+	sreg->N = 0;
+	sreg->V = is8bitLsrOverflow(operand1);
+	sreg->S = is8bitLsrSigned(operand1);
+}
+
+/**
+ * V:
+ *		N ^ C
+ */
+int is8bitRorOverflow(uint8_t operand1, uint8_t result)
+{
+	uint8_t n, c, v;
+	
+	n = is8bitNeg(result);
+	c = is8bitLsrRorCarry(operand1);
+	v = n ^ c;
+	return v;
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+int is8bitRorSigned(uint8_t operand1, uint8_t result)
+{
+	uint8_t n, v, s;
+	
+	n = is8bitNeg(result);
+	v = is8bitRorOverflow(operand1, result);
+	s = n ^ v;
+	return s;
+}
+
+int handleStatusRegForRorAsrOperation(uint8_t operand1, uint8_t result)
+{
+	sreg->C = is8bitLsrRorCarry(operand1);
+	sreg->Z = is8bitZero(result);
+	sreg->N = is8bitNeg(result);
+	sreg->V = is8bitRorOverflow(operand1, result);
+	sreg->S = is8bitRorSigned(operand1, result);
+}
+
+int handleStatusRegForRorBstOperation(uint8_t operand1)
+{
+	if(operand1 == 0)
+		return 0;
+	else
+		return 1;
+}
+
+/**
  * Instruction:
  * 		ADD Rd,Rr
  *		0000 11rd dddd rrrr
@@ -1129,7 +1285,7 @@ int lsl(uint8_t *codePtr)
 	
 	temp = ((uint16_t)r[rd] << 1);
 	r[rd] = temp;
-	sreg->C = (temp & 0x100) >> 8;
+	handleStatusRegForLslRolOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -1148,7 +1304,7 @@ int lsr(uint8_t *codePtr)
 	
 	temp = r[rd];
 	r[rd] = r[rd] >> 1;
-	sreg->C = temp & 0x1;
+	handleStatusRegForLsrOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -1168,7 +1324,7 @@ int rol(uint8_t *codePtr)
 	
 	temp = ((uint16_t)r[rd] << 1);
 	r[rd] = temp + sreg->C;
-	sreg->C = (temp & 0x100) >> 8;
+	handleStatusRegForLslRolOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -1188,6 +1344,7 @@ int ror(uint8_t *codePtr)
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (sreg->C << 7);
 	sreg->C = temp & 0x1;
+	handleStatusRegForRorAsrOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -1206,7 +1363,7 @@ int asr(uint8_t *codePtr)
 	
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (r[rd] & 0x80) ;
-	sreg->C = temp & 0x1;
+	handleStatusRegForRorAsrOperation(rd, r[rd]);
 	return 0;
 }
 
@@ -1361,6 +1518,7 @@ int bst(uint8_t *codePtr)
 		default: 
 			printf("error!");
 	} 
+	handleStatusRegForRorBstOperation(rd);
 	return 0;
 }
 
