@@ -70,6 +70,9 @@ int set(uint8_t *codePtr);
 int clt(uint8_t *codePtr);
 int seh(uint8_t *codePtr);
 int clh(uint8_t *codePtr);
+int mov(uint8_t *codePtr);
+
+int instructionWith1001010(uint8_t *codePtr);
 
 //Status Register
 int is8bitZero(uint8_t data8bit);
@@ -120,9 +123,10 @@ int is8bitRorOverflow(uint8_t operand1, uint8_t result);
 int is8bitRorSigned(uint8_t operand1, uint8_t result);
 int handleStatusRegForRorAsrOperation(uint8_t operand1, uint8_t result);
 int handleStatusRegForRorBstOperation(uint8_t operand1);
+int simulateOneInstruction(uint8_t *codePtr);
 
 //Export Variable(s)
-extern AvrOperator AvrOperatorTable[256];
+extern AvrOperator avrOperatorTable[256];
 extern uint8_t sram[SRAM_SIZE];
 extern uint8_t flashMemory[FLASH_SIZE];
 

@@ -2,31 +2,44 @@
 #include <stdint.h>
 #include "Simulator.h"
 
-AvrOperator AvrOperatorTable[256] = {
-  [0x0c]  = add, add, add, add,
+AvrOperator avrOperatorTable[256] = {
+  [0x0c] = add, add, add, add,
   [0x1c] = adc, adc, adc, adc,
-  [0x20] = and, and, and, and,
-  [0x70] = andi, andi, andi, andi, andi, andi, andi, andi,
-            andi, andi, andi, andi, andi, andi, andi, andi, 
+  [0x20 ... 0x23] = and,
+  [0x70 ... 0x7f] = andi, 
   [0x96] = adiw,
   [0x18] = sub, sub, sub, sub,
   [0x50] = subi, subi, subi, subi, subi, subi, subi, subi,
-			subi, subi, subi, subi, subi, subi, subi, subi,
+           subi, subi, subi, subi, subi, subi, subi, subi,
   [0x08] = sbc, sbc, sbc, sbc,
   [0x40] = sbci, sbci, sbci, sbci, sbci, sbci, sbci, sbci,
-			sbci, sbci, sbci, sbci, sbci, sbci, sbci, sbci,
+           sbci, sbci, sbci, sbci, sbci, sbci, sbci, sbci,
   [0x97] = sbiw,
   [0x28] = or,
   [0x60] = ori, ori, ori, ori, ori, ori, ori, ori,
-			ori, ori, ori, ori, ori, ori, ori, ori,
+           ori, ori, ori, ori, ori, ori, ori, ori,
   [0x24] = eor, eor, eor, eor,
   [0xef] = ser,
   [0x9c] = mul, mul, mul, mul,
   [0x02] = muls,
-  [0x94] = lsr, lsr,
+  [0x94] = instructionWith1001010, instructionWith1001010,
   [0xfa] = bst, bst,
   [0xf8] = bld, bld,
   [0x03] = mulsu,
+  [0x2c] = mov, mov, mov, mov,
+};
+
+AvrOperator avr1001010Table[16] = {
+  [0x0] = com,
+  [0x1] = neg,
+  [0x2] = swap,
+  [0x3] = inc,
+  [0x5] = asr,
+  [0x6] = lsr,
+  [0x7] = ror,
+  [0xa] = dec,
+  //[0xc] = jmp, jmp,
+  //[0xe] = call, call,
 };
 
 //AVR SRAM
@@ -39,6 +52,16 @@ SregRegister *sreg = (SregRegister*)&sram[0x5f];
 uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
 uint8_t *pc = flashMemory;
+
+int simulateOneInstruction(uint8_t *codePtr)
+{
+	return avrOperatorTable [*(codePtr + 1)](codePtr);
+}
+
+int instructionWith1001010(uint8_t *codePtr)
+{
+  return avr1001010Table [*codePtr](codePtr);
+}
 
 /**
  * Z:
@@ -1744,3 +1767,22 @@ int clh(uint8_t *codePtr)
 	sreg->H = 0;
 	return 0;
 } 
+
+/**
+ * Instruction:
+ * 		MOV Rd, Rr
+ *		0010 11rd dddd rrrr
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= rrrrr <= 31 
+ */
+int mov(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+
+  r[rd] = r[rr];
+	return 0;
+}
