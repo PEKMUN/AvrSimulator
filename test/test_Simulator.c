@@ -3419,3 +3419,27 @@ void test_AvrOperatorTable_given_mov_r13_r17(void)
 	
 	TEST_ASSERT_EQUAL(0x54, r[13]);
 }
+
+/**
+ * Instruction:
+ * 		RJMP k
+ *		1100 kkkk kkkk kkkk
+ * where
+ *		-2K <= kkkkkkkkkkkk <= 2K
+ *
+ * Simulate mov
+ *		1100 1111 1111 1110
+ *		 c    f     f    e
+ */
+void test_AvrOperatorTable_given_rjmp_0xffe(void)
+{
+  uint32_t k;
+	uint8_t codeMemory[] = {
+		0xfe, 0xcf,
+	};
+	uint8_t *progCounter = codeMemory;
+  
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(-2, k);
+}

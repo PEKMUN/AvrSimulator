@@ -5,6 +5,7 @@
 
 #define SRAM_SIZE   0x900
 #define FLASH_SIZE  (8 * K)
+#define sp (uint16_t *)(sram[*(uint16_t *)spl])
 
 typedef int (*AvrOperator)(uint8_t *codePtr);
 typedef struct SregRegister SregRegister;
@@ -69,6 +70,7 @@ int clt(uint8_t *codePtr);
 int seh(uint8_t *codePtr);
 int clh(uint8_t *codePtr);
 int mov(uint8_t *codePtr);
+int rjmp(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);

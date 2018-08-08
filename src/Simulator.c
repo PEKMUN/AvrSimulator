@@ -24,6 +24,7 @@ AvrOperator avrOperatorTable[256] = {
   [0xf8 ... 0xf9] = bld,
   [0x03] = mulsu,
   [0x2c ... 0x2f] = mov,
+  [0xc0 ... 0xcf] = rjmp,
 };
 
 AvrOperator avr1001010Table[16] = {
@@ -1797,4 +1798,23 @@ int mov(uint8_t *codePtr)
 
   r[rd] = r[rr];
 	return 0;
+}
+
+/**
+ * Instruction:
+ * 		RJMP k
+ *		1100 kkkk kkkk kkkk
+ * where
+ *		-2K <= kkkkkkkkkkkk <= 2K
+ */
+int rjmp(uint8_t *codePtr)
+{
+	int k;
+  
+	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
+  
+  if(k & 0x800)
+    k |= 0xfffff000;
+    
+	return (k+1) * 2;
 }
