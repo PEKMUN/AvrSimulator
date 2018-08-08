@@ -73,6 +73,7 @@ int clh(uint8_t *codePtr);
 int mov(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
+int instructionWith10010100(uint8_t *codePtr);
 
 //Status Register
 int is8bitZero(uint8_t data8bit);

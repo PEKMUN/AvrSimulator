@@ -3,30 +3,27 @@
 #include "Simulator.h"
 
 AvrOperator avrOperatorTable[256] = {
-  [0x0c] = add, add, add, add,
-  [0x1c] = adc, adc, adc, adc,
+  [0x0c ... 0x0f] = add,
+  [0x1c ... 0x1f] = adc,
   [0x20 ... 0x23] = and,
   [0x70 ... 0x7f] = andi, 
   [0x96] = adiw,
-  [0x18] = sub, sub, sub, sub,
-  [0x50] = subi, subi, subi, subi, subi, subi, subi, subi,
-           subi, subi, subi, subi, subi, subi, subi, subi,
-  [0x08] = sbc, sbc, sbc, sbc,
-  [0x40] = sbci, sbci, sbci, sbci, sbci, sbci, sbci, sbci,
-           sbci, sbci, sbci, sbci, sbci, sbci, sbci, sbci,
+  [0x18 ... 0x1b] = sub,
+  [0x50 ... 0x5f] = subi,
+  [0x08 ... 0x0b] = sbc,
+  [0x40 ... 0x4f] = sbci,
   [0x97] = sbiw,
   [0x28] = or,
-  [0x60] = ori, ori, ori, ori, ori, ori, ori, ori,
-           ori, ori, ori, ori, ori, ori, ori, ori,
-  [0x24] = eor, eor, eor, eor,
+  [0x60 ... 0x6f] = ori,
+  [0x24 ... 0x27] = eor,
   [0xef] = ser,
-  [0x9c] = mul, mul, mul, mul,
+  [0x9c ... 0x9f] = mul,
   [0x02] = muls,
   [0x94] = instructionWith1001010, instructionWith1001010,
-  [0xfa] = bst, bst,
-  [0xf8] = bld, bld,
+  [0xfa ... 0xfb] = bst,
+  [0xf8 ... 0xf9] = bld,
   [0x03] = mulsu,
-  [0x2c] = mov, mov, mov, mov,
+  [0x2c ... 0x2f] = mov,
 };
 
 AvrOperator avr1001010Table[16] = {
@@ -37,6 +34,7 @@ AvrOperator avr1001010Table[16] = {
   [0x5] = asr,
   [0x6] = lsr,
   [0x7] = ror,
+  [0x8] = instructionWith10010100,
   [0xa] = dec,
   //[0xc] = jmp, jmp,
   //[0xe] = call, call,
@@ -60,7 +58,21 @@ int simulateOneInstruction(uint8_t *codePtr)
 
 int instructionWith1001010(uint8_t *codePtr)
 {
-  return avr1001010Table [*codePtr](codePtr);
+	uint8_t low4bit;
+	low4bit = *codePtr & 0xf;
+	
+	return avr1001010Table [low4bit](codePtr);
+}
+
+int instructionWith10010100(uint8_t *codePtr)
+{
+	uint8_t isbclr;
+	isbclr = *codePtr & 0x80;
+	
+	if(isbclr)
+		bclr(codePtr);
+	else
+		bset(codePtr);
 }
 
 /**
