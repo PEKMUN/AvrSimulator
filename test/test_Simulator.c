@@ -2428,53 +2428,6 @@ void test_AvrOperatorTable_given_inc_r16(void)
 
 /**
  * Instruction:
- * 		CBR Rd, K
- *		0111 KKKK dddd KKKK
- * where
- *		0 <= KKKKKKKK <= 255
- *     16 <= dddd <= 31
- * 		dddd is {
- *			0000 => 16,
- *			0001 => 17, 
- *			0010 => 18,
- *			0011 => 19, 
- *			0100 => 20,
- *			0101 => 21, 
- *			0110 => 22,
- *			0111 => 23, 
- *			1000 => 24,
- *			1001 => 25, 
- *			1010 => 26,
- *			1011 => 27, 
- *			1100 => 28,
- *			1101 => 29, 
- *			1110 => 30,
- *			1111 => 31 
- *		}
- * 
- * Simulate cbr R29, 216
- * 		KKKKKKKK = 216 = b'11011000'
- *		    dddd = b'1101' ==> 29
- *		0111 1101 1101 1000
- *		  7     d      d     8
- */
-void test_AvrOperatorTable_given_cbr_r29_216(void)
-{
-	uint8_t *codePtr;
-	uint8_t codeMemory[] = {
-		0xd8, 0x7d,
-	};
-	uint8_t *progCounter = codeMemory;
-
-	r[29] = 0x55;
-	
-	simulateOneInstruction(progCounter);
-	
-	TEST_ASSERT_EQUAL(0x5, r[29]);
-}
-
-/**
- * Instruction:
  * 		SBR Rd, K
  *		0110 KKKK dddd KKKK
  * where
@@ -2815,33 +2768,6 @@ void test_AvrOperatorTable_given_lsr_r1(void)
 	
 	TEST_ASSERT_EQUAL(0x48, r[1]);
 	TEST_ASSERT_EQUAL(1, sreg->C);
-}
-
-/**
- * Instruction:
- * 		ROL Rd
- *		0001 11dd dddd dddd
- * where
- *		0 <= dddddddddd <= 31
- *
- * Simulate rol R6
- * 		dddddddddd = 6 = b'0000000110'
- *		0001 1100 0000 0110
- *		  1      c     0      6
- */
-void test_AvrOperatorTable_given_rol_r6(void)
-{
-	uint8_t codeMemory[] = {
-		0x06, 0x1c,
-	};
-	uint8_t *progCounter = codeMemory;
-	
-	r[6] = 0x96;
-
-	sreg->C = 0;
-	simulateOneInstruction(progCounter);
-	
-	TEST_ASSERT_EQUAL(0x2c, r[6]);
 }
 
 /**
