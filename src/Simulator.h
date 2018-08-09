@@ -1,11 +1,13 @@
 #ifndef _SIMULATOR_H
 #define _SIMULATOR_H
+#include <stdint.h>
 
 #define K			1024
 
 #define SRAM_SIZE   0x900
-#define FLASH_SIZE  (8 * K)
-#define sp (uint16_t *)(sram[*(uint16_t *)spl])
+#define FLASH_SIZE  (256 * K)
+
+//#define spRegPtr		(uint16_t *)(sram[*(uint16_t *)spl])
 
 typedef int (*AvrOperator)(uint8_t *codePtr);
 typedef struct SregRegister SregRegister;
@@ -71,9 +73,13 @@ int seh(uint8_t *codePtr);
 int clh(uint8_t *codePtr);
 int mov(uint8_t *codePtr);
 int rjmp(uint8_t *codePtr);
+int jmp(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);
+
+uint32_t getPc(uint8_t *progCounter);
+uint8_t *getCodePtr(uint32_t pc);
 
 //Status Register
 int is8bitZero(uint8_t data8bit);
@@ -136,5 +142,6 @@ extern uint8_t *r;
 extern SregRegister *sreg;
 extern uint8_t *sph;
 extern uint8_t *spl;
+extern uint8_t *flash;
 
 #endif // _SIMULATOR_H

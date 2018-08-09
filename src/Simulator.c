@@ -37,7 +37,7 @@ AvrOperator avr1001010Table[16] = {
   [0x7] = ror,
   [0x8] = instructionWith10010100,
   [0xa] = dec,
-  //[0xc] = jmp, jmp,
+  [0xc] = jmp, jmp,
   //[0xe] = call, call,
 };
 
@@ -48,9 +48,14 @@ uint8_t flashMemory[FLASH_SIZE];
 //AVR Register
 uint8_t *r = sram;
 SregRegister *sreg = (SregRegister*)&sram[0x5f];
+uint16_t *xRegPtr = (uint16_t *)&sram[0x26];
+uint16_t *yRegPtr = (uint16_t *)&sram[0x28];
+uint16_t *zRegPtr = (uint16_t *)&sram[0x30];
 uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
 uint8_t *pc = flashMemory;
+uint16_t  *spRegPtr = (uint16_t *)&sram[0x5d];
+uint8_t *flash = flashMemory;
 
 int simulateOneInstruction(uint8_t *codePtr)
 {
@@ -74,6 +79,16 @@ int instructionWith10010100(uint8_t *codePtr)
 		bclr(codePtr);
 	else
 		bset(codePtr);
+}
+
+uint32_t getPc(uint8_t *progCounter)
+{
+	return (progCounter - flash); 
+}
+
+uint8_t *getCodePtr(uint32_t pc)
+{
+	return (flash + pc); 
 }
 
 /**
@@ -1817,4 +1832,22 @@ int rjmp(uint8_t *codePtr)
     k |= 0xfffff000;
     
 	return (k+1) * 2;
+}
+
+/**
+ * Instruction:
+ * 		JMP k
+ *			1001 010k kkkk 110k
+ *			kkkk kkkk kkkk kkkk
+ * where
+ *			0 <= kkkkkkkkkkkk <= 4M
+ */
+int jmp(uint8_t *codePtr)
+{
+	uint32_t k, k1, k2;
+	k = *(uint32_t *)codePtr;
+
+	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
+
+	return getCodePtr(k*2) - codePtr;
 }

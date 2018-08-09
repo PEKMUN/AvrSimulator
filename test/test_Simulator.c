@@ -6,6 +6,8 @@ void setUp(void){}
 
 void tearDown(void){}
 
+
+
 /**
  * Z:
  *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
@@ -3187,11 +3189,11 @@ void test_AvrOperatorTable_given_clz(void)
 /**
  * Instruction:
  * 		SEI None
- *		1001 0100 0111 1000
+ *			1001 0100 0111 1000
  *
  * Simulate sei
- *		1001 0100 0111 1000
- *		  9      4     7      8
+ *			1001 0100 0111 1000
+ *			  9      4     7      8
  */
 void test_AvrOperatorTable_given_sei(void)
 {
@@ -3208,11 +3210,11 @@ void test_AvrOperatorTable_given_sei(void)
 /**
  * Instruction:
  * 		CLI None
- *		1001 0100 1111 1000
+ *			1001 0100 1111 1000
  *
  * Simulate cli
- *		1001 0100 1111 1000
- *		  9      4     f      8
+ *			1001 0100 1111 1000
+ *			  9      4     f      8
  */
 void test_AvrOperatorTable_given_cli(void)
 {
@@ -3229,11 +3231,11 @@ void test_AvrOperatorTable_given_cli(void)
 /**
  * Instruction:
  * 		SES None
- *		1001 0100 0100 1000
+ *			1001 0100 0100 1000
  *
  * Simulate ses
- *		1001 0100 0100 1000
- *		  9      4     4      8
+ *			1001 0100 0100 1000
+ *			  9      4     4      8
  */
 void test_AvrOperatorTable_given_ses(void)
 {
@@ -3250,11 +3252,11 @@ void test_AvrOperatorTable_given_ses(void)
 /**
  * Instruction:
  * 		CLS None
- *		1001 0100 1100 1000
+ *			1001 0100 1100 1000
  *
  * Simulate cls
- *		1001 0100 1100 1000
- *		  9      4     c      8
+ *			1001 0100 1100 1000
+ *		 	 9      4     c      8
  */
 void test_AvrOperatorTable_given_cls(void)
 {
@@ -3271,11 +3273,11 @@ void test_AvrOperatorTable_given_cls(void)
 /**
  * Instruction:
  * 		SEV None
- *		1001 0100 0011 1000
+ *			1001 0100 0011 1000
  *
  * Simulate sev
- *		1001 0100 0011 1000
- *		  9      4     3      8
+ *			1001 0100 0011 1000
+ *			  9      4     3      8
  */
 void test_AvrOperatorTable_given_sev(void)
 {
@@ -3292,11 +3294,11 @@ void test_AvrOperatorTable_given_sev(void)
 /**
  * Instruction:
  * 		CLV None
- *		1001 0100 1011 1000
+ *			1001 0100 1011 1000
  *
  * Simulate clv
- *		1001 0100 1011 1000
- *		  9      4     b      8
+ *			1001 0100 1011 1000
+ *			  9      4     b      8
  */
 void test_AvrOperatorTable_given_clv(void)
 {
@@ -3313,11 +3315,11 @@ void test_AvrOperatorTable_given_clv(void)
 /**
  * Instruction:
  * 		SET None
- *		1001 0100 0110 1000
+ *			1001 0100 0110 1000
  *
  * Simulate set
- *		1001 0100 0110 1000
- *		  9      4     6      8
+ *			1001 0100 0110 1000
+ *			  9      4     6      8
  */
 void test_AvrOperatorTable_given_set(void)
 {
@@ -3334,11 +3336,11 @@ void test_AvrOperatorTable_given_set(void)
 /**
  * Instruction:
  * 		CLT None
- *		1001 0100 1110 1000
+ *			1001 0100 1110 1000
  *
  * Simulate clt
- *		1001 0100 1110 1000
- *		  9      4     e      8
+ *			1001 0100 1110 1000
+ *			  9      4     e      8
  */
 void test_AvrOperatorTable_given_clt(void)
 {
@@ -3355,7 +3357,7 @@ void test_AvrOperatorTable_given_clt(void)
 /**
  * Instruction:
  * 		SEH None
- *		1001 0100 0101 1000
+ *			1001 0100 0101 1000
  *
  * Simulate seh
  *		1001 0100 0101 1000
@@ -3376,7 +3378,7 @@ void test_AvrOperatorTable_given_seh(void)
 /**
  * Instruction:
  * 		CLH None
- *		1001 0100 1101 1000
+ *			1001 0100 1101 1000
  *
  * Simulate clh
  *		1001 0100 1101 1000
@@ -3397,14 +3399,14 @@ void test_AvrOperatorTable_given_clh(void)
 /**
  * Instruction:
  * 		MOV Rd, Rr
- *		0010 11rd dddd rrrr
+ *			0010 11rd dddd rrrr
  * where
- *		0 <= ddddd <= 31
- *		0 <= rrrrr <= 31
+ *			0 <= ddddd <= 31
+ *			0 <= rrrrr <= 31
  *
  * Simulate mov
- *		0010 1110 1101 0001
- *		  2       e      d      1
+ *			0010 1110 1101 0001
+ *			  2       e      d      1
  */
 void test_AvrOperatorTable_given_mov_r13_r17(void)
 {
@@ -3423,13 +3425,13 @@ void test_AvrOperatorTable_given_mov_r13_r17(void)
 /**
  * Instruction:
  * 		RJMP k
- *		1100 kkkk kkkk kkkk
+ *			1100 kkkk kkkk kkkk
  * where
- *		-2K <= kkkkkkkkkkkk <= 2K
+ *			-2K <= kkkkkkkkkkkk <= 2K
  *
- * Simulate mov
- *		1100 1111 1111 1110
- *		 c    f     f    e
+ * Simulate rjmp -2
+ *			1100 1111 1111 1110
+ *			 c   	 f  	   f  	  e
  */
 void test_AvrOperatorTable_given_rjmp_0xffe(void)
 {
@@ -3438,8 +3440,103 @@ void test_AvrOperatorTable_given_rjmp_0xffe(void)
 		0xfe, 0xcf,
 	};
 	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
   
 	k = simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL_INT32(-2, k);
+}
+
+/**
+ * Instruction:
+ * 		JMP k
+ *			1001 010k kkkk 110k
+ *			kkkk kkkk kkkk kkkk
+ * where
+ *			0 <= kkkkkkkkkkkk <= 4M
+ *
+ * Simulate jmp 4
+ *			1001 0100 0000 1100
+ *				9				4			0			c
+ *			0000 0000 0000 0100
+ *			 	0 	 		  0   	  0  	 	 4
+ */
+void test_AvrOperatorTable_given_jmp_4(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0x0c, 0x94, 0x04, 0x00, 
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(8, k);
+}
+
+/**
+ * Instruction:
+ * 		JMP k
+ *			1001 010k kkkk 110k
+ *			kkkk kkkk kkkk kkkk
+ * where
+ *			0 <= kkkkkkkkkkkk <= 4M
+ *
+ * Simulate jmp 1
+ *			1001 0100 0000 1100
+ *				9				4			0			c
+ *			0000 0000 0000 0001
+ *			 	0 	 		  0   	  0  	 	 1
+ */
+void test_AvrOperatorTable_given_jmp_1(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+	  // start: 	
+		0x03, 0x95,														// inc r16	
+		// here: 	
+		0xfe, 0xcf,															// rjmp start
+		0x12, 0x2c,															// mov r1, r2
+		0x0c, 0x94, 0x01, 0x00,				// jmp here
+	};
+	uint8_t *progCounter = &codeMemory[6];
+	flash = codeMemory;
+  
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(-4, k);
+}
+
+/**
+ * Instruction:
+ * 		JMP k
+ *			1001 010k kkkk 110k
+ *			kkkk kkkk kkkk kkkk
+ * where
+ *			0 <= kkkkkkkkkkkk <= 4M
+ *
+ * Simulate jmp 4 * 1024 * 1024 - 2
+ *			1001 0101 1111 1101
+ *				9			4			f		 d
+ *			1111 1111 1111 1110
+ *			 	f 	 	 f   	f  	 e
+ */
+void test_AvrOperatorTable_given_jmp_4x1024x1024minus2(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+	  // start: 	
+		0x03, 0x95,														// inc r16	
+		// here: 	
+		0xfe, 0xcf,															// rjmp start
+		0x12, 0x2c,															// mov r1, r2
+		0xfd, 0x95, 0xfe, 0xff,				// jmp 4 * 1024 *1024 -2
+	};
+	uint8_t *progCounter = &codeMemory[6];
+	flash = codeMemory;
+  
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32((0x3ffffe*2)-0x6, k);
 }
