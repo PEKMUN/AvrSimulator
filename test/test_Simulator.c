@@ -3540,3 +3540,130 @@ void test_AvrOperatorTable_given_jmp_4x1024x1024minus2(void)
 	
 	TEST_ASSERT_EQUAL_INT32((0x3ffffe*2)-0x6, k);
 }
+
+/**
+ * Instruction:
+ * 		BRBS s, k
+ *			1111 00kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ *
+ * Simulate brbs 4, 61
+ *			1111 0001 1110 1100
+ *			 f 	  1    e  	c
+ */
+void test_AvrOperatorTable_given_brbs_4_61(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0xec, 0xf1,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  sreg->S = 1;
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(124, k);
+}
+
+/**
+ * Instruction:
+ * 		BRBS s, k
+ *			1111 00kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ *
+ * Simulate brbs 5, 61
+ *			1111 0001 1110 1101
+ *			 f 	  1    e  	d
+ */
+void test_AvrOperatorTable_given_brbs_5_61(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0xed, 0xf1,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  sreg->H = 0;
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(2, k);
+}
+
+/**
+ * Instruction:
+ * 		BRBC s, k
+ *			1111 01kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ *
+ * Simulate brbs 5, 61
+ *			1111 0101 1110 1101
+ *			 f 	  5    e  	d
+ */
+void test_AvrOperatorTable_given_brbc_5_61(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0xed, 0xf5,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  sreg->H = 0;
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(124, k);
+}
+
+/**
+ * Instruction:
+ * 		BRBC s, k
+ *			1111 01kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ *
+ * Simulate brbs 4, 61
+ *			1111 0101 1110 1100
+ *			 f 	  5    e  	c
+ */
+void test_AvrOperatorTable_given_brbc_4_61(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0xec, 0xf5,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  sreg->S = 1;
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(2, k);
+}
+
+/**
+ * Instruction:
+ * 		NOP None
+ *			0000 0000 0000 0000
+ */
+void test_AvrOperatorTable_given_nop(void)
+{
+	uint8_t pc;
+	uint8_t codeMemory[] = {
+		0xec, 0xf5,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+
+	pc = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(2, pc);
+}

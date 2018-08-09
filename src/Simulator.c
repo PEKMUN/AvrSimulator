@@ -25,6 +25,9 @@ AvrOperator avrOperatorTable[256] = {
   [0x03] = mulsu,
   [0x2c ... 0x2f] = mov,
   [0xc0 ... 0xcf] = rjmp,
+  [0xf0 ... 0xf3] = brbs,
+  [0xf4 ... 0xf7] = brbc,
+  [0x00] = nop,
 };
 
 AvrOperator avr1001010Table[16] = {
@@ -1850,4 +1853,154 @@ int jmp(uint8_t *codePtr)
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
 
 	return getCodePtr(k*2) - codePtr;
+}
+
+/**
+ * Instruction:
+ * 		BRBS s, k
+ *			1111 00kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ */
+int brbs(uint8_t *codePtr)
+{
+	uint8_t k, s;
+  
+	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
+  s = (*codePtr & 0x7);
+  
+  switch(s)
+	{
+		case 0b000: 
+			if(sreg->C == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b001: 
+			if(sreg->Z == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b010: 
+			if(sreg->N == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b011: 
+			if(sreg->V == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b100: 
+			if(sreg->S == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b101: 
+			if(sreg->H == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b110: 
+			if(sreg->T == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b111: 
+			if(sreg->I == 1)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		default: 
+			printf("error!");
+  }
+}
+
+/**
+ * Instruction:
+ * 		BRBC s, k
+ *			1111 01kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ */
+int brbc(uint8_t *codePtr)
+{
+	uint8_t k, s;
+  
+	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
+  s = (*codePtr & 0x7);
+  
+  switch(s)
+	{
+		case 0b000: 
+			if(sreg->C == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b001: 
+			if(sreg->Z == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b010: 
+			if(sreg->N == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b011: 
+			if(sreg->V == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b100: 
+			if(sreg->S == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b101: 
+			if(sreg->H == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b110: 
+			if(sreg->T == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		case 0b111: 
+			if(sreg->I == 0)
+        return ((k+1) * 2);
+      else
+        return 2;
+			break;
+		default: 
+			printf("error!");
+  }
+}
+
+/**
+ * Instruction:
+ * 		NOP None
+ *			0000 0000 0000 0000
+ */
+int nop(uint8_t *codePtr)
+{
+  return 2;
 }

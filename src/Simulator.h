@@ -74,6 +74,9 @@ int clh(uint8_t *codePtr);
 int mov(uint8_t *codePtr);
 int rjmp(uint8_t *codePtr);
 int jmp(uint8_t *codePtr);
+int brbs(uint8_t *codePtr);
+int brbc(uint8_t *codePtr);
+int nop(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);
