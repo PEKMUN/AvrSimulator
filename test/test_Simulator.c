@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "unity.h"
 #include "Simulator.h"
+#include "Error.h"
+#include "Exception.h"
+#include "CException.h"
 
 void setUp(void){}
 
@@ -2116,7 +2119,7 @@ void test_AvrOperatorTable_given_subi_r25_201(void)
  */
 void test_AvrOperatorTable_given_sbc_r9_r16(void)
 {
-    uint8_t codeMemory[] = {
+  uint8_t codeMemory[] = {
 		0x90, 0x0a,
 	};
 	uint8_t *progCounter = codeMemory;
@@ -3653,17 +3656,125 @@ void test_AvrOperatorTable_given_brbc_4_61(void)
  * Instruction:
  * 		NOP None
  *			0000 0000 0000 0000
+ *       0    0    0    0
  */
 void test_AvrOperatorTable_given_nop(void)
 {
 	uint8_t pc;
 	uint8_t codeMemory[] = {
-		0xec, 0xf5,
+		0x00, 0x00,
 	};
 	uint8_t *progCounter = codeMemory;
 	flash = codeMemory;
 
 	pc = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_INT32(2, pc);
+	TEST_ASSERT_EQUAL(2, pc);
+}
+
+/**
+ * Instruction:
+ * 		WDR None
+ *			1001 0101 1010 1000
+ *       9    5    a    8
+ */
+void test_AvrOperatorTable_given_wdr(void)
+{
+  CEXCEPTION_T e;
+	uint8_t codeMemory[] = {
+		0xa8, 0x95,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+
+	Try {
+    simulateOneInstruction(progCounter);
+    TEST_FAIL_MESSAGE("Expect WATCHDOG_EXCEPTION. But no exception thrown.");
+  } Catch(e) {
+    printf(e->errorMsg);
+    TEST_ASSERT_EQUAL(WATCHDOG_EXCEPTION, e->errorCode);
+    freeError(e);
+  }
+}
+
+/**
+ * Instruction:
+ * 		BREAK None
+ *			1001 0101 1001 1000
+ *       9    5    9    8
+ */
+void test_AvrOperatorTable_given_break(void)
+{
+  CEXCEPTION_T e;
+	uint8_t codeMemory[] = {
+		0x98, 0x95,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+  Try {
+    simulateOneInstruction(progCounter);
+    TEST_FAIL_MESSAGE("Expect BREAK_EXCEPTION. But no exception thrown.");
+  } Catch(e) {
+    printf(e->errorMsg);
+    TEST_ASSERT_EQUAL(BREAK_EXCEPTION, e->errorCode);
+    freeError(e);
+  }
+}
+
+/**
+ * Instruction:
+ * 		SLEEP None
+ *			1001 0101 1000 1000
+ *       9    5    8    8
+ */
+void test_AvrOperatorTable_given_sleep(void)
+{
+  CEXCEPTION_T e;
+	uint8_t codeMemory[] = {
+		0x88, 0x95,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+  Try {
+    simulateOneInstruction(progCounter);
+    TEST_FAIL_MESSAGE("Expect SLEEP_EXCEPTION. But no exception thrown.");
+  } Catch(e) {
+    printf(e->errorMsg);
+    TEST_ASSERT_EQUAL(SLEEP_EXCEPTION, e->errorCode);
+    freeError(e);
+  }
+}
+
+/**
+ * Instruction:
+ * 		CP Rd, Rr
+ *			0001 01rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * Simulate cp R4, R21
+ *			0001 0110 0100 0101
+ *			 1 	  6    4  	5
+ */
+void test_AvrOperatorTable_given_cp_r4_r21(void)
+{
+  uint8_t codeMemory[] = {
+		0x45, 0x16,
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	r[4]  = 0x9c;
+	r[21] = 0x52;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(0, sreg->S);
+	TEST_ASSERT_EQUAL(0, sreg->H);
 }

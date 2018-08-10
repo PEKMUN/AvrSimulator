@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "Simulator.h"
+#include "Error.h"
+#include "Exception.h"
+#include "CException.h"
 
 AvrOperator avrOperatorTable[256] = {
   [0x0c ... 0x0f] = add,
@@ -19,7 +22,7 @@ AvrOperator avrOperatorTable[256] = {
   [0xef] = ser,
   [0x9c ... 0x9f] = mul,
   [0x02] = muls,
-  [0x94] = instructionWith1001010, instructionWith1001010,
+  [0x94 ... 0x95] = instructionWith1001010, 
   [0xfa ... 0xfb] = bst,
   [0xf8 ... 0xf9] = bld,
   [0x03] = mulsu,
@@ -28,9 +31,10 @@ AvrOperator avrOperatorTable[256] = {
   [0xf0 ... 0xf3] = brbs,
   [0xf4 ... 0xf7] = brbc,
   [0x00] = nop,
+  [0x14 ... 0x17] = cp,
 };
 
-AvrOperator avr1001010Table[16] = {
+AvrOperator avr10010100Table[16] = {
   [0x0] = com,
   [0x1] = neg,
   [0x2] = swap,
@@ -39,6 +43,20 @@ AvrOperator avr1001010Table[16] = {
   [0x6] = lsr,
   [0x7] = ror,
   [0x8] = instructionWith10010100,
+  [0xa] = dec,
+  [0xc] = jmp, jmp,
+  //[0xe] = call, call,
+};
+
+AvrOperator avr10010101Table[16] = {
+  [0x0] = com,
+  [0x1] = neg,
+  [0x2] = swap,
+  [0x3] = inc,
+  [0x5] = asr,
+  [0x6] = lsr,
+  [0x7] = ror,
+  [0x8] = instructionWith10010101,
   [0xa] = dec,
   [0xc] = jmp, jmp,
   //[0xe] = call, call,
@@ -67,21 +85,38 @@ int simulateOneInstruction(uint8_t *codePtr)
 
 int instructionWith1001010(uint8_t *codePtr)
 {
-	uint8_t low4bit;
+	uint8_t low4bit, is0x95;
 	low4bit = *codePtr & 0xf;
-	
-	return avr1001010Table [low4bit](codePtr);
+  is0x95 = (codePtr[1] & 0x1) | (codePtr[0] & 0x0);
+
+  if(is0x95)
+    return avr10010101Table [low4bit](codePtr);
+  else
+    return avr10010100Table [low4bit](codePtr);
 }
 
 int instructionWith10010100(uint8_t *codePtr)
 {
 	uint8_t isbclr;
 	isbclr = *codePtr & 0x80;
-	
-	if(isbclr)
-		bclr(codePtr);
-	else
-		bset(codePtr);
+
+  if(isbclr)
+    bclr(codePtr);
+  else
+    bset(codePtr);
+}
+
+int instructionWith10010101(uint8_t *codePtr)
+{
+  uint8_t ins;
+	ins = *codePtr & 0xf0;
+  
+  if(ins == 0xa0)
+    wdr(codePtr);
+  else if(ins == 0x80)
+    sleep(codePtr);
+  else
+    Break(codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -314,7 +349,7 @@ int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result
  */
 int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
-  result = (((~operand1) & operand2 | operand2 & result | result & (~operand1)) & 0x8) >> 3;
+  result = ((((~operand1) & operand2) | (operand2 & result) | (result & (~operand1))) & 0x8) >> 3; 
   return result;
 }
 
@@ -1591,35 +1626,7 @@ int bld(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	b = *codePtr & 0x7;
 	
-	switch(b)
-	{
-		case 0b000: 
-			r[rd] = (r[rd] & 0xfe) + sreg->T;
-			break;
-		case 0b001: 
-			r[rd] = (r[rd] & 0xfd) + (sreg->T << 1);
-			break;
-		case 0b010: 
-			r[rd] = (r[rd] & 0xfb) + (sreg->T << 2);
-			break;
-		case 0b011: 
-			r[rd] = (r[rd] & 0xf7) + (sreg->T << 3);
-			break;
-		case 0b100: 
-			r[rd] = (r[rd] & 0xef) + (sreg->T << 4);
-			break;
-		case 0b101: 
-			r[rd] = (r[rd] & 0xdf) + (sreg->T << 5);
-			break;
-		case 0b110: 
-			r[rd] = (r[rd] & 0xbf) + (sreg->T << 6);
-			break;
-		case 0b111: 
-			r[rd] = (r[rd] & 0x7f) + (sreg->T << 7);
-			break;
-		default: 
-			printf("error!");
-	} 
+  r[rd] = (r[rd] & ~(1 << b)) + (sreg->T << b);
 	return 0;
 }
 
@@ -1999,8 +2006,62 @@ int brbc(uint8_t *codePtr)
  * Instruction:
  * 		NOP None
  *			0000 0000 0000 0000
+ *       0    0    0    0
  */
 int nop(uint8_t *codePtr)
 {
   return 2;
+}
+
+/**
+ * Instruction:
+ * 		WDR None
+ *			1001 0101 1010 1000
+ *       9    5    a    8
+ */
+int wdr(uint8_t *codePtr)
+{
+  throwSimpleError(WATCHDOG_EXCEPTION, NULL);
+}
+
+/**
+ * Instruction:
+ * 		BREAK None
+ *			1001 0101 1001 1000
+ *       9    5    9    8
+ */
+int Break(uint8_t *codePtr)
+{
+  throwSimpleError(BREAK_EXCEPTION, NULL);
+}
+
+/**
+ * Instruction:
+ * 		SLEEP None
+ *			1001 0101 1001 1000
+ *       9    5    9    8
+ */
+int sleep(uint8_t *codePtr)
+{
+  throwSimpleError(SLEEP_EXCEPTION, NULL);
+}
+
+/**
+ * Instruction:
+ * 		CP Rd, Rr
+ *			0001 01rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ */
+int cp(uint8_t *codePtr)
+{
+	uint8_t rd, rr, result;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+
+	result = r[rd] - r[rr];
+	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, result);
+	return 0;
 }

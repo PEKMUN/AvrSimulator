@@ -77,9 +77,14 @@ int jmp(uint8_t *codePtr);
 int brbs(uint8_t *codePtr);
 int brbc(uint8_t *codePtr);
 int nop(uint8_t *codePtr);
+int wdr(uint8_t *codePtr);
+int Break(uint8_t *codePtr);
+int sleep(uint8_t *codePtr);
+int cp(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);
+int instructionWith10010101(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
