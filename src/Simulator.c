@@ -32,6 +32,9 @@ AvrOperator avrOperatorTable[256] = {
   [0xf4 ... 0xf7] = brbc,
   [0x00] = nop,
   [0x14 ... 0x17] = cp,
+  [0x04 ... 0x07] = cpc,
+  [0x30 ... 0x3f] = cpi,
+  //[0x10 ... 0x13] = cpse,
 };
 
 AvrOperator avr10010100Table[16] = {
@@ -2063,5 +2066,63 @@ int cp(uint8_t *codePtr)
 
 	result = r[rd] - r[rr];
 	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, result);
+	return 0;
+}
+
+/**
+ * Instruction:
+ * 		CPC Rd, Rr
+ *			0000 01rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ */
+int cpc(uint8_t *codePtr)
+{
+	uint8_t rd, rr, result;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+
+	result = r[rd] - r[rr] - sreg->C;
+	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, result);
+	return 0;
+}
+
+/**
+ * Instruction:
+ * 		CPI Rd, K
+ *		0011 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ */
+int cpi(uint8_t *codePtr)
+{
+	uint8_t rd, k;
+  
+	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
+	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
+
+	r[rd] = r[rd] - k;
+	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
 	return 0;
 }

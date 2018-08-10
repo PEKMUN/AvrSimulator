@@ -81,6 +81,8 @@ int wdr(uint8_t *codePtr);
 int Break(uint8_t *codePtr);
 int sleep(uint8_t *codePtr);
 int cp(uint8_t *codePtr);
+int cpc(uint8_t *codePtr);
+int cpi(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);

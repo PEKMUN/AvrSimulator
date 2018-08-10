@@ -3776,5 +3776,87 @@ void test_AvrOperatorTable_given_cp_r4_r21(void)
 	TEST_ASSERT_EQUAL(0, sreg->N);
 	TEST_ASSERT_EQUAL(0, sreg->V);
 	TEST_ASSERT_EQUAL(0, sreg->S);
-	TEST_ASSERT_EQUAL(0, sreg->H);
+	TEST_ASSERT_EQUAL(1, sreg->H);
+}
+
+/**
+ * Instruction:
+ * 		CPC Rd, Rr
+ *			0000 01rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * Simulate cpc R17, R23
+ *			0000 0111 0001 0111
+ *			 0 	  7    1  	7
+ */
+void test_AvrOperatorTable_given_cpc_r17_r23(void)
+{
+  uint8_t codeMemory[] = {
+		0x17, 0x07,
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	r[17] = 0x9c;
+	r[23] = 0x52;
+	sreg->C = 0;
+  
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(0, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(0, sreg->S);
+	TEST_ASSERT_EQUAL(1, sreg->H);
+}
+
+/**
+ * Instruction:
+ * 		CPI Rd, K
+ *		0011 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ *
+ * Simulate cpi R18, 211
+ *			0011 1101 0010 0011
+ *			 3 	  d    2  	3
+ */
+void test_AvrOperatorTable_given_cpi_r18_211(void)
+{
+  uint8_t codeMemory[] = {
+		0x23, 0x3d,
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	r[18] = 0x9c;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(1, sreg->N);
+	TEST_ASSERT_EQUAL(1, sreg->V);
+	TEST_ASSERT_EQUAL(0, sreg->S);
+	TEST_ASSERT_EQUAL(1, sreg->H);
 }
