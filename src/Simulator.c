@@ -132,6 +132,28 @@ uint8_t *getCodePtr(uint32_t pc)
 	return (flash + pc); 
 }
 
+void substractStackPointer(int value)
+{
+  *(uint16_t *)spl -= 2;
+}
+
+void push(uint16_t data)
+{
+  *spRegPtr = data;
+  substractStackPointer(2);
+}
+
+void pop()
+{
+  substractStackPointer(-2);
+  return *spRegPtr;
+}
+
+void initSimulator()
+{
+  *spRegPtr = 0x8ff;
+}
+
 /**
  * Z:
  *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
@@ -366,13 +388,26 @@ int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t res
   return result;
 }
 
+/**
+ * S: 
+ *    N ^ V
+ */
+int is8bitSubSubiSbcSbciSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+	uint8_t n, v, s;
+	n = is8bitNeg(result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
+	s = n ^ v;
+	return s;
+}
+
 int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
 	sreg->C = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
 	sreg->Z = is8bitZero(result);
 	sreg->N = is8bitNeg(result);
 	sreg->V = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
-	sreg->S = is8bitSigned(operand1, operand2, result);
+	sreg->S = is8bitSubSubiSbcSbciSigned(operand1, operand2, result);
 	sreg->H = is8bitSubSubiSbcSbciHalfCarry(operand1, operand2, result);
 	return 0;
 }
@@ -1591,37 +1626,8 @@ int bst(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	b = *codePtr & 0x7;
 	
-	//sreg->T = (r[rd] & (b + 0x1)) >> b;
-	
-	switch(b)
-	{
-		case 0b000: 
-			sreg->T = r[rd] & 0x1;
-			break;
-		case 0b001: 
-			sreg->T = (r[rd] & 0x2) >> 1;
-			break;
-		case 0b010: 
-			sreg->T = (r[rd] & 0x4) >> 2;
-			break;
-		case 0b011: 
-			sreg->T = (r[rd] & 0x8) >> 3;
-			break;
-		case 0b100: 
-			sreg->T = (r[rd] & 0x10) >> 4;
-			break;
-		case 0b101: 
-			sreg->T = (r[rd] & 0x20) >> 5;
-			break;
-		case 0b110: 
-			sreg->T = (r[rd] & 0x40) >> 6;
-			break;
-		case 0b111: 
-			sreg->T = (r[rd] & 0x80) >> 7;
-			break;
-		default: 
-			printf("error!");
-	} 
+	sreg->T = (r[rd] & (1 << b)) >> b;
+
 	handleStatusRegForRorBstOperation(rd);
 	return 0;
 }

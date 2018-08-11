@@ -1129,7 +1129,7 @@ void test_is8bitSubSubiSbcSbciHalfCarry_given_operand1_is_0xff_operand2_is_0xab_
  * V: 
  *    Rd7 • Rr7 ¯ • R7 ¯ + Rd7 ¯ • Rr7 • R7
  */
-void test_is8bitOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1138,12 +1138,12 @@ void test_is8bitOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(
 	operand2 = 0x71;
 	result = 0x77;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0x7f_operand2_is_0x7a_result_is_0xf9(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x7f_operand2_is_0x7a_result_is_0xf9(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1152,12 +1152,12 @@ void test_is8bitOverflow_given_operand1_is_0x7f_operand2_is_0x7a_result_is_0xf9(
 	operand2 = 0x7a;
 	result = 0xf9;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0x7c_operand2_is_0x9e_result_is_0x1a(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x7c_operand2_is_0x9e_result_is_0x1a(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1166,12 +1166,12 @@ void test_is8bitOverflow_given_operand1_is_0x7c_operand2_is_0x9e_result_is_0x1a(
 	operand2 = 0x9e;
 	result = 0x1a;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0x00_operand2_is_0xf1_result_is_0xf1(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x00_operand2_is_0xf1_result_is_0xf1(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1180,12 +1180,12 @@ void test_is8bitOverflow_given_operand1_is_0x00_operand2_is_0xf1_result_is_0xf1(
 	operand2 = 0xf1;
 	result = 0xf1;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(1, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x07(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x07(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1194,12 +1194,12 @@ void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x07(
 	operand2 = 0x11;
 	result = 0x07;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(1, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0x86_operand2_is_0x11_result_is_0x97(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x86_operand2_is_0x11_result_is_0x97(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1208,12 +1208,12 @@ void test_is8bitOverflow_given_operand1_is_0x86_operand2_is_0x11_result_is_0x97(
 	operand2 = 0x11;
 	result = 0x97;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x2b(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x2b(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1222,12 +1222,12 @@ void test_is8bitOverflow_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x2b(
 	operand2 = 0x9c;
 	result = 0x2b;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
 }
 
-void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(void)
+void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(void)
 {
 	uint8_t v;
 	uint8_t result, operand1, operand2;
@@ -1236,9 +1236,69 @@ void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(
 	operand2 = 0xa1;
 	result = 0x97;
   
-	v = is8bitOverflow(operand1, operand2, result);
+	v = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	
 	TEST_ASSERT_EQUAL(0, v);
+}
+
+/**
+ * S:
+ *		N ^ V
+ */
+void test_is8bitSubSubiSbcSbciSigned_given_n_is_0_v_is_0(void)
+{
+	uint8_t s;
+	uint16_t result, operand1, operand2;
+	
+	operand1 = 0x16;
+	operand2 = 0x11;
+	result = 0x07;
+	
+	s = is8bitSubSubiSbcSbciSigned(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is8bitSubSubiSbcSbciSigned_given_n_is_0_v_is_1(void)
+{
+	uint8_t s;
+	uint16_t result, operand1, operand2;
+	
+	operand1 = 0x9f;
+	operand2 = 0x4c;
+	result = 0x5b;
+	
+	s = is8bitSubSubiSbcSbciSigned(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+void test_is8bitSubSubiSbcSbciSigned_given_n_is_1_v_is_0(void)
+{
+	uint8_t s;
+	uint16_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+	operand2 = 0x01;
+	result = 0x97;
+	
+	s = is8bitSubSubiSbcSbciSigned(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+void test_is8bitSubSubiSbcSbciSigned_given_n_is_1_v_is_1(void)
+{
+	uint8_t s;
+	uint16_t result, operand1, operand2;
+	
+	operand1 = 0x7f;
+	operand2 = 0x8a;
+	result = 0xf9;
+	
+	s = is8bitSubSubiSbcSbciSigned(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, s);
 }
 
 void test_handleStatusRegForSubSubiSbcSbciOperation_given_operand1_is_0xaf_operand2_is_0x6b_result_is_0x11(void)
@@ -1255,7 +1315,7 @@ void test_handleStatusRegForSubSubiSbcSbciOperation_given_operand1_is_0xaf_opera
 	TEST_ASSERT_EQUAL(0, sreg->Z);
 	TEST_ASSERT_EQUAL(0, sreg->N);
 	TEST_ASSERT_EQUAL(1, sreg->V);
-	TEST_ASSERT_EQUAL(0, sreg->S);
+	TEST_ASSERT_EQUAL(1, sreg->S);
 	TEST_ASSERT_EQUAL(0, sreg->H);
 }
 
@@ -3106,7 +3166,7 @@ void test_AvrOperatorTable_given_bst_r6_3(void)
  * 		ddddd = 6 = b'00110'
  *		   bbb = 7 = b'111'
  *		1111 1010 0110 0111
- *		  f      a     6      7
+ *		 f    a    6    7
  */
 void test_AvrOperatorTable_given_bst_r6_7(void)
 {
