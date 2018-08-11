@@ -84,6 +84,7 @@ int cp(uint8_t *codePtr);
 int cpc(uint8_t *codePtr);
 int cpi(uint8_t *codePtr);
 int ldi(uint8_t *codePtr);
+int cpse(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);

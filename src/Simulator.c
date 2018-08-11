@@ -34,7 +34,7 @@ AvrOperator avrOperatorTable[256] = {
   [0x14 ... 0x17] = cp,
   [0x04 ... 0x07] = cpc,
   [0x30 ... 0x3f] = cpi,
-  //[0x10 ... 0x13] = cpse,
+  [0x10 ... 0x13] = cpse,
   [0xe0 ... 0xef] = ldi,
 };
 
@@ -155,20 +155,21 @@ void initSimulator()
   *spRegPtr = 0x8ff;
 }
 
-/*int is2wordInstruction(uint8_t *codePtr)
+int is2wordInstruction(uint8_t *codePtr)
 {
-  uint16_t sts, first4bit;
   codePtr + 2;
-  
-  result = *(uint16_t *)codePtr & 
-  
-  
-  
-  if(sts(codePtr) | jmp(codePtr) | call(codePtr))
-    return 1;
+
+  if(*(uint16_t *)codePtr & 0xf000 == 0x9000)
+  {
+    if(*(uint16_t *)codePtr & 0x0e00 == 0x400 || *(uint16_t *)codePtr & 0x0e00 == 0x200)
+    {
+      if(*(uint16_t *)codePtr & 0xf == 0x0 || *(uint16_t *)codePtr & 0xe == 0xc || *(uint16_t *)codePtr & 0xe == 0xe)
+        return 1;
+    }
+  }
   else
     return 0;
-}*/
+}
 
 /**
  * Z:
@@ -2196,4 +2197,32 @@ int ldi(uint8_t *codePtr)
 
 	r[rd] = k;
 	return 0;
+}
+
+/**
+ * Instruction:
+ * 		CPSE Rd, Rr
+ *			0001 00rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ */
+int cpse(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+  
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
+
+	if(r[rd] == r[rr])
+  {
+    if(is2wordInstruction(codePtr))
+      return 6;
+    else
+      return 4;
+  }
+  else 
+    return 2;
 }

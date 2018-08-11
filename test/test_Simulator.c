@@ -9,7 +9,20 @@ void setUp(void){}
 
 void tearDown(void){}
 
-
+void test_is2wordInstruction_given_codePtr_is_0(void)
+{
+	uint8_t code;
+  uint8_t codeMemory[] = {
+		0xef, 0x12,
+	};
+	uint8_t *progCounter = codeMemory;
+  
+	code = 0x14;
+	
+	code = is2wordInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0, code);
+}
 
 /**
  * Z:
@@ -18,7 +31,7 @@ void tearDown(void){}
 void test_is8bitZero_given_data8bit_is_0b00010100(void)
 {
 	uint8_t data8bit, z;
-	data8bit = 0b00010100;
+	data8bit = 0x14;
 	
 	z = is8bitZero(data8bit);
 	
@@ -28,7 +41,7 @@ void test_is8bitZero_given_data8bit_is_0b00010100(void)
 void test_is8bitZero_given_data8bit_is_0b00000000(void)
 {
 	uint8_t data8bit, z;
-	data8bit = 0b00000000;
+	data8bit = 0x0;
 	
 	z = is8bitZero(data8bit);
 	
@@ -4077,4 +4090,95 @@ void test_AvrOperatorTable_given_cpi_r31_211(void)
 	simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL(211, r[31]);
+}
+
+/**
+ * Instruction:
+ * 		CPSE Rd, Rr
+ *			0001 00rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate cpse r14, r15
+ *			0001 0010 1110 1111
+ *			 1 	  2    e  	f
+ */
+void test_AvrOperatorTable_given_cpse_r14_r15(void)
+{
+  uint8_t pc;
+  uint8_t codeMemory[] = {
+		0xef, 0x12,
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	pc = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(2, pc);
+}
+
+/**
+ * Instruction:
+ * 		CPSE Rd, Rr
+ *			0001 00rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate cpse r16, r17
+ *			0001 0011 0000 0001
+ *			 1 	  3    0  	1
+ */
+void test_AvrOperatorTable_given_cpse_r16_r17(void)
+{
+  uint8_t pc;
+  uint8_t codeMemory[] = {
+    //start:
+		0x01, 0x13,      //cpse r16, r17
+    0x0f, 0x01,      //add r16, r17
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	pc = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(4, pc);
+}
+
+/**
+ * Instruction:
+ * 		CPSE Rd, Rr
+ *			0001 00rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate cpse r18, r19
+ *			0001 0011 0010 0011
+ *			 1 	  3    2  	3
+ */
+void test_AvrOperatorTable_given_cpse_r18_r19(void)
+{
+  uint8_t pc;
+  uint8_t codeMemory[] = {
+    //start:
+		0x01, 0x13,                   //cpse r16, r17
+    0x0e, 0x94, 0x78, 0x05,       //call 1400
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	pc = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(6, pc);
 }
