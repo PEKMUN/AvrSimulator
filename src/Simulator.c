@@ -356,12 +356,22 @@ int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t re
   return result;
 }
 
+/**
+ * V: 
+ *    Rd7 • Rr7 ¯ • R7 ¯ + Rd7 ¯ • Rr7 • R7
+ */
+int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
+{
+	result = (operand1 & (~operand2) & (~result) | (~operand1) & operand2 & result) >> 7;
+  return result;
+}
+
 int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
 	sreg->C = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
 	sreg->Z = is8bitZero(result);
 	sreg->N = is8bitNeg(result);
-	sreg->V = is8bitOverflow(operand1, operand2, result);
+	sreg->V = is8bitSubSubiSbcSbciOverflow(operand1, operand2, result);
 	sreg->S = is8bitSigned(operand1, operand2, result);
 	sreg->H = is8bitSubSubiSbcSbciHalfCarry(operand1, operand2, result);
 	return 0;
@@ -1581,6 +1591,8 @@ int bst(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	b = *codePtr & 0x7;
 	
+	//sreg->T = (r[rd] & (b + 0x1)) >> b;
+	
 	switch(b)
 	{
 		case 0b000: 
@@ -1843,7 +1855,7 @@ int rjmp(uint8_t *codePtr)
   
   if(k & 0x800)
     k |= 0xfffff000;
-    
+ 
 	return (k+1) * 2;
 }
 

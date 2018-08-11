@@ -1125,6 +1125,122 @@ void test_is8bitSubSubiSbcSbciHalfCarry_given_operand1_is_0xff_operand2_is_0xab_
 	TEST_ASSERT_EQUAL(1, h);
 }
 
+/**
+ * V: 
+ *    Rd7 • Rr7 ¯ • R7 ¯ + Rd7 ¯ • Rr7 • R7
+ */
+void test_is8bitOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x06;
+	operand2 = 0x71;
+	result = 0x77;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0x7f_operand2_is_0x7a_result_is_0xf9(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x7f;
+	operand2 = 0x7a;
+	result = 0xf9;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0x7c_operand2_is_0x9e_result_is_0x1a(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x7c;
+	operand2 = 0x9e;
+	result = 0x1a;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0x00_operand2_is_0xf1_result_is_0xf1(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+	operand2 = 0xf1;
+	result = 0xf1;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x07(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+	operand2 = 0x11;
+	result = 0x07;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0x86_operand2_is_0x11_result_is_0x97(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x86;
+	operand2 = 0x11;
+	result = 0x97;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x2b(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x8f;
+	operand2 = 0x9c;
+	result = 0x2b;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(void)
+{
+	uint8_t v;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+	operand2 = 0xa1;
+	result = 0x97;
+  
+	v = is8bitOverflow(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
 void test_handleStatusRegForSubSubiSbcSbciOperation_given_operand1_is_0xaf_operand2_is_0x6b_result_is_0x11(void)
 {
 	uint8_t result, operand1, operand2;
@@ -1138,7 +1254,7 @@ void test_handleStatusRegForSubSubiSbcSbciOperation_given_operand1_is_0xaf_opera
 	TEST_ASSERT_EQUAL(0, sreg->C);
 	TEST_ASSERT_EQUAL(0, sreg->Z);
 	TEST_ASSERT_EQUAL(0, sreg->N);
-	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->V);
 	TEST_ASSERT_EQUAL(0, sreg->S);
 	TEST_ASSERT_EQUAL(0, sreg->H);
 }

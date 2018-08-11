@@ -113,6 +113,7 @@ int is8bitAndAndiOrOriEorCbrSbrTstSigned(uint8_t result);
 int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result);
 int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
 int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result);
+int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result);
 int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2, uint8_t result);
 int is8bitComCarry();
 int handleStatusRegForComOperation(uint8_t result);
