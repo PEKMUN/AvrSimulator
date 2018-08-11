@@ -169,18 +169,17 @@ void initSimulator()
 
 int is2wordInstruction(uint8_t *codePtr)
 {
-  codePtr + 2;
+  codePtr += 2;
 
-  if(*(uint16_t *)codePtr & 0xf000 == 0x9000)
+  if((*(uint16_t *)codePtr & 0xf000) == 0x9000)
   {
-    if(*(uint16_t *)codePtr & 0x0e00 == 0x400 || *(uint16_t *)codePtr & 0x0e00 == 0x200)
+    if((*(uint16_t *)codePtr & 0x0e00) == 0x400 || (*(uint16_t *)codePtr & 0x0e00) == 0x200)
     {
-      if(*(uint16_t *)codePtr & 0xf == 0x0 || *(uint16_t *)codePtr & 0xe == 0xc || *(uint16_t *)codePtr & 0xe == 0xe)
+      if((*(uint16_t *)codePtr & 0xf) == 0x0 || (*(uint16_t *)codePtr & 0xe) == 0xc || (*(uint16_t *)codePtr & 0xe) == 0xe)
         return 1;
     }
   }
-  else
-    return 0;
+  return 0;
 }
 
 /**

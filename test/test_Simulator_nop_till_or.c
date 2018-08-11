@@ -266,6 +266,9 @@ void test_AvrOperatorTable_given_cpse_r14_r15(void)
 	};
 	uint8_t *progCounter = codeMemory;
 	
+  r[14] = 0x12;
+  r[15] = 0x10;
+  
 	pc = simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL(2, pc);
@@ -297,6 +300,9 @@ void test_AvrOperatorTable_given_cpse_r16_r17(void)
 	};
 	uint8_t *progCounter = codeMemory;
 	
+  r[16] = 0x12;
+  r[17] = 0x12;
+  
 	pc = simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL(4, pc);
@@ -328,6 +334,9 @@ void test_AvrOperatorTable_given_cpse_r18_r19(void)
 	};
 	uint8_t *progCounter = codeMemory;
 	
+  r[18] = 0x12;
+  r[19] = 0x12;
+  
 	pc = simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL(6, pc);
