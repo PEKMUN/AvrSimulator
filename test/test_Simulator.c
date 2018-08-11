@@ -4036,3 +4036,45 @@ void test_AvrOperatorTable_given_cpi_r18_211(void)
 	TEST_ASSERT_EQUAL(0, sreg->S);
 	TEST_ASSERT_EQUAL(1, sreg->H);
 }
+
+/**
+ * Instruction:
+ * 		LDI Rd, K
+ *		1110 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ *
+ * Simulate ldi R31, 211
+ *			1110 1101 1111 0011
+ *			 e 	  d    f  	3
+ */
+void test_AvrOperatorTable_given_cpi_r31_211(void)
+{
+  uint8_t codeMemory[] = {
+		0xf3, 0xed,
+	};
+	uint8_t *progCounter = codeMemory;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(211, r[31]);
+}

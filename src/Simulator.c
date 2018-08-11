@@ -35,6 +35,7 @@ AvrOperator avrOperatorTable[256] = {
   [0x04 ... 0x07] = cpc,
   [0x30 ... 0x3f] = cpi,
   //[0x10 ... 0x13] = cpse,
+  [0xe0 ... 0xef] = ldi,
 };
 
 AvrOperator avr10010100Table[16] = {
@@ -153,6 +154,21 @@ void initSimulator()
 {
   *spRegPtr = 0x8ff;
 }
+
+/*int is2wordInstruction(uint8_t *codePtr)
+{
+  uint16_t sts, first4bit;
+  codePtr + 2;
+  
+  result = *(uint16_t *)codePtr & 
+  
+  
+  
+  if(sts(codePtr) | jmp(codePtr) | call(codePtr))
+    return 1;
+  else
+    return 0;
+}*/
 
 /**
  * Z:
@@ -2142,5 +2158,42 @@ int cpi(uint8_t *codePtr)
 
 	r[rd] = r[rd] - k;
 	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
+	return 0;
+}
+
+/**
+ * Instruction:
+ * 		LDI Rd, K
+ *		1110 KKKK dddd KKKK
+ * where
+ *		0 <= KKKKKKKK <= 255
+ *    16 <= dddd <= 31
+ * 		dddd is {
+ *			0000 => 16,
+ *			0001 => 17, 
+ *			0010 => 18,
+ *			0011 => 19, 
+ *			0100 => 20,
+ *			0101 => 21, 
+ *			0110 => 22,
+ *			0111 => 23, 
+ *			1000 => 24,
+ *			1001 => 25, 
+ *			1010 => 26,
+ *			1011 => 27, 
+ *			1100 => 28,
+ *			1101 => 29, 
+ *			1110 => 30,
+ *			1111 => 31 
+ *		}
+ */
+int ldi(uint8_t *codePtr)
+{
+	uint8_t rd, k;
+  
+	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
+	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
+
+	r[rd] = k;
 	return 0;
 }

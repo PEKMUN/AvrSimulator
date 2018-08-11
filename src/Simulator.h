@@ -83,6 +83,7 @@ int sleep(uint8_t *codePtr);
 int cp(uint8_t *codePtr);
 int cpc(uint8_t *codePtr);
 int cpi(uint8_t *codePtr);
+int ldi(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith10010100(uint8_t *codePtr);
@@ -90,6 +91,11 @@ int instructionWith10010101(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
+void substractStackPointer(int value);
+void push(uint16_t data);
+void pop();
+void initSimulator();
+int is2wordInstruction(uint8_t *codePtr);
 
 //Status Register
 int is8bitZero(uint8_t data8bit);
