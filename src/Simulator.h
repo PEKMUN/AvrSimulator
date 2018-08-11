@@ -93,8 +93,8 @@ int instructionWith10010101(uint8_t *codePtr);
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
 void substractStackPointer(int value);
-void push(uint16_t data);
-void pop();
+void pushWord(uint16_t data);
+uint16_t popWord();
 void initSimulator();
 int is2wordInstruction(uint8_t *codePtr);
 
