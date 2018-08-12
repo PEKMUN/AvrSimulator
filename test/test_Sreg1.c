@@ -708,3 +708,301 @@ void test_is8bitAdcAddHalfCarry_given_operand1_is_0x00_operand2_is_0x01_result_i
 	
 	TEST_ASSERT_EQUAL(0, h);
 }
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0x77_operand2_is_0x71_result_is_0xf9(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x77;
+	operand2 = 0x71;
+	result = 0xf9;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0x70_operand2_is_0x9e_result_is_0x13(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x70;
+	operand2 = 0x9e;
+	result = 0x13;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0x00_operand2_is_0xff_result_is_0xff(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+	operand2 = 0xff;
+	result = 0xff;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0xfc_operand2_is_0x11_result_is_0x07(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xfc;
+	operand2 = 0x11;
+	result = 0x07;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0x8a_operand2_is_0x11_result_is_0x98(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x8a;
+	operand2 = 0x11;
+	result = 0x98;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x22(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x8f;
+	operand2 = 0x9c;
+	result = 0x22;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, h);
+}
+
+void test_is8bitAdcAddHalfCarry_given_operand1_is_0xff_operand2_is_0xab_result_is_0x98(void)
+{
+	uint8_t h;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xff;
+	operand2 = 0xab;
+	result = 0x98;
+  
+	h = is8bitAdcAddHalfCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, h);
+}
+
+void test_handleStatusRegForAddAdcOperation_given_operand1_is_0xff_operand2_is_0xab_result_is_0x98(void)
+{
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xff;
+	operand2 = 0xab;
+	result = 0x98;
+	
+	handleStatusRegForAddAdcOperation(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(1, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+	TEST_ASSERT_EQUAL(1, sreg->H);
+}
+
+/**
+ * V:
+ *    0
+ */
+void test_is8bitAndAndiOrOriEorCbrSbrTstOverflow_given_v_is_0(void)
+{
+	uint8_t v;
+	sreg->V = 0;
+	
+	v = is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+void test_is8bitAndAndiOrOriEorCbrSbrTstOverflow_given_v_is_1(void)
+{
+	uint8_t v;
+	sreg->V = 1;
+	
+	v = is8bitAndAndiOrOriEorCbrSbrTstOverflow();
+	
+	TEST_ASSERT_EQUAL(0, v);
+}
+
+/**
+ * S:
+ *    N^V
+ */
+void test_is8bitAndAndiOrOriEorCbrSbrTstSigned_given_n_is_0_v_is_0(void)
+{
+	uint8_t s;
+	uint16_t result;
+	
+	result = 0x07;
+	
+	s = is8bitAndAndiOrOriEorCbrSbrTstSigned(result);
+	
+	TEST_ASSERT_EQUAL(0, s);
+}
+
+void test_is8bitAndAndiOrOriEorCbrSbrTstSigned_given_n_is_1_v_is_0(void)
+{
+	uint8_t s;
+	uint16_t result;
+	
+	result = 0x97;
+	
+	s = is8bitAndAndiOrOriEorCbrSbrTstSigned(result);
+	
+	TEST_ASSERT_EQUAL(1, s);
+}
+
+void test_handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation_given_result_is_0xab(void)
+{
+	uint8_t result;
+
+	result = 0xab;
+	
+	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(result);
+	
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(1, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+}
+
+/**
+ * C: 
+ *    !Rd7.Rr7+Rr7.R7+R7.!Rd7
+ */
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x09(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+	operand2 = 0x01;
+	result = 0x01;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x7f_operand2_is_0x7a_result_is_0xf9(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x7f;
+	operand2 = 0x7a;
+	result = 0xf9;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x7c_operand2_is_0x9e_result_is_0x1a(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x7c;
+	operand2 = 0x9e;
+	result = 0x1a;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x00_operand2_is_0xf1_result_is_0xf1(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x00;
+	operand2 = 0xf1;
+	result = 0xf1;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0xf6_operand2_is_0x11_result_is_0x07(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+	operand2 = 0x11;
+	result = 0x07;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x86_operand2_is_0x11_result_is_0x97(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x86;
+	operand2 = 0x11;
+	result = 0x97;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x8f_operand2_is_0x9c_result_is_0x2b(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0x8f;
+	operand2 = 0x9c;
+	result = 0x2b;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(0, c);
+}
+
+void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(void)
+{
+	uint8_t c;
+	uint8_t result, operand1, operand2;
+	
+	operand1 = 0xf6;
+	operand2 = 0xa1;
+	result = 0x97;
+  
+	c = is8bitSubSubiSbcSbciCarry(operand1, operand2, result);
+	
+	TEST_ASSERT_EQUAL(1, c);
+}
