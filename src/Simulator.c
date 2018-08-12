@@ -167,7 +167,7 @@ int is2wordInstruction(uint8_t *codePtr)
 
 /**
  * Z:
- *		!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *    !R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is8bitZero(uint8_t data8bit)
 {
@@ -179,7 +179,7 @@ int is8bitZero(uint8_t data8bit)
 
 /**
  * C:
- *		!R15.Rdh7
+ *    !R15.Rdh7
  */
 int is16bitADIWCarry(uint16_t result, uint16_t operand)
 {
@@ -189,7 +189,7 @@ int is16bitADIWCarry(uint16_t result, uint16_t operand)
 
 /**
  * Z:
- *		!R15.!R14.!R13.!R12.!R11.!R10.!R9.!R8.!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *    !R15.!R14.!R13.!R12.!R11.!R10.!R9.!R8.!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is16BitZero(uint16_t data16Bit)
 {
@@ -201,7 +201,7 @@ int is16BitZero(uint16_t data16Bit)
 
 /**
  * N:
- *		R15 
+ *    R15
  */
 int is16bitNeg(uint16_t result)
 {
@@ -211,7 +211,7 @@ int is16bitNeg(uint16_t result)
 
 /**
  * V:
- *		R15.!Rdh7
+ *    R15.!Rdh7
  */
 int is16bitADIWOverflow(uint16_t result, uint16_t operand)
 {
@@ -221,7 +221,7 @@ int is16bitADIWOverflow(uint16_t result, uint16_t operand)
 
 /**
  * S:
- *		N ^ V
+ *    N ^ V
  */
 int is16bitSigned(uint16_t result, uint16_t operand)
 {
@@ -244,7 +244,7 @@ int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand)
 
 /**
  * C:
- *		R15.!Rdh7
+ *    R15.!Rdh7
  */
 int is16bitSBIWCarry(uint16_t result, uint16_t operand)
 {
@@ -254,7 +254,7 @@ int is16bitSBIWCarry(uint16_t result, uint16_t operand)
 
 /**
  * V:
- *		!R15.Rdh7
+ *    !R15.Rdh7
  */
 int is16bitSBIWOverflow(uint16_t result, uint16_t operand)
 {
@@ -274,7 +274,7 @@ int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
 
 /**
  * C: 
- *    Rd7.Rr7 + Rr7.!R7 + !R7.Rd7
+ *    Rd7.Rr7+Rr7.!R7+!R7.Rd7
  */
 int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -294,7 +294,7 @@ int is8bitNeg(uint8_t result)
 
 /**
  * V: 
- *    Rd7.Rr7.!R7 + !Rd7.!Rr7.R7
+ *    Rd7.Rr7.!R7+!Rd7.!Rr7.R7
  */
 int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -304,7 +304,7 @@ int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -317,7 +317,7 @@ int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
 
 /**
  * H: 
- *    Rd3.Rr3 + Rr3.!R3 + !R3.Rd3
+ *    Rd3.Rr3+Rr3.!R3+!R3.Rd3
  */
 int is8bitAdcAddHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -338,7 +338,7 @@ int handleStatusRegForAddAdcOperation(uint8_t operand1, uint8_t operand2, uint8_
 
 /**
  * V:
- *		0
+ *    0
  */
 int is8bitAndAndiOrOriEorCbrSbrTstOverflow()
 {
@@ -350,7 +350,7 @@ int is8bitAndAndiOrOriEorCbrSbrTstOverflow()
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitAndAndiOrOriEorCbrSbrTstSigned(uint8_t result)
 {
@@ -371,7 +371,7 @@ int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result)
 
 /**
  * C: 
- *    !Rd7.Rr7 + Rr7.R7 + R7.!Rd7
+ *    !Rd7.Rr7+Rr7.R7+R7.!Rd7
  */
 int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -381,7 +381,7 @@ int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result
 
 /**
  * H: 
- *		!Rd3.Rr3 + Rr3.R3 + R3.!Rd3
+ *    !Rd3.Rr3+Rr3.R3+R3.!Rd3
  */
 int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -391,7 +391,7 @@ int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t re
 
 /**
  * V: 
- *    Rd7.!Rr7.!R7 + !Rd7.Rr7.R7
+ *    Rd7.!Rr7.!R7+!Rd7.Rr7.R7
  */
 int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -401,7 +401,7 @@ int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t res
 
 /**
  * S: 
- *    N ^ V
+ *    N^V
  */
 int is8bitSubSubiSbcSbciSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -425,7 +425,7 @@ int handleStatusRegForSubSubiSbcSbciOperation(uint8_t operand1, uint8_t operand2
 
 /**
  * C:
- *		1
+ *    1
  */
 int is8bitComCarry()
 {
@@ -446,7 +446,7 @@ int handleStatusRegForComOperation(uint8_t result)
 
 /**
  * C:
- *		R7 + R6 + R5 + R4 + R3 + R2 + R1 + R0
+ *    R7+R6+R5+R4+R3+R2+R1+R0
  */
 int is8bitNegCarry(uint8_t data8bit)
 {
@@ -458,7 +458,7 @@ int is8bitNegCarry(uint8_t data8bit)
 
 /**
  * V:
- *		R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *    R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is8bitNegOverflow(uint8_t data8bit)
 {
@@ -470,7 +470,7 @@ int is8bitNegOverflow(uint8_t data8bit)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitNegSigned(uint8_t result)
 {
@@ -483,7 +483,7 @@ int is8bitNegSigned(uint8_t result)
 
 /**
  * H:
- *		R3 + Rd3
+ *    R3+Rd3
  */
 int is8bitNegHalfCarry(uint8_t operand1, uint8_t result)
 {
@@ -512,7 +512,7 @@ int handleStatusRegForIncOperation(uint8_t result)
 
 /**
  * V:
- *		!R7.R6.R5.R4.R3.R2.R1.R0
+ *    !R7.R6.R5.R4.R3.R2.R1.R0
  */
 int is8bitDecOverflow(uint8_t data8bit)
 {
@@ -540,7 +540,7 @@ int handleStatusRegForClrOperation()
 
 /**
  * C:
- *		R15
+ *    R15
  */
 int is16bitMulMulsMulsuCarry(uint16_t result)
 {
@@ -558,7 +558,7 @@ int handleStatusRegForMulMulsMulsuOperation(uint16_t result)
 
 /**
  * C:
- *		Rd7
+ *    Rd7
  */
 int is8bitLslRolCarry(uint8_t operand1)
 {
@@ -570,7 +570,7 @@ int is8bitLslRolCarry(uint8_t operand1)
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 int is8bitLslRolOverflow(uint8_t operand1, uint8_t result)
 {
@@ -584,7 +584,7 @@ int is8bitLslRolOverflow(uint8_t operand1, uint8_t result)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitLslRolSigned(uint8_t operand1, uint8_t result)
 {
@@ -598,7 +598,7 @@ int is8bitLslRolSigned(uint8_t operand1, uint8_t result)
 
 /**
  * H:
- *		Rd3
+ *    Rd3
  */
 int is8bitLslRolHalfCarry(uint8_t operand1)
 {
@@ -620,7 +620,7 @@ int handleStatusRegForLslRolOperation(uint8_t operand1, uint8_t result)
 
 /**
  * C:
- *		Rd0
+ *    Rd0
  */
 int is8bitLsrRorCarry(uint8_t operand1)
 {
@@ -632,7 +632,7 @@ int is8bitLsrRorCarry(uint8_t operand1)
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 int is8bitLsrOverflow(uint8_t operand1)
 {
@@ -646,7 +646,7 @@ int is8bitLsrOverflow(uint8_t operand1)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitLsrSigned(uint8_t operand1)
 {
@@ -669,7 +669,7 @@ int handleStatusRegForLsrOperation(uint8_t operand1, uint8_t result)
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 int is8bitRorOverflow(uint8_t operand1, uint8_t result)
 {
@@ -683,7 +683,7 @@ int is8bitRorOverflow(uint8_t operand1, uint8_t result)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 int is8bitRorSigned(uint8_t operand1, uint8_t result)
 {

@@ -11,7 +11,7 @@ void tearDown(void){}
 
 /**
  * Z:
- *		!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *   !R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 void test_is8bitZero_given_data8bit_is_0b00010100(void)
 {
@@ -35,7 +35,7 @@ void test_is8bitZero_given_data8bit_is_0b00000000(void)
 
 /**
  * C:
- *		!R15.Rdh7
+ *    !R15.Rdh7
  */
 void test_is16bitADIWCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
 {
@@ -91,7 +91,7 @@ void test_is16bitADIWCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
 
 /**
  * Z:
- *		!R15.!R14.!R13.!R12.!R11.!R10.!R9.!R8.!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *   !R15.!R14.!R13.!R12.!R11.!R10.!R9.!R8.!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 void test_is16bitZero_given_data8bit_is_0x6f94(void)
 {
@@ -115,7 +115,7 @@ void test_is16bitZero_given_data8bit_is_0x0000(void)
 
 /**
  * N:
- *		R15 
+ *    R15
  */
 void test_is16bitNeg_given_result_is_0x4f4d(void)
 {
@@ -143,7 +143,7 @@ void test_is16bitNeg_given_result_is_0xff4d(void)
 
 /**
  * V:
- *		R15.!Rdh7
+ *    R15.!Rdh7
  */
 void test_is16bitADIWOverflow_given_result_is_0x4f4d_operand_is_0xf6f6(void)
 {
@@ -199,7 +199,7 @@ void test_is16bitADIWOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is16bitSigned_given_n_is_0_v_is_0(void)
 {
@@ -245,7 +245,7 @@ void test_handleStatusRegForAddImmWordOperation_given_result_is_0x54d6_operand_i
 
 /**
  * C:
- *		R15.!Rdh7
+ *    R15.!Rdh7
  */
 void test_is16bitSBIWCarry_given_result_is_0x4f4d_operand_is_0xf6f6(void)
 {
@@ -301,7 +301,7 @@ void test_is16bitSBIWCarry_given_result_is_0xff4d_operand_is_0x46f6(void)
 
 /**
  * V:
- *		!R15.Rdh7
+ *    !R15.Rdh7
  */
 void test_is16bitSBIWOverflow_given_result_is_0xff4d_operand_is_0x46f6(void)
 {
@@ -373,7 +373,7 @@ void test_handleStatusRegForSubImmWordOperation_given_result_is_0x83f5_operand_i
 
 /**
  * C: 
- *    Rd7.Rr7 + Rr7.!R7 + !R7.Rd7
+ *    Rd7.Rr7+Rr7.!R7+!R7.Rd7
  */
 void test_is8bitAdcAddCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x09(void)
 {
@@ -517,7 +517,7 @@ void test_is8bitNeg_given_result_is_0xa7(void)
 
 /**
  * V: 
- *    Rd7.Rr7.!R7 + !Rd7.!Rr7.R7
+ *    Rd7.Rr7.!R7+!Rd7.!Rr7.R7
  */
 void test_is8bitOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(void)
 {
@@ -633,7 +633,7 @@ void test_is8bitOverflow_given_operand1_is_0xf6_operand2_is_0xa1_result_is_0x97(
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitSigned_given_n_is_0_v_is_0(void)
 {
@@ -693,7 +693,7 @@ void test_is8bitSigned_given_n_is_1_v_is_1(void)
 
 /**
  * H: 
- *    Rd3.Rr3 + Rr3.!R3 + !R3.Rd3
+ *    Rd3.Rr3+Rr3.!R3+!R3.Rd3
  */
 void test_is8bitAdcAddHalfCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x01(void)
 {
@@ -827,7 +827,7 @@ void test_handleStatusRegForAddAdcOperation_given_operand1_is_0xff_operand2_is_0
 
 /**
  * V:
- *		0
+ *    0
  */
 void test_is8bitAndAndiOrOriEorCbrSbrTstOverflow_given_v_is_0(void)
 {
@@ -851,7 +851,7 @@ void test_is8bitAndAndiOrOriEorCbrSbrTstOverflow_given_v_is_1(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitAndAndiOrOriEorCbrSbrTstSigned_given_n_is_0_v_is_0(void)
 {
@@ -893,7 +893,7 @@ void test_handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation_given_result_is_0x
 
 /**
  * C: 
- *    !Rd7.Rr7 + Rr7.R7 + R7.!Rd7
+ *    !Rd7.Rr7+Rr7.R7+R7.!Rd7
  */
 void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x09(void)
 {
@@ -1009,7 +1009,7 @@ void test_is8bitSubSubiSbcSbciCarry_given_operand1_is_0xf6_operand2_is_0xa1_resu
 
 /**
  * H: 
- *		!Rd3.Rr3 + Rr3.R3 + R3.!Rd3
+ *    !Rd3.Rr3+Rr3.R3+R3.!Rd3
  */
 void test_is8bitSubSubiSbcSbciHalfCarry_given_operand1_is_0x00_operand2_is_0x01_result_is_0x01(void)
 {
@@ -1125,7 +1125,7 @@ void test_is8bitSubSubiSbcSbciHalfCarry_given_operand1_is_0xff_operand2_is_0xab_
 
 /**
  * V: 
- *    Rd7.!Rr7.!R7 + !Rd7.Rr7.R7
+ *    Rd7.!Rr7.!R7+!Rd7.Rr7.R7
  */
 void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0x06_operand2_is_0x71_result_is_0x77(void)
 {
@@ -1241,7 +1241,7 @@ void test_is8bitSubSubiSbcSbciOverflow_given_operand1_is_0xf6_operand2_is_0xa1_r
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitSubSubiSbcSbciSigned_given_n_is_0_v_is_0(void)
 {
@@ -1319,7 +1319,7 @@ void test_handleStatusRegForSubSubiSbcSbciOperation_given_operand1_is_0xaf_opera
 
 /**
  * C:
- *		1
+ *    1
  */
 void test_is8bitComCarry_given_c_is_0(void)
 {
@@ -1360,7 +1360,7 @@ void test_handleStatusRegForComOperation_given_operand1_is_0x00_operand2_is_0x00
 
 /**
  * C:
- *		R7 + R6 + R5 + R4 + R3 + R2 + R1 + R0
+ *    R7+R6+R5+R4+R3+R2+R1+R0
  */
 void test_is8bitNegCarry_given_data8bit_is_0b00010100(void)
 {
@@ -1384,7 +1384,7 @@ void test_is8bitNegCarry_given_data8bit_is_0b00000000(void)
 
 /**
  * V:
- *		R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
+ *    R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 void test_is8bitNegOverflow_given_data8bit_is_0b10000000(void)
 {
@@ -1408,7 +1408,7 @@ void test_is8bitNegOverflow_given_data8bit_is_0b10011111(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitNegSigned_given_n_is_0_v_is_0(void)
 {
@@ -1436,7 +1436,7 @@ void test_is8bitNegSigned_given_n_is_1_v_is_1(void)
 
 /**
  * H:
- *		R3 + Rd3
+ *    R3+Rd3
  */
 void test_is8bitNegHalfCarry_given_operand1_is_0xa3_result_is_0x80(void)
 {
@@ -1523,7 +1523,7 @@ void test_handleStatusRegForIncOperation_given_operand1_is_0x81_result_is_0x94(v
 
 /**
  * V:
- *		!R7.R6.R5.R4.R3.R2.R1.R0
+ *    !R7.R6.R5.R4.R3.R2.R1.R0
  */
 void test_is8bitDecOverflow_given_data8bit_is_0b01111111(void)
 {
@@ -1557,7 +1557,7 @@ void test_handleStatusRegForClrOperation(void)
 
 /**
  * C:
- *		R15
+ *    R15
  */
 void test_is16bitMulMulsMulsuCarry_given_result_is_0x6f73(void)
 {
@@ -1592,7 +1592,7 @@ void test_handleStatusRegForMulMulsMulsuOperation_given_reult_is_0x1234(void)
 
 /**
  * C:
- *		Rd7
+ *    Rd7
  */
 void test_is8bitLslRolCarry_given_operand1_is_0x6f(void)
 {
@@ -1616,7 +1616,7 @@ void test_is8bitLslRolCarry_given_operand1_is_0xf6(void)
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 void test_is8bitLslRolOverflow_given_operand1_is_0x6f_result_is_0x47(void)
 {
@@ -1664,7 +1664,7 @@ void test_is8bitLslRolOverflow_given_operand1_is_0xff_result_is_0x96(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitLslRolSigned_given_operand1_is_0x6f_result_is_0x47(void)
 {
@@ -1712,7 +1712,7 @@ void test_is8bitLslRolSigned_given_operand1_is_0xff_result_is_0x96(void)
 
 /**
  * H:
- *		Rd3
+ *    Rd3
  */
 void test_is8bitLslRolHalfCarry_given_operand1_is_0x34(void)
 {
@@ -1752,7 +1752,7 @@ void test_handleStatusRegForLslRolOperation_given_operand1_is_0x87_result_is_0x4
 
 /**
  * C:
- *		Rd0
+ *    Rd0
  */
 void test_is8bitLsrRorCarry_given_operand1_is_0x68(void)
 {
@@ -1776,7 +1776,7 @@ void test_is8bitLsrRorCarry_given_operand1_is_0xf9(void)
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 void test_is8bitLsrOverflow_given_operand1_is_0x68(void)
 {
@@ -1800,7 +1800,7 @@ void test_is8bitLsrOverflow_given_operand1_is_0x6f_operand1_is_0x89(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitLsrSigned_given_operand1_is_0x68(void)
 {
@@ -1839,7 +1839,7 @@ void test_handleStatusRegForLsrOperation_given_operand1_is_0x87_result_is_0x43(v
 
 /**
  * V:
- *		N ^ C
+ *    N^C
  */
 void test_is8bitRorOverflow_given_operand1_is_0x67_result_is_0x04(void)
 {
@@ -1887,7 +1887,7 @@ void test_is8bitRorOverflow_given_operand1_is_0x89_result_is_0x94(void)
 
 /**
  * S:
- *		N ^ V
+ *    N^V
  */
 void test_is8bitRorSigned_given_operand1_is_0x68_result_is_0x04(void)
 {
