@@ -32,7 +32,10 @@ AvrOperator avrOperatorTable[256] = {
   [0x94 ... 0x95] = instructionWith1001010,
   [0x96] = adiw,
   [0x97] = sbiw,
-  [0x98 ... 0x9b] = NULL,
+  [0x98] = NULL,
+  [0x99] = sbic,
+  [0x9a] = NULL,
+  [0x9b] = sbis,
   [0x9c ... 0x9f] = mul,
   [0xa0 ... 0xbf] = NULL,
   [0xc0 ... 0xcf] = rjmp,
@@ -42,7 +45,10 @@ AvrOperator avrOperatorTable[256] = {
   [0xf4 ... 0xf7] = brbc,
   [0xf8 ... 0xf9] = bld,
   [0xfa ... 0xfb] = bst,
-  [0xfc ... 0xff] = NULL,
+  [0xfc] = sbrc,
+  [0xfd] = NULL,
+  [0xfe] = sbrs,
+  [0xff] = NULL,
 };
 
 AvrOperator avr1001010Table[16] = {
@@ -55,7 +61,7 @@ AvrOperator avr1001010Table[16] = {
   [0x6] = lsr,
   [0x7] = ror,
   [0x8] = instructionWith1001010x,
-  [0x9] = NULL,
+  [0x9] = instructionWith0x94_9,
   [0xa] = dec,
   [0xb] = NULL,
   [0xc ... 0xd] = jmp,
@@ -70,13 +76,14 @@ uint8_t flashMemory[FLASH_SIZE];
 //AVR Register
 uint8_t *r = sram;
 SregRegister *sreg = (SregRegister*)&sram[0x5f];
-uint16_t *xRegPtr = (uint16_t *)&sram[0x26];
-uint16_t *yRegPtr = (uint16_t *)&sram[0x28];
-uint16_t *zRegPtr = (uint16_t *)&sram[0x30];
+uint8_t *io = &sram[0x20];
+uint16_t *xRegPtr = (uint16_t *)&sram[26];
+uint16_t *yRegPtr = (uint16_t *)&sram[28];
+uint16_t *zRegPtr = (uint16_t *)&sram[30];
 uint8_t *sph = &sram[0x5e];
 uint8_t *spl = &sram[0x5d];
+uint8_t *eind = &sram[0x5c];
 uint8_t *pc = flashMemory;
-uint16_t  *spRegPtr = (uint16_t *)&sram[0x5d];
 uint8_t *flash = flashMemory;
 
 int simulateOneInstruction(uint8_t *codePtr)
@@ -118,6 +125,18 @@ int instructionWith1001010x(uint8_t *codePtr)
   }
 }
 
+int instructionWith0x94_9(uint8_t *codePtr)
+{
+  uint8_t isIjmp;
+  isIjmp = *codePtr & 0xf0;
+  
+  if(isIjmp == 0x00)
+    ijmp(codePtr);
+  else
+    eijmp(codePtr);
+  
+}
+
 uint32_t getPc(uint8_t *progCounter)
 {
 	return (progCounter - flash); 
@@ -135,19 +154,19 @@ void substractStackPointer(int value)
 
 void pushWord(uint16_t data)
 {
-  *spRegPtr = data;
+  *spl = data;
   substractStackPointer(2);
 }
 
 uint16_t popWord()
 {
   substractStackPointer(-2);
-  return *spRegPtr;
+  return *spl;
 }
 
 void initSimulator()
 {
-  *spRegPtr = 0x8ff;
+  *spl = 0x8ff;
 }
 
 int is2wordInstruction(uint8_t *codePtr)
@@ -2200,6 +2219,8 @@ int ldi(uint8_t *codePtr)
  * where
  *			0 <= ddddd <= 31
  *      0 <= rrrrr <= 31
+ *
+ * PC <- PC + 1, condition false - no skip
  * PC <- PC + 2, Skip a one word instruction
  * PC <- PC + 3, Skip a two word instruction
  */
@@ -2219,4 +2240,173 @@ int cpse(uint8_t *codePtr)
   }
   else 
     return 2;
+}
+
+/**
+ * Instruction:
+ * 		SBRC Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ */
+int sbrc(uint8_t *codePtr)
+{
+	uint8_t rr, b;
+
+  rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  b = *codePtr & 0x7;
+  r[rr] = (r[rr] & (1 << b)) >> b;
+  
+	if(r[rr] == 0)
+  {
+    if(is2wordInstruction(codePtr))
+      return 6;
+    else
+      return 4;
+  }
+  else 
+    return 2;
+}
+
+/**
+ * Instruction:
+ * 		SBRS Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ */
+int sbrs(uint8_t *codePtr)
+{
+	uint8_t rr, b;
+
+  rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  b = *codePtr & 0x7;
+  r[rr] = (r[rr] & (1 << b)) >> b;
+  
+	if(r[rr] == 1)
+  {
+    if(is2wordInstruction(codePtr))
+      return 6;
+    else
+      return 4;
+  }
+  else 
+    return 2;
+}
+
+/**
+ * Instruction:
+ * 		SBIC A, b
+ *		1001 1001 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ */
+int sbic(uint8_t *codePtr)
+{
+	uint8_t A, b;
+
+  A = (*codePtr & 0xf8) >> 3;
+  b = *codePtr & 0x7;
+  io[A] = (io[A] & (1 << b)) >> b;
+  
+	if(io[A] == 0)
+  {
+    if(is2wordInstruction(codePtr))
+      return 6;
+    else
+      return 4;
+  }
+  else 
+    return 2;
+}
+
+/**
+ * Instruction:
+ * 		SBIS A, b
+ *		1001 1011 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ */
+int sbis(uint8_t *codePtr)
+{
+	uint8_t A, b;
+
+  A = (*codePtr & 0xf8) >> 3;
+  b = *codePtr & 0x7;
+  io[A] = (io[A] & (1 << b)) >> b;
+  
+	if(io[A] == 1)
+  {
+    if(is2wordInstruction(codePtr))
+      return 6;
+    else
+      return 4;
+  }
+  else 
+    return 2;
+}
+
+/**
+ * Instruction:
+ * 		IJMP None
+ *		1001 0100 0000 1001
+ *
+ * PC <- Z(15:0)
+ */
+int ijmp(uint8_t *codePtr)
+{
+  int pc;
+	pc = *zRegPtr;
+  return (pc - getPc(codePtr));
+}
+
+/**
+ * Instruction:
+ * 		EIJMP None
+ *		1001 0100 0001 1001
+ *
+ * PC(15:0) <- Z(15:0)
+ * PC(21:16) <- EIND
+ */
+int eijmp(uint8_t *codePtr)
+{
+  int pc;
+	pc = (*(uint32_t *)eind << 16) | *zRegPtr;
+  return (pc - getPc(codePtr));
+}
+
+/**
+ * Instruction:
+ * 		CALL k
+ *		1001 010k kkkk 111k
+ *    kkkk kkkk kkkk kkkk
+ *
+ * where
+ *    0 <= k <= 64K
+ */
+int call(uint8_t *codePtr)
+{
+  //int pc;
+	//pc = (*(uint32_t *)eind << 16) | *zRegPtr;
+  return (pc - getPc(codePtr));
 }

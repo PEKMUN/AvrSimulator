@@ -2188,6 +2188,7 @@ void test_AvrOperatorTable_given_cpi_r18_211(void)
 		0x23, 0x3d,
 	};
 	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
 	
 	r[18] = 0x9c;
 	
@@ -2237,8 +2238,503 @@ void test_AvrOperatorTable_given_cpi_r31_211(void)
 		0xf3, 0xed,
 	};
 	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
 	
 	simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL(211, r[31]);
+}
+
+/**
+ * Instruction:
+ * 		SBRC Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrc R7, 1
+ *		1111 1100 0111 0001
+ *     f 	  c    7  	1
+ */
+void test_AvrOperatorTable_given_sbrc_r7_1(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+		0x71, 0xfc,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  r[7] = 0x12;
+
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBRC Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrc R7, 2
+ *		1111 1100 0111 0010
+ *     f 	  c    7  	2
+ */
+void test_AvrOperatorTable_given_sbrc_r7_2(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x72, 0xfc,      //sbrc R7, 2
+    0x0f, 0x01,      //add r16, r17
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[7] = 0x12;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(4, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBRC Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrc R7, 3
+ *		1111 1100 0111 0011
+ *     f 	  c    7  	3
+ */
+void test_AvrOperatorTable_given_sbrc_r7_3(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x73, 0xfc,                   //sbrc R7, 3
+    0x0e, 0x94, 0x78, 0x05,       //call 1400
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[7] = 0x12;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(6, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBRS Rr, b
+ *		1111 111r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrs R7, 1
+ *		1111 1110 0111 0001
+ *     f 	  e    7  	1
+ */
+void test_AvrOperatorTable_given_sbrs_r7_1(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+		0x71, 0xfe,
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[7] = 0x4c;
+
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBRS Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrs R7, 2
+ *		1111 1110 0111 0010
+ *     f 	  e    7  	2
+ */
+void test_AvrOperatorTable_given_sbrs_r7_2(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x72, 0xfe,      //sbrs R7, 2
+    0x0f, 0x01,      //add r16, r17
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[7] = 0x4c;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(4, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBRS Rr, b
+ *		1111 110r rrrr 0bbb
+ * where
+ *    0 <= rrrrr <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbrs R7, 3
+ *		1111 1110 0111 0011
+ *     f 	  e    7  	3
+ */
+void test_AvrOperatorTable_given_sbrs_r7_3(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x73, 0xfe,                   //sbrs R7, 3
+    0x0e, 0x94, 0x78, 0x05,       //call 1400
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[7] = 0x4c;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(6, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIC A, b
+ *		1001 1001 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbic 12, 1
+ *		1001 1001 0110 0001
+ *     9 	  9    6  	1
+ */
+void test_AvrOperatorTable_given_sbic_12_1(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+		0x61, 0x99,
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  io[12] = 0x12;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIC A, b
+ *		1001 1001 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbic 12, 2
+ *		1001 1001 0110 0010
+ *     9 	  9    6  	2
+ */
+void test_AvrOperatorTable_given_sbic_12_2(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x62, 0x99,      //sbic 12, 2
+    0x0f, 0x01,      //add r16, r17
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[12] = 0x12;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(4, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIC A, b
+ *		1001 1001 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbic 12, 3
+ *		1001 1001 0110 0011
+ *     9 	  9    6  	3
+ */
+void test_AvrOperatorTable_given_sbic_12_3(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0x63, 0x99,                   //sbic 12, 3
+    0x0e, 0x94, 0x78, 0x05,       //call 1400
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  r[12] = 0x12;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(6, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIS A, b
+ *		1001 1011 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbis 30, 1
+ *		1001 1011 1111 0001
+ *     9 	  b    f  	1
+ */
+void test_AvrOperatorTable_given_sbis_30_1(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+		0xf1, 0x9b,
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  io[30] = 0x4c;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIS A, b
+ *		1001 1011 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbis 30, 2
+ *		1001 1011 1111 0010
+ *     9 	  b    f  	2
+ */
+void test_AvrOperatorTable_given_sbis_30_2(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0xf2, 0x9b,      //sbis 30, 2
+    0x0f, 0x01,      //add r16, r17
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  io[30] = 0x4c;
+  
+	relAddr = simulateOneInstruction(progCounter);
+
+	TEST_ASSERT_EQUAL(4, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		SBIS A, b
+ *		1001 1011 AAAA Abbb
+ * where
+ *    0 <= AAAAA <= 31
+ *    0 <= bbb <= 7
+ *
+ * PC <- PC + 1, condition false - no skip
+ * PC <- PC + 2, Skip a one word instruction
+ * PC <- PC + 3, Skip a two word instruction
+ *
+ * Simulate sbis 30, 3
+ *		1001 1011 1111 0011
+ *     9 	  b    f  	3
+ */
+void test_AvrOperatorTable_given_sbis_30_3(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0xf3, 0x9b,                   //sbis 30, 3
+    0x0e, 0x94, 0x78, 0x05,       //call 1400
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+	
+  io[30] = 0x4c;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(6, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		IJMP None
+ *		1001 0100 0000 1001
+ *
+ * PC <- Z(15:0)
+ *
+ * Simulate ijmp
+ *    1001 0100 0000 1001
+ *     9    4    0    9
+ */
+void test_AvrOperatorTable_given_ijmp(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+		0xe0, 0xe4,                   //ldi r30, 0x40
+    0xf5, 0xe7,                   //ldi r31, 0x75
+    0x09, 0x94,                   //ijmp
+	};
+	uint8_t *progCounter = &codeMemory[4];
+  flash = codeMemory;
+  r[30] = 0x40;
+  r[31] = 0x75;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX32((0x7540 - 4), relAddr);
+}
+
+/**
+ * Instruction:
+ * 		EIJMP None
+ *		1001 0100 0001 1001
+ *
+ * PC(15:0) <- Z(15:0)
+ * PC(21:16) <- EIND
+ *
+ * Simulate eijmp
+ *    1001 0100 0001 1001
+ *     9    4    1    9
+ */
+void test_AvrOperatorTable_given_eijmp(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    //start:
+    0x05, 0xe0,               //ldi r16, 0x05
+		0xe0, 0xe0,               //ldi r30, 0x00
+    0xf0, 0xe1,               //ldi r31, 0x10
+    0x19, 0x94,               //eijmp
+	};
+	uint8_t *progCounter = &codeMemory[6];
+  flash = codeMemory;
+  *eind = 0x05;
+  r[30] = 0x00;
+  r[31] = 0x10;
+  
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX32((0x51000 - 6), relAddr);
+}
+
+/**
+ * Instruction:
+ * 		CALL k
+ *		1001 010k kkkk 111k
+ *    kkkk kkkk kkkk kkkk
+ *
+ * where
+ *    0 <= k <= 64K
+ *
+ * Simulate call 4000
+ *    1001 0100 0000 1110
+ *     9    4    0    e
+ *    0000 1111 1010 0000
+ *     0    f    a    0
+ */
+void test_AvrOperatorTable_given_call(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    0x05, 0xe0,               //ldi r16, 0x05
+    0x0e, 0x94, 0xa0, 0x0f,   // call 4000
+	};
+	uint8_t *progCounter = &codeMemory[2];
+  flash = codeMemory;
+
+	relAddr = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL_HEX32(6, *(uint16_t *)(&sp[2]));
+	TEST_ASSERT_EQUAL_HEX32(4000*2 - 2, relAddr);
 }

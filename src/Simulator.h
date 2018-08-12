@@ -85,9 +85,17 @@ int cpc(uint8_t *codePtr);
 int cpi(uint8_t *codePtr);
 int ldi(uint8_t *codePtr);
 int cpse(uint8_t *codePtr);
+int sbrc(uint8_t *codePtr);
+int sbrs(uint8_t *codePtr);
+int sbic(uint8_t *codePtr);
+int sbis(uint8_t *codePtr);
+int ijmp(uint8_t *codePtr);
+int eijmp(uint8_t *codePtr);
+int call(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);
+int instructionWith0x94_9(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
@@ -158,8 +166,14 @@ extern uint8_t flashMemory[FLASH_SIZE];
 //AVR Register
 extern uint8_t *r;
 extern SregRegister *sreg;
+extern uint8_t *io;;
+extern uint16_t *xRegPtr;
+extern uint16_t *yRegPtr;
+extern uint16_t *zRegPtr;
 extern uint8_t *sph;
 extern uint8_t *spl;
+extern uint8_t *eind;
+extern uint8_t *pc;
 extern uint8_t *flash;
 
 #endif // _SIMULATOR_H
