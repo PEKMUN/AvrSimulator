@@ -87,8 +87,7 @@ int ldi(uint8_t *codePtr);
 int cpse(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
-int instructionWith10010100(uint8_t *codePtr);
-int instructionWith10010101(uint8_t *codePtr);
+int instructionWith1001010x(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);

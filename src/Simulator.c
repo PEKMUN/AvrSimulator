@@ -45,7 +45,7 @@ AvrOperator avrOperatorTable[256] = {
   [0xfc ... 0xff] = NULL,
 };
 
-AvrOperator avr10010100Table[16] = {
+AvrOperator avr1001010Table[16] = {
   [0x0] = com,
   [0x1] = neg,
   [0x2] = swap,
@@ -54,27 +54,12 @@ AvrOperator avr10010100Table[16] = {
   [0x5] = asr,
   [0x6] = lsr,
   [0x7] = ror,
-  [0x8] = instructionWith10010100,
+  [0x8] = instructionWith1001010x,
   [0x9] = NULL,
   [0xa] = dec,
   [0xb] = NULL,
   [0xc ... 0xd] = jmp,
   [0xe ... 0xf] = NULL,
-  //[0xe] = call, call,
-};
-
-AvrOperator avr10010101Table[16] = {
-  [0x0] = com,
-  [0x1] = neg,
-  [0x2] = swap,
-  [0x3] = inc,
-  [0x4] = NULL,
-  [0x5] = asr,
-  [0x6] = lsr,
-  [0x7] = ror,
-  [0x8] = instructionWith10010101,
-  [0xa] = dec,
-  [0xc] = jmp, jmp,
   //[0xe] = call, call,
 };
 
@@ -101,38 +86,36 @@ int simulateOneInstruction(uint8_t *codePtr)
 
 int instructionWith1001010(uint8_t *codePtr)
 {
-	uint8_t low4bit, is0x95;
+	uint8_t low4bit;
 	low4bit = *codePtr & 0xf;
-  is0x95 = (codePtr[1] & 0x1) | (codePtr[0] & 0x0);
 
-  if(is0x95)
-    return avr10010101Table [low4bit](codePtr);
-  else
-    return avr10010100Table [low4bit](codePtr);
+  return avr1001010Table [low4bit](codePtr);
 }
 
-int instructionWith10010100(uint8_t *codePtr)
+int instructionWith1001010x(uint8_t *codePtr)
 {
-	uint8_t isbclr;
+	uint8_t is0x95, ins, temp, temp1, isbclr;
+  temp1 = temp = *codePtr;
+  is0x95 = (codePtr[1] & 0x1) | (codePtr[0] & 0x0);
+  ins = temp & 0xf0;
 	isbclr = *codePtr & 0x80;
 
-  if(isbclr)
-    bclr(codePtr);
-  else
-    bset(codePtr);
-}
-
-int instructionWith10010101(uint8_t *codePtr)
-{
-  uint8_t ins;
-	ins = *codePtr & 0xf0;
-  
-  if(ins == 0xa0)
+  if(is0x95)
+  {
+   if(ins == 0x90)
     wdr(codePtr);
-  else if(ins == 0x80)
+   else if(ins == 0xa0)
     sleep(codePtr);
-  else
+   else
     Break(codePtr);
+  }
+  else
+  {
+    if(isbclr)
+      bclr(codePtr);
+    else
+      bset(codePtr);
+  }
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -184,7 +167,7 @@ int is2wordInstruction(uint8_t *codePtr)
 
 /**
  * Z:
- *		R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ *		!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is8bitZero(uint8_t data8bit)
 {
@@ -196,7 +179,7 @@ int is8bitZero(uint8_t data8bit)
 
 /**
  * C:
- *		R15 ¯ • Rdh7
+ *		!R15.Rdh7
  */
 int is16bitADIWCarry(uint16_t result, uint16_t operand)
 {
@@ -206,7 +189,7 @@ int is16bitADIWCarry(uint16_t result, uint16_t operand)
 
 /**
  * Z:
- *		R15 ¯ • R14 ¯ • R13 ¯ • R12 ¯ • R11 ¯ • R10 ¯ • R9 ¯ • R8 ¯ • R7 ¯ • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ *		!R15.!R14.!R13.!R12.!R11.!R10.!R9.!R8.!R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is16BitZero(uint16_t data16Bit)
 {
@@ -228,7 +211,7 @@ int is16bitNeg(uint16_t result)
 
 /**
  * V:
- *		R15 • Rdh7 ¯
+ *		R15.!Rdh7
  */
 int is16bitADIWOverflow(uint16_t result, uint16_t operand)
 {
@@ -261,7 +244,7 @@ int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand)
 
 /**
  * C:
- *		R15 • Rdh7 ¯
+ *		R15.!Rdh7
  */
 int is16bitSBIWCarry(uint16_t result, uint16_t operand)
 {
@@ -271,7 +254,7 @@ int is16bitSBIWCarry(uint16_t result, uint16_t operand)
 
 /**
  * V:
- *		R15 ¯ • Rdh7
+ *		!R15.Rdh7
  */
 int is16bitSBIWOverflow(uint16_t result, uint16_t operand)
 {
@@ -291,7 +274,7 @@ int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
 
 /**
  * C: 
- *    Rd7 • Rr7 + Rr7 • R7 ¯ + R7 ¯ • Rd7
+ *    Rd7.Rr7 + Rr7.!R7 + !R7.Rd7
  */
 int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -311,7 +294,7 @@ int is8bitNeg(uint8_t result)
 
 /**
  * V: 
- *    Rd7 • Rr7 • R7 ¯ + Rd7 ¯ • Rr7 ¯ • R7
+ *    Rd7.Rr7.!R7 + !Rd7.!Rr7.R7
  */
 int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -334,7 +317,7 @@ int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
 
 /**
  * H: 
- *    Rd3 • Rr3 + Rr3 • R3 ¯ + R3 ¯ • Rd3
+ *    Rd3.Rr3 + Rr3.!R3 + !R3.Rd3
  */
 int is8bitAdcAddHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -388,7 +371,7 @@ int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result)
 
 /**
  * C: 
- *		Rd7 ¯ • Rr7 + Rr7 • R7 + R7 • Rd7 ¯
+ *    !Rd7.Rr7 + Rr7.R7 + R7.!Rd7
  */
 int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -398,7 +381,7 @@ int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result
 
 /**
  * H: 
- *		Rd3 ¯ • Rr3 + Rr3 • R3 + R3 • Rd3 ¯
+ *		!Rd3.Rr3 + Rr3.R3 + R3.!Rd3
  */
 int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -408,7 +391,7 @@ int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t re
 
 /**
  * V: 
- *    Rd7 • Rr7 ¯ • R7 ¯ + Rd7 ¯ • Rr7 • R7
+ *    Rd7.!Rr7.!R7 + !Rd7.Rr7.R7
  */
 int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
@@ -475,7 +458,7 @@ int is8bitNegCarry(uint8_t data8bit)
 
 /**
  * V:
- *		R7 • R6 ¯ • R5 ¯ • R4 ¯ • R3 ¯ • R2 ¯ • R1 ¯ • R0 ¯
+ *		R7.!R6.!R5.!R4.!R3.!R2.!R1.!R0
  */
 int is8bitNegOverflow(uint8_t data8bit)
 {
@@ -529,7 +512,7 @@ int handleStatusRegForIncOperation(uint8_t result)
 
 /**
  * V:
- *		R7 ¯ • R6 • R5 • R4 • R3 • R2 • R1 • R0
+ *		!R7.R6.R5.R4.R3.R2.R1.R0
  */
 int is8bitDecOverflow(uint8_t data8bit)
 {
