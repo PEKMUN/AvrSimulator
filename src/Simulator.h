@@ -92,6 +92,11 @@ int sbis(uint8_t *codePtr);
 int ijmp(uint8_t *codePtr);
 int eijmp(uint8_t *codePtr);
 int call(uint8_t *codePtr);
+uint8_t cbi(uint8_t *codePtr);
+uint8_t sbi(uint8_t *codePtr);
+uint8_t movw(uint8_t *codePtr);
+uint8_t in(uint8_t *codePtr);
+uint8_t out(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);
