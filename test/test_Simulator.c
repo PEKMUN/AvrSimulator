@@ -2972,3 +2972,83 @@ void test_AvrOperatorTable_given_out_48_31(void)
 	
 	TEST_ASSERT_EQUAL(0xbb, io[48]);
 }
+
+/**
+ * Instruction:
+ * 		LD Rd, X
+ *		1001 000d dddd 1100
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate ld 20, X
+ *		1001 0001 0100 1100
+ *      9 	   1      4     c
+ */
+void test_AvrOperatorTable_given_ld_20_X(void)
+{
+  uint8_t codeMemory[] = {
+		0x4c, 0x91,								//ld 20, X
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *xRegPtr = 0x12;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x12, r[20]);
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, X+
+ *		1001 000d dddd 1101
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate ld 20, X+
+ *		1001 0001 0100 1101
+ *      9 	   1      4     d
+ */
+void test_AvrOperatorTable_given_ld_20_Xplus(void)
+{
+  uint8_t codeMemory[] = {
+		0x4d, 0x91,								//ld 20, X+
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	*xRegPtr = 0xcc;
+  *(xRegPtr+1) = 0x12;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x12, r[20]);
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, -X
+ *		1001 000d dddd 1110
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate ld 20, -X
+ *		1001 0001 0100 1110
+ *      9 	   1      4     e
+ */
+void test_AvrOperatorTable_given_ld_20_minusX(void)
+{
+  uint8_t codeMemory[] = {
+		0x4e, 0x91,								//ld 20, -X
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	*xRegPtr = 0xcc;
+  *(xRegPtr-1) = 0x12;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x12, r[20]);
+}

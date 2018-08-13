@@ -28,7 +28,8 @@ AvrOperator avrOperatorTable[256] = {
   [0x60 ... 0x6f] = ori,
   [0x70 ... 0x7f] = andi,
   [0x80 ... 0x8f] = NULL,
-  [0x90 ... 0x93] = NULL,  
+  [0x90 ... 0x91] = instructionWith1001000,  
+	[0x92 ... 0x93] = NULL,
   [0x94 ... 0x95] = instructionWith1001010,
   [0x96] = adiw,
   [0x97] = sbiw,
@@ -68,6 +69,25 @@ AvrOperator avr1001010Table[16] = {
   [0xb] = NULL,
   [0xc ... 0xd] = jmp,
   [0xe ... 0xf] = call,
+};
+
+AvrOperator avr1001000Table[16] = {
+  [0x0] = NULL,
+  [0x1] = NULL,
+  [0x2] = NULL,
+  [0x3] = NULL,
+  [0x4] = NULL,
+  [0x5] = NULL,
+  [0x6] = NULL,
+  [0x7] = NULL,
+  [0x8] = NULL,
+  [0x9] = NULL,
+  [0xa] = NULL,
+  [0xb] = NULL,
+  [0xc] = ldxUnchanged, 
+	[0xd] = ldxPostInc,
+  [0xe] = ldxPreDec, 
+	[0xf] = NULL,
 };
 
 //AVR SRAM
@@ -136,6 +156,14 @@ int instructionWith0x94_9(uint8_t *codePtr)
   else
     eijmp(codePtr);
   
+}
+
+int instructionWith1001000(uint8_t *codePtr)
+{
+	uint8_t low4bit;
+	low4bit = *codePtr & 0xf;
+
+  return avr1001000Table [low4bit](codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -2545,6 +2573,61 @@ uint8_t out(uint8_t *codePtr)
 	A = ((codePtr[1] & 0x6) << 3) | (codePtr[0] & 0xf);
 	
 	io[A] = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, X
+ *		1001 000d dddd 1100
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint16_t ldxUnchanged(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *xRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, X+
+ *		1001 000d dddd 1101
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint16_t ldxPostInc(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *(xRegPtr+1);
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, -X
+ *		1001 000d dddd 1110
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint16_t ldxPreDec(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*xRegPtr = *(xRegPtr-1);
+	r[rd] = *xRegPtr;
 
 	return 2;
 }

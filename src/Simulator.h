@@ -97,10 +97,14 @@ uint8_t sbi(uint8_t *codePtr);
 uint8_t movw(uint8_t *codePtr);
 uint8_t in(uint8_t *codePtr);
 uint8_t out(uint8_t *codePtr);
+uint16_t ldxUnchanged(uint8_t *codePtr);
+uint16_t ldxPostInc(uint8_t *codePtr);
+uint16_t ldxPreDec(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);
 int instructionWith0x94_9(uint8_t *codePtr);
+int instructionWith1001000(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
