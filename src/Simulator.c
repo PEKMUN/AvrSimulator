@@ -27,9 +27,10 @@ AvrOperator avrOperatorTable[256] = {
   [0x50 ... 0x5f] = subi,
   [0x60 ... 0x6f] = ori,
   [0x70 ... 0x7f] = andi,
-  [0x80 ... 0x8f] = NULL,
+	[0x80 ... 0x81] = ldyORldz,
+  [0x82 ... 0x8f] = NULL,
   [0x90 ... 0x91] = instructionWith1001000,  
-	[0x92 ... 0x93] = NULL,
+	[0x92 ... 0x93] = instructionWith1001001,
   [0x94 ... 0x95] = instructionWith1001010,
   [0x96] = adiw,
   [0x97] = sbiw,
@@ -73,6 +74,25 @@ AvrOperator avr1001010Table[16] = {
 
 AvrOperator avr1001000Table[16] = {
   [0x0] = NULL,
+  [0x1] = ldzPostInc,
+  [0x2] = ldzPreDec,
+  [0x3] = NULL,
+  [0x4] = NULL,
+  [0x5] = NULL,
+  [0x6] = NULL,
+  [0x7] = NULL,
+  [0x8] = NULL,
+  [0x9] = ldyPostInc,
+  [0xa] = ldyPreDec,
+  [0xb] = NULL,
+  [0xc] = ldxUnchanged, 
+	[0xd] = ldxPostInc,
+  [0xe] = ldxPreDec, 
+	[0xf] = NULL,
+};
+
+AvrOperator avr1001001Table[16] = {
+  [0x0] = NULL,
   [0x1] = NULL,
   [0x2] = NULL,
   [0x3] = NULL,
@@ -84,9 +104,9 @@ AvrOperator avr1001000Table[16] = {
   [0x9] = NULL,
   [0xa] = NULL,
   [0xb] = NULL,
-  [0xc] = ldxUnchanged, 
-	[0xd] = ldxPostInc,
-  [0xe] = ldxPreDec, 
+  [0xc] = stxUnchanged, 
+	[0xd] = stxPostInc,
+  [0xe] = stxPreDec, 
 	[0xf] = NULL,
 };
 
@@ -164,6 +184,25 @@ int instructionWith1001000(uint8_t *codePtr)
 	low4bit = *codePtr & 0xf;
 
   return avr1001000Table [low4bit](codePtr);
+}
+
+int ldyORldz(uint8_t *codePtr)
+{
+	uint8_t isLdyUnchanged;
+	isLdyUnchanged = *codePtr & 0xf;
+	
+	if(isLdyUnchanged == 0x8)
+		ldyUnchanged(codePtr);
+	else
+		ldzUnchanged(codePtr);
+}
+
+int instructionWith1001001(uint8_t *codePtr)
+{
+	uint8_t low4bit;
+	low4bit = *codePtr & 0xf;
+
+  return avr1001001Table [low4bit](codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -2584,7 +2623,7 @@ uint8_t out(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint16_t ldxUnchanged(uint8_t *codePtr)
+uint8_t ldxUnchanged(uint8_t *codePtr)
 {
 	uint8_t rd;
 
@@ -2602,7 +2641,7 @@ uint16_t ldxUnchanged(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint16_t ldxPostInc(uint8_t *codePtr)
+uint8_t ldxPostInc(uint8_t *codePtr)
 {
 	uint8_t rd;
 
@@ -2620,7 +2659,7 @@ uint16_t ldxPostInc(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint16_t ldxPreDec(uint8_t *codePtr)
+uint8_t ldxPreDec(uint8_t *codePtr)
 {
 	uint8_t rd;
 
@@ -2628,6 +2667,172 @@ uint16_t ldxPreDec(uint8_t *codePtr)
 
 	*xRegPtr = *(xRegPtr-1);
 	r[rd] = *xRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, Y
+ *		1000 000d dddd 1000
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldyUnchanged(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *yRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, Y+
+ *		1001 000d dddd 1001
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldyPostInc(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *(yRegPtr+1);
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, -Y
+ *		1001 000d dddd 1010
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldyPreDec(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*yRegPtr = *(yRegPtr-1);
+	r[rd] = *yRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, Z
+ *		1000 000d dddd 0000
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldzUnchanged(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *zRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, Z+
+ *		1001 000d dddd 0001
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldzPostInc(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	r[rd] = *(zRegPtr+1);
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LD Rd, -Z
+ *		1001 000d dddd 0010
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t ldzPreDec(uint8_t *codePtr)
+{
+	uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*zRegPtr = *(zRegPtr-1);
+	r[rd] = *zRegPtr;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST X, Rr
+ *		1001 001r rrrr 1100
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t stxUnchanged(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*xRegPtr = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST X+, Rr
+ *		1001 001r rrrr 1101
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t stxPostInc(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*xRegPtr = r[rr];
+	*xRegPtr = *(xRegPtr+1);
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST -X, Rr
+ *		1001 001r rrrr 1110
+ * where
+ *		0 <= ddddd <= 31
+ */
+uint8_t stxPreDec(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*xRegPtr = *(xRegPtr-1);
+	*xRegPtr = r[rr];
 
 	return 2;
 }
