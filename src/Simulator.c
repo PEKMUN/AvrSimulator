@@ -28,7 +28,7 @@ AvrOperator avrOperatorTable[256] = {
   [0x60 ... 0x6f] = ori,
   [0x70 ... 0x7f] = andi,
 	[0x80 ... 0x81] = ldyORldz,
-  [0x82 ... 0x8f] = NULL,
+  [0x82 ... 0x8f] = styORstz,
   [0x90 ... 0x91] = instructionWith1001000,  
 	[0x92 ... 0x93] = instructionWith1001001,
   [0x94 ... 0x95] = instructionWith1001010,
@@ -93,16 +93,16 @@ AvrOperator avr1001000Table[16] = {
 
 AvrOperator avr1001001Table[16] = {
   [0x0] = NULL,
-  [0x1] = NULL,
-  [0x2] = NULL,
+  [0x1] = stzPostInc,
+  [0x2] = stzPreDec,
   [0x3] = NULL,
   [0x4] = NULL,
   [0x5] = NULL,
   [0x6] = NULL,
   [0x7] = NULL,
   [0x8] = NULL,
-  [0x9] = NULL,
-  [0xa] = NULL,
+  [0x9] = styPostInc,
+  [0xa] = styPreDec,
   [0xb] = NULL,
   [0xc] = stxUnchanged, 
 	[0xd] = stxPostInc,
@@ -203,6 +203,17 @@ int instructionWith1001001(uint8_t *codePtr)
 	low4bit = *codePtr & 0xf;
 
   return avr1001001Table [low4bit](codePtr);
+}
+
+int styORstz(uint8_t *codePtr)
+{
+	uint8_t isStyUnchanged;
+	isStyUnchanged = *codePtr & 0xf;
+	
+	if(isStyUnchanged == 0x8)
+		styUnchanged(codePtr);
+	else
+		stzUnchanged(codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -2490,7 +2501,7 @@ int call(uint8_t *codePtr)
  *    0 <= AAAAA <= 31
  *    0 <= bbb <= 7
  */
-uint8_t cbi(uint8_t *codePtr)
+int cbi(uint8_t *codePtr)
 {
 	uint8_t A, b;
 
@@ -2509,7 +2520,7 @@ uint8_t cbi(uint8_t *codePtr)
  *    0 <= AAAAA <= 31
  *    0 <= bbb <= 7
  */
-uint8_t sbi(uint8_t *codePtr)
+int sbi(uint8_t *codePtr)
 {
 	uint8_t A, b;
 
@@ -2563,7 +2574,7 @@ uint8_t sbi(uint8_t *codePtr)
  *			1111 => 30,
  *		}
  */
-uint8_t movw(uint8_t *codePtr)
+int movw(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 
@@ -2584,7 +2595,7 @@ uint8_t movw(uint8_t *codePtr)
  *		0 <= ddddd <= 31
  *    0 <= AAAAAA <= 63
  */
-uint8_t in(uint8_t *codePtr)
+int in(uint8_t *codePtr)
 {
 	uint8_t rd, A;
 
@@ -2604,7 +2615,7 @@ uint8_t in(uint8_t *codePtr)
  *		0 <= rrrrr <= 31
  *    0 <= AAAAAA <= 63
  */
-uint8_t out(uint8_t *codePtr)
+int out(uint8_t *codePtr)
 {
 	uint8_t rr, A;
 
@@ -2623,13 +2634,13 @@ uint8_t out(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldxUnchanged(uint8_t *codePtr)
+int ldxUnchanged(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *xRegPtr;
+	r[rd] = sram[*xRegPtr];
 
 	return 2;
 }
@@ -2641,13 +2652,14 @@ uint8_t ldxUnchanged(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldxPostInc(uint8_t *codePtr)
+int ldxPostInc(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *(xRegPtr+1);
+	r[rd] = sram[*xRegPtr];
+  *xRegPtr = *xRegPtr + 1;
 
 	return 2;
 }
@@ -2659,14 +2671,14 @@ uint8_t ldxPostInc(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldxPreDec(uint8_t *codePtr)
+int ldxPreDec(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*xRegPtr = *(xRegPtr-1);
-	r[rd] = *xRegPtr;
+	*xRegPtr = *xRegPtr - 1;
+	r[rd] = sram[*xRegPtr];
 
 	return 2;
 }
@@ -2678,13 +2690,13 @@ uint8_t ldxPreDec(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldyUnchanged(uint8_t *codePtr)
+int ldyUnchanged(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *yRegPtr;
+	r[rd] = sram[*yRegPtr];
 
 	return 2;
 }
@@ -2696,14 +2708,15 @@ uint8_t ldyUnchanged(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldyPostInc(uint8_t *codePtr)
+int ldyPostInc(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *(yRegPtr+1);
-
+	r[rd] = sram[*yRegPtr];
+  *yRegPtr = *yRegPtr + 1;
+  
 	return 2;
 }
 
@@ -2714,14 +2727,14 @@ uint8_t ldyPostInc(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldyPreDec(uint8_t *codePtr)
+int ldyPreDec(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*yRegPtr = *(yRegPtr-1);
-	r[rd] = *yRegPtr;
+	*yRegPtr = *yRegPtr - 1;
+	r[rd] = sram[*yRegPtr];
 
 	return 2;
 }
@@ -2733,13 +2746,13 @@ uint8_t ldyPreDec(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldzUnchanged(uint8_t *codePtr)
+int ldzUnchanged(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *zRegPtr;
+	r[rd] = sram[*zRegPtr];
 
 	return 2;
 }
@@ -2751,13 +2764,14 @@ uint8_t ldzUnchanged(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldzPostInc(uint8_t *codePtr)
+int ldzPostInc(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	r[rd] = *(zRegPtr+1);
+	r[rd] = sram[*zRegPtr];
+  *zRegPtr = *zRegPtr + 1;
 
 	return 2;
 }
@@ -2769,14 +2783,14 @@ uint8_t ldzPostInc(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t ldzPreDec(uint8_t *codePtr)
+int ldzPreDec(uint8_t *codePtr)
 {
 	uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*zRegPtr = *(zRegPtr-1);
-	r[rd] = *zRegPtr;
+	*zRegPtr = *zRegPtr - 1;
+	r[rd] = sram[*zRegPtr];
 
 	return 2;
 }
@@ -2788,13 +2802,13 @@ uint8_t ldzPreDec(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t stxUnchanged(uint8_t *codePtr)
+int stxUnchanged(uint8_t *codePtr)
 {
 	uint8_t rr;
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*xRegPtr = r[rr];
+	sram[*xRegPtr] = r[rr];
 
 	return 2;
 }
@@ -2806,14 +2820,14 @@ uint8_t stxUnchanged(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t stxPostInc(uint8_t *codePtr)
+int stxPostInc(uint8_t *codePtr)
 {
 	uint8_t rr;
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*xRegPtr = r[rr];
-	*xRegPtr = *(xRegPtr+1);
+	sram[*xRegPtr] = r[rr];
+	*xRegPtr = *xRegPtr + 1;
 
 	return 2;
 }
@@ -2825,14 +2839,130 @@ uint8_t stxPostInc(uint8_t *codePtr)
  * where
  *		0 <= ddddd <= 31
  */
-uint8_t stxPreDec(uint8_t *codePtr)
+int stxPreDec(uint8_t *codePtr)
 {
 	uint8_t rr;
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*xRegPtr = *(xRegPtr-1);
-	*xRegPtr = r[rr];
+	*xRegPtr = *xRegPtr - 1;
+	sram[*xRegPtr] = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST Y, Rr
+ *		1000 001r rrrr 1000
+ * where
+ *		0 <= ddddd <= 31
+ */
+int styUnchanged(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*yRegPtr = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST Y+, Rr
+ *		1001 001r rrrr 1001
+ * where
+ *		0 <= ddddd <= 31
+ */
+int styPostInc(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*yRegPtr = r[rr];
+	*yRegPtr = *yRegPtr + 1;
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST -Y, Rr
+ *		1001 001r rrrr 1010
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate st -Y, 11
+ *		1001 0010 1011 1010
+ *      9 	   2      b     a
+ */
+int styPreDec(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*yRegPtr = *yRegPtr - 1;
+	*yRegPtr = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST Z, Rr
+ *		1000 001r rrrr 0000
+ * where
+ *		0 <= ddddd <= 31
+ */
+int stzUnchanged(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*zRegPtr = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST Z+, Rr
+ *		1001 001r rrrr 0001
+ * where
+ *		0 <= ddddd <= 31
+ */
+int stzPostInc(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*zRegPtr = r[rr];
+	*zRegPtr = *(zRegPtr+1);
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		ST -Z, Rr
+ *		1001 001r rrrr 0010
+ * where
+ *		0 <= ddddd <= 31
+ */
+int stzPreDec(uint8_t *codePtr)
+{
+	uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+
+	*zRegPtr = *(zRegPtr-1);
+	*zRegPtr = r[rr];
 
 	return 2;
 }
