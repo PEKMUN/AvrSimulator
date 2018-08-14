@@ -115,6 +115,7 @@ int styPreDec(uint8_t *codePtr);
 int stzUnchanged(uint8_t *codePtr);
 int stzPostInc(uint8_t *codePtr);
 int stzPreDec(uint8_t *codePtr);
+int lpmUnchangeR0(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);

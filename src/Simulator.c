@@ -154,6 +154,8 @@ int instructionWith1001010x(uint8_t *codePtr)
     wdr(codePtr);
    else if(ins == 0xa0)
     sleep(codePtr);
+   else if(ins == 0xa0)
+    lpmUnchangeR0(codePtr);
    else
     Break(codePtr);
   }
@@ -2864,7 +2866,7 @@ int styUnchanged(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*yRegPtr = r[rr];
+	sram[*yRegPtr] = r[rr];
 
 	return 2;
 }
@@ -2882,7 +2884,7 @@ int styPostInc(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*yRegPtr = r[rr];
+	sram[*yRegPtr] = r[rr];
 	*yRegPtr = *yRegPtr + 1;
 
 	return 2;
@@ -2906,7 +2908,7 @@ int styPreDec(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	*yRegPtr = *yRegPtr - 1;
-	*yRegPtr = r[rr];
+	sram[*yRegPtr] = r[rr];
 
 	return 2;
 }
@@ -2924,7 +2926,7 @@ int stzUnchanged(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*zRegPtr = r[rr];
+	sram[*zRegPtr] = r[rr];
 
 	return 2;
 }
@@ -2942,8 +2944,8 @@ int stzPostInc(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*zRegPtr = r[rr];
-	*zRegPtr = *(zRegPtr+1);
+	sram[*zRegPtr] = r[rr];
+	*zRegPtr = *zRegPtr + 1;
 
 	return 2;
 }
@@ -2961,8 +2963,22 @@ int stzPreDec(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	*zRegPtr = *(zRegPtr-1);
-	*zRegPtr = r[rr];
+	*zRegPtr = *zRegPtr - 1;
+	sram[*zRegPtr] = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LPM None
+ *		1001 0101 1100 1000
+ * where
+ *		0 <= ddddd <= 31
+ */
+int lpmUnchangeR0(uint8_t *codePtr)
+{
+	r[0] = flashMemory[*zRegPtr];
 
 	return 2;
 }
