@@ -43,7 +43,7 @@ AvrOperator avrOperatorTable[256] = {
 	[0xb0 ... 0xb7] = in,
 	[0xb8 ... 0xbf] = out,
   [0xc0 ... 0xcf] = rjmp,
-  [0xd0 ... 0xdf] = NULL,
+  [0xd0 ... 0xdf] = rcall,
   [0xe0 ... 0xef] = ldi,
   [0xf0 ... 0xf3] = brbs,
   [0xf4 ... 0xf7] = brbc,
@@ -65,7 +65,7 @@ AvrOperator avr1001010Table[16] = {
   [0x6] = lsr,
   [0x7] = ror,
   [0x8] = instructionWith1001010x,
-  [0x9] = instructionWith0x94_9,
+  [0x9] = instructionWith0x9__9,
   [0xa] = dec,
   [0xb] = NULL,
   [0xc ... 0xd] = jmp,
@@ -88,7 +88,7 @@ AvrOperator avr1001000Table[16] = {
   [0xc] = ldxUnchanged, 
 	[0xd] = ldxPostInc,
   [0xe] = ldxPreDec, 
-	[0xf] = NULL,
+	[0xf] = pop,
 };
 
 AvrOperator avr1001001Table[16] = {
@@ -96,10 +96,10 @@ AvrOperator avr1001001Table[16] = {
   [0x1] = stzPostInc,
   [0x2] = stzPreDec,
   [0x3] = NULL,
-  [0x4] = NULL,
-  [0x5] = NULL,
-  [0x6] = NULL,
-  [0x7] = NULL,
+  [0x4] = xch,
+  [0x5] = las,
+  [0x6] = lac,
+  [0x7] = lat,
   [0x8] = NULL,
   [0x9] = styPostInc,
   [0xa] = styPreDec,
@@ -107,7 +107,7 @@ AvrOperator avr1001001Table[16] = {
   [0xc] = stxUnchanged, 
 	[0xd] = stxPostInc,
   [0xe] = stxPreDec, 
-	[0xf] = NULL,
+	[0xf] = push,
 };
 
 //AVR SRAM
@@ -156,6 +156,10 @@ int instructionWith1001010x(uint8_t *codePtr)
     sleep(codePtr);
    else if(ins == 0xc0)
     lpmUnchangeR0(codePtr);
+   else if(ins == 0x00)
+    ret(codePtr);
+   else if(ins == 0x10)
+    reti(codePtr);
    else
     Break(codePtr);
   }
@@ -168,15 +172,22 @@ int instructionWith1001010x(uint8_t *codePtr)
   }
 }
 
-int instructionWith0x94_9(uint8_t *codePtr)
+int instructionWith0x9__9(uint8_t *codePtr)
 {
-  uint8_t isIjmp;
+  uint8_t isIjmp, is0x95, isIcall;
+  is0x95 = (codePtr[1] & 0x1) | (codePtr[0] & 0x0);
   isIjmp = *codePtr & 0xf0;
-  
-  if(isIjmp == 0x00)
-    ijmp(codePtr);
+  isIcall = *codePtr & 0xf0;
+  if(is0x95)
+    if(isIcall == 0x00)
+      icall(codePtr);
+    else
+      eicall(codePtr);
   else
-    eijmp(codePtr);
+    if(isIjmp == 0x00)
+      ijmp(codePtr);
+    else
+      eijmp(codePtr);
   
 }
 
@@ -2472,7 +2483,7 @@ int ijmp(uint8_t *codePtr)
 int eijmp(uint8_t *codePtr)
 {
   int pc;
-	pc = (*(uint32_t *)eind << 16) | *zRegPtr;
+	pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
   return (pc - getPc(codePtr));
 }
 
@@ -2491,8 +2502,89 @@ int call(uint8_t *codePtr)
 	k = *(uint32_t *)codePtr;
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
-
+  *(uint16_t *)(spl) = getPc(codePtr) + 4;
+  
 	return getCodePtr(k*2) - codePtr;
+}
+
+/**
+ * Instruction:
+ * 		RCALL k
+ *		1101 kkkk kkkk kkkk
+ *
+ * where
+ *    -2K <= k <= 2K
+ */
+int rcall(uint8_t *codePtr)
+{
+	int k;
+  
+	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
+  
+  if(k & 0x800)
+    k |= 0xfffff000;
+  
+  *(uint16_t *)(spl) = getPc(codePtr) + 2;
+  
+	return getCodePtr((k+1)*2) - codePtr;
+}
+
+/**
+ * Instruction:
+ * 		ICALL None
+ *		1001 0101 0000 1001
+ */
+int icall(uint8_t *codePtr)
+{
+  int pc;
+  pc = *zRegPtr;
+  *(uint16_t *)(spl) = getPc(codePtr) + 2;
+  
+	return pc;
+}
+
+/**
+ * Instruction:
+ * 		EICALL None
+ *		1001 0101 0001 1001
+ */
+int eicall(uint8_t *codePtr)
+{
+  int pc;
+  pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
+  *(uint16_t *)(spl) = getPc(codePtr) + 3;
+  
+	return pc;
+}
+
+/**
+ * Instruction:
+ * 		RET None
+ *		1001 0101 0000 1000
+ */
+int ret(uint8_t *codePtr)
+{
+  int pc;
+  pc = sram[*(uint16_t *)spl] + 1;
+  *(uint16_t *)(spl) = getPc(codePtr) - 2;
+  
+	return pc;
+}
+
+/**
+ * Instruction:
+ * 		RETI None
+ *		1001 0101 0001 1000
+ */
+int reti(uint8_t *codePtr)
+{
+  int pc;
+  pc = sram[*(uint16_t *)spl] + 1;
+  *(uint16_t *)(spl) = getPc(codePtr) - 2;
+  
+  sreg->T = 1;
+  
+	return pc;
 }
 
 /**
@@ -2973,8 +3065,6 @@ int stzPreDec(uint8_t *codePtr)
  * Instruction:
  * 		LPM None
  *		1001 0101 1100 1000
- * where
- *		0 <= ddddd <= 31
  */
 int lpmUnchangeR0(uint8_t *codePtr)
 {
@@ -3017,4 +3107,117 @@ int lpmPostInc(uint8_t *codePtr)
 	*zRegPtr = *zRegPtr + 1;
   
 	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LAT Z, Rd
+ *		1001 000r rrrr 0111
+ * where
+ *		0 <= ddddd <= 31
+ */
+int lat(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+	sram[*zRegPtr] = r[rd] ^ sram[*zRegPtr];
+  r[rd] = sram[*zRegPtr];
+  
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LAS Z, Rd
+ *		1001 001r rrrr 0101
+ * where
+ *		0 <= ddddd <= 31
+ */
+int las(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+	sram[*zRegPtr] = r[rd] | sram[*zRegPtr];
+  r[rd] = sram[*zRegPtr];
+  
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LAC Z, Rd
+ *		1001 001r rrrr 0101
+ * where
+ *		0 <= ddddd <= 31
+ */
+int lac(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+	sram[*zRegPtr] = (0xff - r[rd]) & sram[*zRegPtr];
+  
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		XCH Z, Rd
+ *		1001 001d dddd 0100
+ * where
+ *		0 <= ddddd <= 31
+ */
+int xch(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+	sram[*zRegPtr] = r[rd];
+  r[rd] = sram[*zRegPtr];
+  
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		PUSH Rr
+ *		1001 001r rrrr 1111
+ * where
+ *		0 <= rrrrr <= 31
+ */
+int push(uint8_t *codePtr)
+{
+  uint8_t rr;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+  sram[*(uint16_t *)spl] = r[rr];
+  substractStackPointer(1);
+  
+  return 2;
+}
+
+/**
+ * Instruction:
+ * 		POP Rd
+ *		1001 000d dddd 1111
+ * where
+ *		0 <= ddddd <= 31
+ */
+int pop(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+  r[rd] = sram[*(uint16_t *)spl];
+  substractStackPointer(-1);
+  
+  return 2;
 }

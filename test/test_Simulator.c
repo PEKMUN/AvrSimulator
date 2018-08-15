@@ -2789,15 +2789,147 @@ void test_AvrOperatorTable_given_call(void)
   int relAddr;
   uint8_t codeMemory[] = {
     0x05, 0xe0,              		 //ldi r16, 0x05
-    0x0e, 0x94, 0xa0, 0x0f,   // call 4000
+    0x0e, 0x94, 0xa0, 0x0f,      // call 4000
 	};
 	uint8_t *progCounter = &codeMemory[2];
   flash = codeMemory;
 
 	relAddr = simulateOneInstruction(progCounter);
 	
-  //TEST_ASSERT_EQUAL_HEX32(6, *(uint16_t *)(&spl[2]));
-	TEST_ASSERT_EQUAL_HEX32(4000*2 - 2, relAddr);
+  TEST_ASSERT_EQUAL(6, *(uint16_t *)(spl));
+	TEST_ASSERT_EQUAL_HEX16(4000*2 - 2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		RCALL k
+ *		1101 kkkk kkkk kkkk
+ *
+ * where
+ *    -2K <= k <= 2K
+ *
+ * Simulate rcall 846
+ *    1101 0011 0100 1110
+ *     d    3    4    e
+ */
+void test_AvrOperatorTable_given_rcall_846(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    0x4e, 0xd3,              		 //rcall 846
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	relAddr = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL(2, *(uint16_t *)spl);
+	TEST_ASSERT_EQUAL_HEX16((846 + 1) * 2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		ICALL None
+ *		1001 0101 0000 1001
+ *
+ * Simulate icall None
+ *    1001 0101 0000 1001
+ *     9    5    0    9
+ */
+void test_AvrOperatorTable_given_icall(void)
+{
+  uint32_t pc;
+  uint8_t codeMemory[] = {
+    0x09, 0x95,              		 //icall None
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *zRegPtr = 0x4837;
+	pc = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL(2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX16(0x4837, pc);
+}
+
+/**
+ * Instruction:
+ * 		EICALL None
+ *		1001 0101 0001 1001
+ *
+ * Simulate eicall None
+ *    1001 0101 0001 1001
+ *     9    5    1    9
+ */
+void test_AvrOperatorTable_given_eicall(void)
+{
+  uint32_t pc;
+  uint8_t codeMemory[] = {
+    0x19, 0x95,              		 //eicall None
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *zRegPtr = 0x4837;
+  *eind = 0x32;
+	pc = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL_HEX32(3, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX32(0x324837, pc);
+}
+
+/**
+ * Instruction:
+ * 		RET None
+ *		1001 0101 0000 1000
+ *
+ * Simulate ret None
+ *    1001 0101 0000 1000
+ *     9    5    0    8
+ */
+void test_AvrOperatorTable_given_ret(void)
+{
+  int pc;
+  uint8_t codeMemory[] = {
+    0x08, 0x95,              		 //ret None
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *spl = 0x48;
+  *sph = 0x32;
+  sram[0x3248] = 0x24;
+	pc = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL_HEX16(-2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX16(0x25, pc);
+}
+
+/**
+ * Instruction:
+ * 		RETI None
+ *		1001 0101 0001 1000
+ *
+ * Simulate reti None
+ *    1001 0101 0001 1000
+ *     9    5    1    8
+ */
+void test_AvrOperatorTable_given_reti(void)
+{
+  int pc;
+  uint8_t codeMemory[] = {
+    0x18, 0x95,              		 //reti None
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *spl = 0x21;
+  *sph = 0x98;
+  sram[0x9821] = 0x6b;
+	pc = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL_HEX16(-2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX16(0x6b, pc);
 }
 
 /**
@@ -2927,14 +3059,14 @@ void test_AvrOperatorTable_given_movw_r16_r0(void)
  *		0 <= ddddd <= 31
  *    0 <= AAAAAA <= 63
  *
- * Simulate in 18, 52
+ * Simulate in R18, 52
  *		1011 0111 0010 0100
  *      b 	   7      2     4
  */
 void test_AvrOperatorTable_given_in_18_52(void)
 {
   uint8_t codeMemory[] = {
-		0x24, 0xb7,								//in 18, 52
+		0x24, 0xb7,								//in R18, 52
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -2954,14 +3086,14 @@ void test_AvrOperatorTable_given_in_18_52(void)
  *		0 <= rrrrr <= 31
  *    0 <= AAAAAA <= 63
  *
- * Simulate out 48, 31
+ * Simulate out 48, R31
  *		1011 1111 1111 0000
  *      b 	   f      f     0
  */
 void test_AvrOperatorTable_given_out_48_31(void)
 {
   uint8_t codeMemory[] = {
-		0xf0, 0xbf,								//out 31, 48
+		0xf0, 0xbf,								//out 31, R48
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -2980,14 +3112,14 @@ void test_AvrOperatorTable_given_out_48_31(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 20, X
+ * Simulate ld R20, X
  *		1001 0001 0100 1100
  *      9 	   1      4     c
  */
 void test_AvrOperatorTable_given_ld_20_X(void)
 {
   uint8_t codeMemory[] = {
-		0x4c, 0x91,								//ld 20, X
+		0x4c, 0x91,								//ld R20, X
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3008,14 +3140,14 @@ void test_AvrOperatorTable_given_ld_20_X(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 20, X+
+ * Simulate ld R20, X+
  *		1001 0001 0100 1101
  *      9 	   1      4     d
  */
 void test_AvrOperatorTable_given_ld_20_Xplus(void)
 {
   uint8_t codeMemory[] = {
-		0x4d, 0x91,								//ld 20, X+
+		0x4d, 0x91,								//ld R20, X+
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3037,14 +3169,14 @@ void test_AvrOperatorTable_given_ld_20_Xplus(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 20, -X
+ * Simulate ld R20, -X
  *		1001 0001 0100 1110
  *      9 	   1      4     e
  */
 void test_AvrOperatorTable_given_ld_20_minusX(void)
 {
   uint8_t codeMemory[] = {
-		0x4e, 0x91,								//ld 20, -X
+		0x4e, 0x91,								//ld R20, -X
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3065,14 +3197,14 @@ void test_AvrOperatorTable_given_ld_20_minusX(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 31, Y
+ * Simulate ld R31, Y
  *		1000 0001 1111 1000
  *      8 	   1      f     8
  */
 void test_AvrOperatorTable_given_ld_31_Y(void)
 {
   uint8_t codeMemory[] = {
-		0xf8, 0x81,								//ld 31, Y
+		0xf8, 0x81,								//ld R31, Y
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3093,14 +3225,14 @@ void test_AvrOperatorTable_given_ld_31_Y(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 31, Y+
+ * Simulate ld R31, Y+
  *		1001 0001 1111 1001
  *      9 	   1      f     9
  */
 void test_AvrOperatorTable_given_ld_31_Yplus(void)
 {
   uint8_t codeMemory[] = {
-		0xf9, 0x91,								//ld 31, Y+
+		0xf9, 0x91,								//ld R31, Y+
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3122,14 +3254,14 @@ void test_AvrOperatorTable_given_ld_31_Yplus(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 31, -Y
+ * Simulate ld R31, -Y
  *		1001 0001 1111 1010
  *      9 	   1      f     a
  */
 void test_AvrOperatorTable_given_ld_31_minusY(void)
 {
   uint8_t codeMemory[] = {
-		0xfa, 0x91,								//ld 31, -Y
+		0xfa, 0x91,								//ld R31, -Y
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3150,14 +3282,14 @@ void test_AvrOperatorTable_given_ld_31_minusY(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 13, Z
+ * Simulate ld R13, Z
  *		1000 0000 1101 0000
  *      8 	   0      d     0
  */
 void test_AvrOperatorTable_given_ld_13_Z(void)
 {
   uint8_t codeMemory[] = {
-		0xd0, 0x80,								//ld 13, Z
+		0xd0, 0x80,								//ld R13, Z
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3178,14 +3310,14 @@ void test_AvrOperatorTable_given_ld_13_Z(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 13, Z+
+ * Simulate ld R13, Z+
  *		1001 0000 1101 0001
  *      9 	   0      d     1
  */
 void test_AvrOperatorTable_given_ld_13_Zplus(void)
 {
   uint8_t codeMemory[] = {
-		0xd1, 0x90,								//ld 31, Z+
+		0xd1, 0x90,								//ld R31, Z+
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3207,14 +3339,14 @@ void test_AvrOperatorTable_given_ld_13_Zplus(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate ld 13, -Z
+ * Simulate ld R13, -Z
  *		1001 0000 1101 0010
  *      9 	   0      d     2
  */
 void test_AvrOperatorTable_given_ld_13_minusZ(void)
 {
   uint8_t codeMemory[] = {
-		0xd2, 0x90,								//ld 13, -Z
+		0xd2, 0x90,								//ld R13, -Z
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3235,14 +3367,14 @@ void test_AvrOperatorTable_given_ld_13_minusZ(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st X, 21
+ * Simulate st X, R21
  *		1001 0011 0101 1100
  *      9 	   3      5     c
  */
 void test_AvrOperatorTable_given_st_X_21(void)
 {
   uint8_t codeMemory[] = {
-		0x5c, 0x93,								//st X, 21
+		0x5c, 0x93,								//st X, R21
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3263,14 +3395,14 @@ void test_AvrOperatorTable_given_st_X_21(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st X+, 21
+ * Simulate st X+, R21
  *		1001 0011 0101 1101
  *      9 	   3      5     d
  */
 void test_AvrOperatorTable_given_st_Xplus_21(void)
 {
   uint8_t codeMemory[] = {
-		0x5d, 0x93,								//ld X+, 21
+		0x5d, 0x93,								//ld X+, R21
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3292,14 +3424,14 @@ void test_AvrOperatorTable_given_st_Xplus_21(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st -X, 21
+ * Simulate st -X, R21
  *		1001 0011 0101 1110
  *      9 	   3      5     e
  */
 void test_AvrOperatorTable_given_st_minusX_21(void)
 {
   uint8_t codeMemory[] = {
-		0x5e, 0x93,								//ld -X, 21
+		0x5e, 0x93,								//ld -X, R21
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3320,14 +3452,14 @@ void test_AvrOperatorTable_given_st_minusX_21(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st Y, 11
+ * Simulate st Y, R11
  *		1000 0010 1011 1000
  *      8 	   2      b     8
  */
 void test_AvrOperatorTable_given_st_Y_11(void)
 {
   uint8_t codeMemory[] = {
-		0xb8, 0x82,								//st Y, 11
+		0xb8, 0x82,								//st Y, R11
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3348,14 +3480,14 @@ void test_AvrOperatorTable_given_st_Y_11(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st Y+, 11
+ * Simulate st Y+, R11
  *		1001 0010 1011 1001
  *      9 	   2      b     9
  */
 void test_AvrOperatorTable_given_st_Yplus_11(void)
 {
   uint8_t codeMemory[] = {
-		0xb9, 0x92,								//ld Y+, 11
+		0xb9, 0x92,								//ld Y+, R11
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3377,14 +3509,14 @@ void test_AvrOperatorTable_given_st_Yplus_11(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st -Y, 11
+ * Simulate st -Y, R11
  *		1001 0010 1011 1010
  *      9 	   2      b     a
  */
 void test_AvrOperatorTable_given_st_minusY_11(void)
 {
   uint8_t codeMemory[] = {
-		0xba, 0x92,								//ld -X, 21
+		0xba, 0x92,								//ld -X, R11
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3405,14 +3537,14 @@ void test_AvrOperatorTable_given_st_minusY_11(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st Z, 8
+ * Simulate st Z, R8
  *		1000 0010 1000 0000
  *      8 	   2      8     0
  */
 void test_AvrOperatorTable_given_st_Z_8(void)
 {
   uint8_t codeMemory[] = {
-		0x80, 0x82,								//st Z, 8
+		0x80, 0x82,								//st Z, R8
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3433,14 +3565,14 @@ void test_AvrOperatorTable_given_st_Z_8(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st Z+, 8
+ * Simulate st Z+, R8
  *		1001 0010 1000 0001
  *      9 	   2      8     1
  */
 void test_AvrOperatorTable_given_st_Zplus_8(void)
 {
   uint8_t codeMemory[] = {
-		0x81, 0x92,								//ld Z+, 8
+		0x81, 0x92,								//ld Z+, R8
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3462,14 +3594,14 @@ void test_AvrOperatorTable_given_st_Zplus_8(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate st -Z, 8
+ * Simulate st -Z, R8
  *		1001 0010 1000 0010
  *      9 	   2      8     2
  */
 void test_AvrOperatorTable_given_st_minusZ_8(void)
 {
   uint8_t codeMemory[] = {
-		0x82, 0x92,								//ld -Z, 8
+		0x82, 0x92,								//ld -Z, R8
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3487,8 +3619,6 @@ void test_AvrOperatorTable_given_st_minusZ_8(void)
  * Instruction:
  * 		LPM None
  *		1001 0101 1100 1000
- * where
- *		0 <= ddddd <= 31
  *
  * Simulate lpm None
  *		1001 0101 1100 1000
@@ -3517,14 +3647,14 @@ void test_AvrOperatorTable_given_lpm(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate lpm 9, Z
+ * Simulate lpm R9, Z
  *		1001 0000 1001 0100
  *      9 	   0      9     4
  */
 void test_AvrOperatorTable_given_lpm_9_Z(void)
 {
   uint8_t codeMemory[] = {
-		0x94, 0x90,								//lpm 9, Z
+		0x94, 0x90,								//lpm R9, Z
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
@@ -3544,23 +3674,189 @@ void test_AvrOperatorTable_given_lpm_9_Z(void)
  * where
  *		0 <= ddddd <= 31
  *
- * Simulate lpm 15, Z+
+ * Simulate lpm R15, Z+
  *		1001 0000 1111 0101
  *      9 	   0      f     5
  */
 void test_AvrOperatorTable_given_lpm_15_Zplus(void)
 {
   uint8_t codeMemory[] = {
-		0xf5, 0x90,								//lpm 15, Z+
+		0xf5, 0x90,								//lpm R15, Z+
 	};
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
 
-  *zRegPtr = 0x61234;
-  flashMemory[0x61234] = 0x4a;
+  *zRegPtr = 0xef32;
+  flashMemory[0xef32] = 0x4a;
 	
 	simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_HEX16(0x3b, r[15]);
-  TEST_ASSERT_EQUAL_HEX32(0x61235, *zRegPtr);
+	TEST_ASSERT_EQUAL_HEX16(0x4a, r[15]);
+  TEST_ASSERT_EQUAL_HEX32(0xef33, *zRegPtr);
+}
+
+/**
+ * Instruction:
+ * 		LAT Z, Rd
+ *		1001 001r rrrr 0111
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate lat Z, R29
+ *		1001 0011 1101 0111
+ *      9 	   3      d     7
+ */
+void test_AvrOperatorTable_given_lat_Z_29(void)
+{
+  uint8_t codeMemory[] = {
+		0xd7, 0x93,								//lat Z, R29
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	r[29] = 0x77;
+	*zRegPtr = 0x163;
+  sram[0x163] = 0x3c;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x4b, r[29]);
+}
+
+/**
+ * Instruction:
+ * 		LAS Z, Rd
+ *		1001 001r rrrr 0101
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate las Z, R23
+ *		1001 0011 0111 0101
+ *      9 	   3      7     5
+ */
+void test_AvrOperatorTable_given_las_Z_23(void)
+{
+  uint8_t codeMemory[] = {
+		0x75, 0x93,								//las Z, R23
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	r[23] = 0x22;
+	*zRegPtr = 0x584;
+  sram[0x584] = 0x3c;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x3e, r[23]);
+}
+
+/**
+ * Instruction:
+ * 		LAC Z, Rd
+ *		1001 001r rrrr 0110
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate lac Z, R13
+ *		1001 0010 1101 0110
+ *      9 	   2      d     6
+ */
+void test_AvrOperatorTable_given_lac_Z_13(void)
+{
+  uint8_t codeMemory[] = {
+		0xd6, 0x92,								//lac Z, R13
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	r[13] = 0x65;
+	*zRegPtr = 0x345;
+  sram[0x345] = 0x11;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x10, sram[0x345]);
+}
+
+/**
+ * Instruction:
+ * 		XCH Z, Rd
+ *		1001 001d dddd 0100
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate xch Z, R12
+ *		1001 0010 1100 0100
+ *      9 	   2      c     4
+ */
+void test_AvrOperatorTable_given_xch_Z_12(void)
+{
+  uint8_t codeMemory[] = {
+		0xc4, 0x92,								//xch Z, R12
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	r[12] = 0x22;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x22, r[12]);
+}
+
+/**
+ * Instruction:
+ * 		PUSH Rr
+ *		1001 001r rrrr 1111
+ * where
+ *		0 <= rrrrr <= 31
+ *
+ * Simulate push R12
+ *		1001 0010 1100 1111
+ *      9 	   2      c      f
+ */
+void test_AvrOperatorTable_given_push_12(void)
+{
+  uint8_t codeMemory[] = {
+		0xcf, 0x92,								//push R12
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+	r[12] = 0x7d;
+  *spl = 0x21;
+  *sph = 0x12;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x7d, sram[0x1221]);
+}
+
+/**
+ * Instruction:
+ * 		POP Rd
+ *		1001 000d dddd 1111
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate pop R27
+ *		1001 0001 1011 1111
+ *      9 	   1      b      f
+ */
+void test_AvrOperatorTable_given_pop_27(void)
+{
+  uint8_t codeMemory[] = {
+		0xbf, 0x91,								//pop R27
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *spl = 0x3d;
+  *sph = 0x11;
+  sram[0x113d] = 0x58;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX8(0x58, r[27]);
 }
