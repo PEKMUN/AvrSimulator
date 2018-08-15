@@ -151,9 +151,9 @@ int instructionWith1001010x(uint8_t *codePtr)
   if(is0x95)
   {
    if(ins == 0x90)
-    wdr(codePtr);
+    Break(codePtr);
    else if(ins == 0xa0)
-    sleep(codePtr);
+    wdr(codePtr);
    else if(ins == 0xc0)
     lpmUnchangeR0(codePtr);
    else if(ins == 0x00)
@@ -161,7 +161,7 @@ int instructionWith1001010x(uint8_t *codePtr)
    else if(ins == 0x10)
     reti(codePtr);
    else
-    Break(codePtr);
+    sleep(codePtr);
   }
   else
   {
