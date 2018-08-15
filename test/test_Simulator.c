@@ -3509,3 +3509,58 @@ void test_AvrOperatorTable_given_lpm(void)
 	
 	TEST_ASSERT_EQUAL_HEX16(0x43, r[0]);
 }
+
+/**
+ * Instruction:
+ * 		LPM Rd, Z
+ *		1001 000d dddd 0100
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate lpm 9, Z
+ *		1001 0000 1001 0100
+ *      9 	   0      9     4
+ */
+void test_AvrOperatorTable_given_lpm_9_Z(void)
+{
+  uint8_t codeMemory[] = {
+		0x94, 0x90,								//lpm 9, Z
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *zRegPtr = 0x8000;
+  flashMemory[0x8000] = 0x3b;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x3b, r[9]);
+}
+
+/**
+ * Instruction:
+ * 		LPM Rd, Z+
+ *		1001 000d dddd 0101
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate lpm 15, Z+
+ *		1001 0000 1111 0101
+ *      9 	   0      f     5
+ */
+void test_AvrOperatorTable_given_lpm_15_Zplus(void)
+{
+  uint8_t codeMemory[] = {
+		0xf5, 0x90,								//lpm 15, Z+
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *zRegPtr = 0x61234;
+  flashMemory[0x61234] = 0x4a;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x3b, r[15]);
+  TEST_ASSERT_EQUAL_HEX32(0x61235, *zRegPtr);
+}

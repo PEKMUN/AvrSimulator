@@ -77,8 +77,8 @@ AvrOperator avr1001000Table[16] = {
   [0x1] = ldzPostInc,
   [0x2] = ldzPreDec,
   [0x3] = NULL,
-  [0x4] = NULL,
-  [0x5] = NULL,
+  [0x4] = lpmUnchange,
+  [0x5] = lpmPostInc,
   [0x6] = NULL,
   [0x7] = NULL,
   [0x8] = NULL,
@@ -154,7 +154,7 @@ int instructionWith1001010x(uint8_t *codePtr)
     wdr(codePtr);
    else if(ins == 0xa0)
     sleep(codePtr);
-   else if(ins == 0xa0)
+   else if(ins == 0xc0)
     lpmUnchangeR0(codePtr);
    else
     Break(codePtr);
@@ -2980,5 +2980,41 @@ int lpmUnchangeR0(uint8_t *codePtr)
 {
 	r[0] = flashMemory[*zRegPtr];
 
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LPM Rd, Z
+ *		1001 000d dddd 0100
+ * where
+ *		0 <= ddddd <= 31
+ */
+int lpmUnchange(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	r[rd] = flashMemory[*zRegPtr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LPM Rd, Z+
+ *		1001 000d dddd 0101
+ * where
+ *		0 <= ddddd <= 31
+ */
+int lpmPostInc(uint8_t *codePtr)
+{
+  uint8_t rd;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+  
+	r[rd] = flashMemory[*zRegPtr];
+	*zRegPtr = *zRegPtr + 1;
+  
 	return 2;
 }
