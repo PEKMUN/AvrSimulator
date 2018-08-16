@@ -131,6 +131,7 @@ int push(uint8_t *codePtr);
 int pop(uint8_t *codePtr);
 int fmul(uint8_t *codePtr);
 int fmuls(uint8_t *codePtr);
+int fmulsu(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);

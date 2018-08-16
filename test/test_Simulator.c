@@ -138,11 +138,11 @@ void test_AvrOperatorTable_given_fmul_r18_r20(void)
  *		0000 0011 1010 0100
  *		   0      3      a     	4
  *
- *										0000 1101										13
- *								x	1111   0111						x	(-	9)
- *	--------------------------					---------
- *	0000 0000 0111 0101								-117
- * --------------------------					---------
+ *							0000 1101              13
+ *					x	1111   0111         x	(-	9)
+ *	--------------------------    ---------
+ *    0000 0000 0111 0101						-117
+ * --------------------------     ---------
  */
 void test_AvrOperatorTable_given_fmuls_r18_r20(void)
 {
@@ -157,8 +157,181 @@ void test_AvrOperatorTable_given_fmuls_r18_r20(void)
 	
 	simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL(0xf9, r[1]);
+	TEST_ASSERT_EQUAL(0xff, r[1]);
 	TEST_ASSERT_EQUAL(0x16, r[0]);
+}
+
+/**
+ * Instruction:
+ * 		FMULS Rd, Rr
+ *		0000 0011 1ddd 0rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ * 
+ * Simulate fmuls R20, R20
+ *		    ddd = b'100' ==> 20
+ *		    rrr = b'100' ==> 20
+ *		0000 0011 1100 0100
+ *		   0      3      c     	4
+ *
+ *									0000 1001								 9
+ *								x	0000 1001					    x	 9
+ *	--------------------------					 ------
+ *	      0000 0000 0101 0001							  81
+ * --------------------------					   ------
+ */
+void test_AvrOperatorTable_given_fmuls_r20_r20(void)
+{
+	uint8_t codeMemory[] = {
+		0xc4, 0x03,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+	r[20] = 0x9;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0x0, r[1]);
+	TEST_ASSERT_EQUAL(0xa2, r[0]);
+}
+
+/**
+ * Instruction:
+ * 		FMULS Rd, Rr
+ *		0000 0011 1ddd 0rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ * 
+ * Simulate fmuls R16, R20
+ *		    ddd = b'000' ==> 16
+ *		    rrr = b'100' ==> 20
+ *		0000 0011 1000 0100
+ *		   0      3      8     	4
+ *
+ *									1110 1011							  (-21)
+ *								x	1111 0111					    x	 (-9)
+ *	--------------------------					 --------
+ *	      0000 0000 1011 1101							   189
+ * --------------------------					   --------
+ */
+void test_AvrOperatorTable_given_fmuls_r16_r20(void)
+{
+	uint8_t codeMemory[] = {
+		0x84, 0x03,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+  r[16] = 0xeb;
+	r[20] = 0xf7;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0x1, r[1]);
+	TEST_ASSERT_EQUAL(0x7a, r[0]);
+}
+
+/**
+ * Instruction:
+ * 		FMULSU Rd, Rr
+ *		0000 0011 1ddd 1rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ * 
+ * Simulate fmulsu R19, R23
+ *		    ddd = b'011' ==> 19
+ *		    rrr = b'111' ==> 23
+ *		0000 0011 1011 1111
+ *		   0      3      b     	f
+ *
+ *									1110 1011							  (-21)
+ *								x	1111 0111					    x	  9
+ *	--------------------------					 --------
+ *	      0000 0000 1011 1101							  -189
+ * --------------------------					   --------
+ */
+void test_AvrOperatorTable_given_fmulsu_r19_r23(void)
+{
+	uint8_t codeMemory[] = {
+		0xbf, 0x03,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+  r[19] = 0xeb;
+	r[23] = 0x9;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(0xfe, r[1]);
+	TEST_ASSERT_EQUAL(0x86, r[0]);
 }
 
 /**

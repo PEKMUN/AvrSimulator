@@ -240,6 +240,8 @@ int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr)
 		fmul(codePtr);
 	else if(lowBit == 0x2)
 		fmuls(codePtr);
+  else
+    fmulsu(codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -2538,8 +2540,8 @@ int rcall(uint8_t *codePtr)
     k |= 0xfffff000;
   
   *(uint16_t *)(spl) = getPc(codePtr) + 2;
-  
-	return getCodePtr((k+1)*2) - codePtr;
+  //pushWord(*pc);
+	return getCodePtr(((k+1)*2) + 2) - codePtr;
 }
 
 /**
@@ -3311,14 +3313,56 @@ int fmul(uint8_t *codePtr)
 int fmuls(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
-	int16_t v1, v2, result;
+	int16_t result;
   
 	rd = ((*codePtr & 0x70) >> 4) + 16;
 	rr = (*codePtr & 0x7) + 16;
-	
-	v1 = (int8_t)r[rd] ;
-	v2 = (int8_t)r[rr];
-	result = (v1 * v2) << 1;
+
+	result = ((int8_t)r[rd] * (int8_t)r[rr]) << 1;
+	r[0] = result;
+	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		FMULSU Rd, Rr
+ *		0000 0011 1ddd 1rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ */
+int fmulsu(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+	int16_t result;
+  
+	rd = ((*codePtr & 0x70) >> 4) + 16;
+	rr = (*codePtr & 0x7) + 16;
+
+	result = ((int8_t)r[rd] * (int8_t)r[rr]) << 1;
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
 	handleStatusRegForMulMulsMulsuOperation(result);

@@ -914,14 +914,15 @@ void test_AvrOperatorTable_given_rcall_846(void)
 {
   int relAddr;
   uint8_t codeMemory[] = {
+    0x05, 0xe0,              		 //ldi r16, 0x05
     0x4e, 0xd3,              		 //rcall 846
 	};
-	uint8_t *progCounter = codeMemory;
+	uint8_t *progCounter = &codeMemory[2];
   flash = codeMemory;
 
 	relAddr = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL(2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL(4, *(uint16_t *)spl);
 	TEST_ASSERT_EQUAL_HEX16((846 + 1) * 2, relAddr);
 }
 
