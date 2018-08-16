@@ -9,7 +9,7 @@ AvrOperator avrOperatorTable[256] = {
   [0x00] = nop,
   [0x01] = movw,
   [0x02] = muls,
-  [0x03] = mulsu,
+  [0x03] = mulsuORfmulORfmulsORfmulsu,
   [0x04 ... 0x07] = cpc,
   [0x08 ... 0x0b] = sbc,
   [0x0c ... 0x0f] = add,
@@ -227,6 +227,19 @@ int styORstz(uint8_t *codePtr)
 		styUnchanged(codePtr);
 	else
 		stzUnchanged(codePtr);
+}
+
+int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr)
+{
+	uint8_t lowBit;
+	lowBit = ((*codePtr & 0x8) >> 3) | ((*codePtr & 0x80) >> 6);
+	
+	if(lowBit == 0x0)
+		mulsu(codePtr);
+	else if(lowBit == 0x01)
+		fmul(codePtr);
+	else if(lowBit == 0x2)
+		fmuls(codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -3220,4 +3233,94 @@ int pop(uint8_t *codePtr)
   substractStackPointer(-1);
   
   return 2;
+}
+
+/**
+ * Instruction:
+ * 		FMUL Rd, Rr
+ *		0000 0011 0ddd 1rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ */
+int fmul(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+	uint16_t result;
+  
+	rd = ((*codePtr & 0x70) >> 4) + 16;
+	rr = (*codePtr & 0x7) + 16;
+	
+	result = (r[rd] * r[rr]) << 1;
+	r[0] = result;
+	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		FMULS Rd, Rr
+ *		0000 0011 1ddd 0rrr
+ * where
+ *      16 <= ddd <= 23
+ * 		ddd is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ *
+ *      16 <= rrr <= 23
+ * 		rrr is {
+ *			000 => 16,
+ *			001 => 17, 
+ *			010 => 18,
+ *			011 => 19, 
+ *			100 => 20,
+ *			101 => 21, 
+ *			110 => 22,
+ *			111 => 23, 
+ *		}
+ */
+int fmuls(uint8_t *codePtr)
+{
+	uint8_t rd, rr;
+	int16_t v1, v2, result;
+  
+	rd = ((*codePtr & 0x70) >> 4) + 16;
+	rr = (*codePtr & 0x7) + 16;
+	
+	v1 = (int8_t)r[rd] ;
+	v2 = (int8_t)r[rr];
+	result = (v1 * v2) << 1;
+	r[0] = result;
+	r[1] = (result & 0xff00) >> 8;
+	handleStatusRegForMulMulsMulsuOperation(result);
+	return 2;
 }

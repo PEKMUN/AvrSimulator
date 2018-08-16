@@ -129,6 +129,8 @@ int lac(uint8_t *codePtr);
 int xch(uint8_t *codePtr);
 int push(uint8_t *codePtr);
 int pop(uint8_t *codePtr);
+int fmul(uint8_t *codePtr);
+int fmuls(uint8_t *codePtr);
 
 int instructionWith1001010(uint8_t *codePtr);
 int instructionWith1001010x(uint8_t *codePtr);
@@ -137,6 +139,7 @@ int instructionWith1001000(uint8_t *codePtr);
 int ldyORldz(uint8_t *codePtr);
 int instructionWith1001001(uint8_t *codePtr);
 int styORstz(uint8_t *codePtr);
+int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
