@@ -254,15 +254,24 @@ uint8_t *getCodePtr(uint32_t pc)
 	return (flash + pc); 
 }
 
-void substractStackPointer(int value)
+uint16_t getMcuStackPtr()
 {
-  *(uint16_t *)spl -= 2;
+  uint16_t McuStackPtr;
+  McuStackPtr = ((uint16_t)*sph << 8) | *spl;
+  return McuStackPtr;
+}
+
+uint16_t substractStackPointer(int value)
+{
+  return *(uint16_t *)spl -= 2;
 }
 
 void pushWord(uint16_t data)
 {
-  *spl = data;
-  substractStackPointer(2);
+  uint16_t index;
+  index = substractStackPointer(2);
+  sram[index + 1] = data & 0x00ff;
+  sram[index + 2] = (data & 0xff00) >> 8;
 }
 
 uint16_t popWord()
@@ -2532,15 +2541,18 @@ int call(uint8_t *codePtr)
  */
 int rcall(uint8_t *codePtr)
 {
+  uint16_t stackBefore, stackNow;
 	int k;
   
+  stackBefore = *(uint16_t *)spl;
 	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
   
   if(k & 0x800)
     k |= 0xfffff000;
   
   *(uint16_t *)(spl) = getPc(codePtr) + 2;
-  //pushWord(*pc);
+  stackNow = getMcuStackPtr();
+  pushWord(codePtr);
 	return getCodePtr(((k+1)*2) + 2) - codePtr;
 }
 

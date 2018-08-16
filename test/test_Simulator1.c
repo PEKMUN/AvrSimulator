@@ -906,6 +906,36 @@ void test_AvrOperatorTable_given_call(void)
  * where
  *    -2K <= k <= 2K
  *
+ * Simulate rcall PC + 3
+ *    1101 0000 0000 0010
+ *     d    0    0    2
+ */
+void test_AvrOperatorTable_given_rcall_PC_plus_3(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    0x47, 0xe0,              		 //ldi r20, 0x7
+    0x02, 0xd0,              		 //rcall PC + 3
+    0x11, 0xe0,                  //ldi r17, 0x1
+    0x27, 0xe0,                  //ldi r18, 0x7
+    0x31, 0xe0,                  //ldi r19, 0x1
+	};
+	uint8_t *progCounter = &codeMemory[2];
+  flash = codeMemory;
+
+	relAddr = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16((2 + 1) * 2, relAddr);
+}
+
+/**
+ * Instruction:
+ * 		RCALL k
+ *		1101 kkkk kkkk kkkk
+ *
+ * where
+ *    -2K <= k <= 2K
+ *
  * Simulate rcall 846
  *    1101 0011 0100 1110
  *     d    3    4    e
@@ -921,8 +951,7 @@ void test_AvrOperatorTable_given_rcall_846(void)
   flash = codeMemory;
 
 	relAddr = simulateOneInstruction(progCounter);
-	
-  TEST_ASSERT_EQUAL(4, *(uint16_t *)spl);
+
 	TEST_ASSERT_EQUAL_HEX16((846 + 1) * 2, relAddr);
 }
 

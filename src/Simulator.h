@@ -144,7 +144,8 @@ int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr);
 
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
-void substractStackPointer(int value);
+uint16_t getMcuStackPtr();
+uint16_t substractStackPointer(int value);
 void pushWord(uint16_t data);
 uint16_t popWord();
 void initSimulator();

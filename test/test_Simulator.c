@@ -25,6 +25,17 @@ void test_is2wordInstruction_given_codePtr_is_0(void)
 	TEST_ASSERT_EQUAL(0, code);
 }
 
+void test_pushWord_given_spl_0x12_sph_0x34(void)
+{
+  *spl = 0x4d;
+  *sph = 0x5;
+  
+  pushWord(0x1234);
+  
+  TEST_ASSERT_EQUAL(0x34, sram[getMcuStackPtr()+1]);
+  TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+2]);
+}
+
 /**
  * Instruction:
  * 		NOP None
