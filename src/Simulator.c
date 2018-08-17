@@ -2280,14 +2280,13 @@ int cpc(uint8_t *codePtr)
  */
 int cpi(uint8_t *codePtr)
 {
-	uint8_t rd, k, regVal;
+	uint8_t rd, k, temp;
   
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
-  regVal = r[rd];
-  
-	r[rd] = r[rd] - k;
-	handleStatusRegForSubSubiSbcSbciOperation(regVal, k, r[rd]);
+
+	temp = r[rd] - k;
+	handleStatusRegForSubSubiSbcSbciOperation(r[rd], k, temp);
 	return 2;
 }
 
@@ -2532,7 +2531,7 @@ int call(uint8_t *codePtr)
   
   *(uint16_t *)(spl) = getPc(codePtr) + 4;
   stackNow = getMcuStackPtr();
-  pushWord((uint16_t)codePtr);
+  pushWord(getPc(codePtr) + 2);
 	return getCodePtr(k*2) - codePtr;
 }
 
@@ -2557,7 +2556,7 @@ int rcall(uint8_t *codePtr)
 
   //*(uint16_t *)(spl) = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
-  pushWord(codePtr);
+  pushWord(getPc(codePtr) + 2);
 	return getCodePtr(((k+1)*2) + 2) - codePtr;
 }
 
