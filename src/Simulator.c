@@ -857,13 +857,13 @@ int handleStatusRegForRorBstOperation(uint8_t operand1)
  */
 int add(uint8_t *codePtr)
 {
-  uint8_t rd, rr;
+  uint8_t rd, rr, regVal;
   
   rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-  
+  regVal = r[rd];
   r[rd] = r[rd] + r[rr];
-  handleStatusRegForAddAdcOperation(rd, rr, r[rd]);
+  handleStatusRegForAddAdcOperation(regVal, r[rr], r[rd]);
   return 2;
 }
 
@@ -877,13 +877,13 @@ int add(uint8_t *codePtr)
  */
 int adc(uint8_t *codePtr)
 {
-	uint8_t rd, rr;
+	uint8_t rd, rr, regVal;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-	
+	regVal = r[rd];
 	r[rd] = r[rd] + r[rr] + sreg->C;
-	handleStatusRegForAddAdcOperation(rd, rr, r[rd]);
+	handleStatusRegForAddAdcOperation(regVal, r[rr], r[rd]);
   return 2;
 }
 
@@ -969,12 +969,11 @@ int adiw(uint8_t *codePtr)
   word = (uint16_t*)&r[rd];
   before = *word;
   *word += k;
-
-  handleStatusRegForAddImmWordOperation(*word, before);
   
   r[rd] = *word;
   r[rd+1] = (*word & 0xff00) >> 8;
-
+  handleStatusRegForAddImmWordOperation(*word, before);
+  
   return 2;
 }
 
@@ -988,13 +987,13 @@ int adiw(uint8_t *codePtr)
  */
 int sub(uint8_t *codePtr)
 {
-	uint8_t rd, rr;
+	uint8_t rd, rr, regVal;
   
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-
+  regVal = r[rd];
 	r[rd] = r[rd] - r[rr];
-	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, r[rd]);
+	handleStatusRegForSubSubiSbcSbciOperation(regVal, r[rr], r[rd]);
 	return 2;
 }
 
@@ -1030,9 +1029,9 @@ int subi(uint8_t *codePtr)
   
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
-
+  regVal = r[rd];
 	r[rd] = r[rd] - k;
-	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
+	handleStatusRegForSubSubiSbcSbciOperation(regVal, k, r[rd]);
 	return 2;
 }
 
@@ -1046,13 +1045,13 @@ int subi(uint8_t *codePtr)
  */
 int sbc(uint8_t *codePtr)
 {
-	uint8_t rd, rr;
+	uint8_t rd, rr, regVal;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-	
+	regVal = r[rd];
 	r[rd] = r[rd] - r[rr] - sreg->C;
-	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, r[rd]);
+	handleStatusRegForSubSubiSbcSbciOperation(regVal, r[rr], r[rd]);
 	return 2;
 }
 
@@ -1084,13 +1083,13 @@ int sbc(uint8_t *codePtr)
  */
 int sbci(uint8_t *codePtr)
 {
-	uint8_t rd, k;
+	uint8_t rd, k, regVal;
 	
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
-
+  regVal = r[rd];
 	r[rd] = r[rd] - k - sreg->C;
-	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
+	handleStatusRegForSubSubiSbcSbciOperation(regVal, k, r[rd]);
 	return 2;
 }
 
@@ -1231,12 +1230,12 @@ int com(uint8_t *codePtr)
  */
 int neg(uint8_t *codePtr)
 {
-	uint8_t rd;
+	uint8_t rd, regVal;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-
+  regVal = r[rd];
 	r[rd] = 0x00 - r[rd];
-	handleStatusRegForNegOperation(rd, r[rd]);
+	handleStatusRegForNegOperation(regVal, r[rd]);
 	return 2;
 }
 
@@ -1561,14 +1560,14 @@ int mulsu(uint8_t *codePtr)
  */
 int lsl(uint8_t *codePtr)
 {
-	uint8_t rd;
+	uint8_t rd, regVal;
 	uint16_t temp;
   
 	rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
-	
+	regVal = r[rd];
 	temp = ((uint16_t)r[rd] << 1);
 	r[rd] = temp;
-	handleStatusRegForLslRolOperation(rd, r[rd]);
+	handleStatusRegForLslRolOperation(regVal, r[rd]);
 	return 2;
 }
 
@@ -1581,13 +1580,13 @@ int lsl(uint8_t *codePtr)
  */
 int lsr(uint8_t *codePtr)
 {
-	uint8_t rd, temp;
+	uint8_t rd, temp, regVal;
   
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+	regVal = r[rd];
 	temp = r[rd];
 	r[rd] = r[rd] >> 1;
-	handleStatusRegForLsrOperation(rd, r[rd]);
+	handleStatusRegForLsrOperation(regVal, r[rd]);
 	return 2;
 }
 
@@ -1600,14 +1599,14 @@ int lsr(uint8_t *codePtr)
  */
 int rol(uint8_t *codePtr)
 {
-	uint8_t rd;
+	uint8_t rd, regVal;
 	uint16_t temp;
   
 	rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
-	
+	regVal = r[rd];
 	temp = ((uint16_t)r[rd] << 1);
 	r[rd] = temp + sreg->C;
-	handleStatusRegForLslRolOperation(rd, r[rd]);
+	handleStatusRegForLslRolOperation(regVal, r[rd]);
 	return 2;
 }
 
@@ -1627,7 +1626,7 @@ int ror(uint8_t *codePtr)
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (sreg->C << 7);
 	sreg->C = temp & 0x1;
-	handleStatusRegForRorAsrOperation(rd, r[rd]);
+	handleStatusRegForRorAsrOperation(temp, r[rd]);
 	return 2;
 }
 
@@ -1646,7 +1645,7 @@ int asr(uint8_t *codePtr)
 	
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (r[rd] & 0x80) ;
-	handleStatusRegForRorAsrOperation(rd, r[rd]);
+	handleStatusRegForRorAsrOperation(temp, r[rd]);
 	return 2;
 }
 
@@ -1774,7 +1773,7 @@ int bst(uint8_t *codePtr)
 	
 	sreg->T = (r[rd] & (1 << b)) >> b;
 
-	handleStatusRegForRorBstOperation(rd);
+	handleStatusRegForRorBstOperation(r[rd]);
 	return 2;
 }
 
@@ -2229,7 +2228,7 @@ int cp(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
 	result = r[rd] - r[rr];
-	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, result);
+	handleStatusRegForSubSubiSbcSbciOperation(r[rd], r[rr], result);
 	return 2;
 }
 
@@ -2249,7 +2248,7 @@ int cpc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
 	result = r[rd] - r[rr] - sreg->C;
-	handleStatusRegForSubSubiSbcSbciOperation(rd, rr, result);
+	handleStatusRegForSubSubiSbcSbciOperation(r[rd], r[rr], result);
 	return 2;
 }
 
