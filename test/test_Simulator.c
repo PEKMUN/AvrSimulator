@@ -426,9 +426,9 @@ void test_AvrOperatorTable_given_cpc_r17_r23(void)
 	TEST_ASSERT_EQUAL(0, sreg->C);
 	TEST_ASSERT_EQUAL(0, sreg->Z);
 	TEST_ASSERT_EQUAL(0, sreg->N);
-	TEST_ASSERT_EQUAL(0, sreg->V);
-	TEST_ASSERT_EQUAL(0, sreg->S);
-	TEST_ASSERT_EQUAL(1, sreg->H);
+	TEST_ASSERT_EQUAL(1, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+	TEST_ASSERT_EQUAL(0, sreg->H);
 }
 
 /**
@@ -618,7 +618,7 @@ void test_AvrOperatorTable_given_cp_r4_r21(void)
 	uint8_t *progCounter = codeMemory;
 	flash = codeMemory;
 	
-	r[4]  = 0x9c;
+	r[4]  = 0x63;
 	r[21] = 0x52;
 	
 	simulateOneInstruction(progCounter);
@@ -628,7 +628,7 @@ void test_AvrOperatorTable_given_cp_r4_r21(void)
 	TEST_ASSERT_EQUAL(0, sreg->N);
 	TEST_ASSERT_EQUAL(0, sreg->V);
 	TEST_ASSERT_EQUAL(0, sreg->S);
-	TEST_ASSERT_EQUAL(1, sreg->H);
+	TEST_ASSERT_EQUAL(0, sreg->H);
 }
 
 /**

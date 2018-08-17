@@ -1025,7 +1025,7 @@ int sub(uint8_t *codePtr)
  */
 int subi(uint8_t *codePtr)
 {
-	uint8_t rd, k;
+	uint8_t rd, k, regVal;
   
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
