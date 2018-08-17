@@ -530,7 +530,7 @@ int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t re
  */
 int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
-	result = (operand1 & (~operand2) & (~result) | (~operand1) & operand2 & result) >> 7;
+	result = ((operand1 & ~operand2 & ~result) | (~operand1 & operand2 & result)) >> 7;
   return result;
 }
 
@@ -2281,13 +2281,14 @@ int cpc(uint8_t *codePtr)
  */
 int cpi(uint8_t *codePtr)
 {
-	uint8_t rd, k;
+	uint8_t rd, k, regVal;
   
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
-
+  regVal = r[rd];
+  
 	r[rd] = r[rd] - k;
-	handleStatusRegForSubSubiSbcSbciOperation(rd, k, r[rd]);
+	handleStatusRegForSubSubiSbcSbciOperation(regVal, k, r[rd]);
 	return 2;
 }
 
@@ -2523,11 +2524,16 @@ int eijmp(uint8_t *codePtr)
 int call(uint8_t *codePtr)
 {
 	uint32_t k;
+  uint16_t stackBefore, stackNow;
+  
+  stackBefore = *(uint16_t *)spl;
 	k = *(uint32_t *)codePtr;
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
-  *(uint16_t *)(spl) = getPc(codePtr) + 4;
   
+  *(uint16_t *)(spl) = getPc(codePtr) + 4;
+  stackNow = getMcuStackPtr();
+  pushWord((uint16_t)codePtr);
 	return getCodePtr(k*2) - codePtr;
 }
 
@@ -2549,8 +2555,8 @@ int rcall(uint8_t *codePtr)
   
   if(k & 0x800)
     k |= 0xfffff000;
-  
-  *(uint16_t *)(spl) = getPc(codePtr) + 2;
+
+  //*(uint16_t *)(spl) = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
   pushWord(codePtr);
 	return getCodePtr(((k+1)*2) + 2) - codePtr;
@@ -2592,6 +2598,7 @@ int eicall(uint8_t *codePtr)
 int ret(uint8_t *codePtr)
 {
   int pc;
+
   pc = sram[*(uint16_t *)spl] + 1;
   *(uint16_t *)(spl) = getPc(codePtr) - 2;
   
