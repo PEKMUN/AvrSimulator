@@ -238,6 +238,33 @@ void test_AvrOperatorTable_given_brbc_4_61(void)
 
 /**
  * Instruction:
+ * 		BRBC s, k
+ *			1111 01kk kkkk ksss
+ * where
+ *			-64 <= kkkkkkk <= +63
+ *      0 <= sss <= 7
+ *
+ * Simulate brbs 1, -0x4
+ *			1111 0111 1100 1001
+ *			 f 	  7    c  	9
+ */
+void test_AvrOperatorTable_given_brbc_1_minus0x4(void)
+{
+	uint32_t k;
+	uint8_t codeMemory[] = {
+		0xc9, 0xf7,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+  
+  sreg->Z = 0;
+	k = simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_INT32(0xfa, k);
+}
+
+/**
+ * Instruction:
  * 		WDR None
  *			1001 0101 1010 1000
  *       9    5    a    8
