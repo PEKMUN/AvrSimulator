@@ -196,7 +196,7 @@ void test_AvrOperatorTable_given_brbs_5_61(void)
  */
 void test_AvrOperatorTable_given_brbc_5_61(void)
 {
-	uint32_t k;
+	uint8_t pc;
 	uint8_t codeMemory[] = {
 		0xed, 0xf5,
 	};
@@ -204,9 +204,9 @@ void test_AvrOperatorTable_given_brbc_5_61(void)
 	flash = codeMemory;
   
   sreg->H = 0;
-	k = simulateOneInstruction(progCounter);
+	pc = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_INT32(124, k);
+	TEST_ASSERT_EQUAL_INT32(124, pc);
 }
 
 /**
@@ -223,7 +223,7 @@ void test_AvrOperatorTable_given_brbc_5_61(void)
  */
 void test_AvrOperatorTable_given_brbc_4_61(void)
 {
-	uint32_t k;
+	uint8_t pc;
 	uint8_t codeMemory[] = {
 		0xec, 0xf5,
 	};
@@ -231,9 +231,9 @@ void test_AvrOperatorTable_given_brbc_4_61(void)
 	flash = codeMemory;
   
   sreg->S = 1;
-	k = simulateOneInstruction(progCounter);
+	pc = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_INT32(2, k);
+	TEST_ASSERT_EQUAL_INT32(2, pc);
 }
 
 /**
@@ -245,22 +245,22 @@ void test_AvrOperatorTable_given_brbc_4_61(void)
  *      0 <= sss <= 7
  *
  * Simulate brbs 1, -0x4
- *			1111 0111 1100 1001
- *			 f 	  7    c  	9
+ *			1111 0111 1110 0001
+ *			 f 	  7      e    	1
  */
 void test_AvrOperatorTable_given_brbc_1_minus0x4(void)
 {
-	uint32_t k;
+	uint8_t pc;
 	uint8_t codeMemory[] = {
-		0xc9, 0xf7,
+		0xe1, 0xf7,
 	};
 	uint8_t *progCounter = codeMemory;
 	flash = codeMemory;
   
   sreg->Z = 0;
-	k = simulateOneInstruction(progCounter);
+	pc = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_INT32(0xfa, k);
+	TEST_ASSERT_EQUAL_INT32(0xfa, pc);
 }
 
 /**
