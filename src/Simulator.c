@@ -2039,6 +2039,7 @@ int jmp(uint8_t *codePtr)
 int brbs(uint8_t *codePtr)
 {
 	uint8_t k, s;
+	uint16_t signExt;
   
 	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
   s = (*codePtr & 0x7);
@@ -2109,57 +2110,62 @@ int brbs(uint8_t *codePtr)
 int brbc(uint8_t *codePtr)
 {
 	uint8_t k, s;
+	uint16_t signExt;
   
 	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
+	if(k & 0x40 == 0x40)
+		signExt = (uint16_t)k | 0xff80;
+	else
+		signExt = (uint16_t)k;
   s = (*codePtr & 0x7);
   
   switch(s)
 	{
 		case 0b000: 
 			if(sreg->C == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b001: 
 			if(sreg->Z == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b010: 
 			if(sreg->N == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b011: 
 			if(sreg->V == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b100: 
 			if(sreg->S == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b101: 
 			if(sreg->H == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b110: 
 			if(sreg->T == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
 		case 0b111: 
 			if(sreg->I == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return (getCodePtr((signExt+1)*2) - codePtr);
       else
         return 2;
 			break;
