@@ -2123,49 +2123,49 @@ int brbc(uint8_t *codePtr)
 	{
 		case 0b000: 
 			if(sreg->C == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b001: 
 			if(sreg->Z == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b010: 
 			if(sreg->N == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b011: 
 			if(sreg->V == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b100: 
 			if(sreg->S == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b101: 
 			if(sreg->H == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b110: 
 			if(sreg->T == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
 		case 0b111: 
 			if(sreg->I == 0)
-        return (getCodePtr((k+1)*2) - codePtr);
+        return ((k+1)*2);
       else
         return 2;
 			break;
