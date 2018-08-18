@@ -2110,13 +2110,13 @@ int brbs(uint8_t *codePtr)
 int brbc(uint8_t *codePtr)
 {
 	uint8_t k, s;
-	uint16_t signExt;
+	uint32_t signExt;
   
 	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
 	if(k & 0x40 == 0x40)
-		signExt = (uint16_t)k | 0xff80;
+		signExt = (uint32_t)k | 0xff80;
 	else
-		signExt = (uint16_t)k;
+		signExt = (uint32_t)k;
   s = (*codePtr & 0x7);
   
   switch(s)
