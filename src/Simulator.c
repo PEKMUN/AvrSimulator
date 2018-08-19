@@ -2557,13 +2557,13 @@ int rcall(uint8_t *codePtr)
   stackBefore = *(uint16_t *)spl;
 	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
   
-  if(k & 0x800)
+  if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-  //*(uint16_t *)(spl) = getPc(codePtr) + 2;
+  *(uint16_t *)(spl) = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
-  pushWord(getPc(codePtr) + 2);
-	return getCodePtr(((k+1)*2) + 2) - codePtr;
+  pushWord(*(uint16_t *)(spl));
+	return (k+1)*2;
 }
 
 /**
