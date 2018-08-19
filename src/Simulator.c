@@ -27,8 +27,14 @@ AvrOperator avrOperatorTable[256] = {
   [0x50 ... 0x5f] = subi,
   [0x60 ... 0x6f] = ori,
   [0x70 ... 0x7f] = andi,
-	[0x80 ... 0x81] = ldyORldz,
-  [0x82 ... 0x8f] = styORstz,
+	[0x80 ... 0x81] = lddyORlddz,
+  [0x82 ... 0x83] = stdyORstdz,
+	[0x84 ... 0x85] = lddyORlddz,
+  [0x86 ... 0x87] = stdyORstdz,
+	[0x88 ... 0x89] = lddyORlddz,
+  [0x8a ... 0x8b] = stdyORstdz,
+	[0x8c ... 0x8d] = lddyORlddz,
+  [0x8e ... 0x8f] = stdyORstdz,
   [0x90 ... 0x91] = instructionWith1001000,  
 	[0x92 ... 0x93] = instructionWith1001001,
   [0x94 ... 0x95] = instructionWith1001010,
@@ -39,7 +45,14 @@ AvrOperator avrOperatorTable[256] = {
   [0x9a] = sbi,
   [0x9b] = sbis,
   [0x9c ... 0x9f] = mul,
-  [0xa0 ... 0xaf] = NULL,
+  [0xa0 ... 0xa1] = lddyORlddz,
+  [0xa2 ... 0xa3] = stdyORstdz,
+	[0xa4 ... 0xa5] = lddyORlddz,
+  [0xa6 ... 0xa7] = stdyORstdz,
+	[0xa8 ... 0xa9] = lddyORlddz,
+  [0xaa ... 0xab] = stdyORstdz,
+	[0xac ... 0xad] = lddyORlddz,
+  [0xae ... 0xaf] = stdyORstdz,
 	[0xb0 ... 0xb7] = in,
 	[0xb8 ... 0xbf] = out,
   [0xc0 ... 0xcf] = rjmp,
@@ -199,34 +212,12 @@ int instructionWith1001000(uint8_t *codePtr)
   return avr1001000Table [low4bit](codePtr);
 }
 
-int ldyORldz(uint8_t *codePtr)
-{
-	uint8_t isLdyUnchanged;
-	isLdyUnchanged = *codePtr & 0xf;
-	
-	if(isLdyUnchanged == 0x8)
-		ldyUnchanged(codePtr);
-	else
-		ldzUnchanged(codePtr);
-}
-
 int instructionWith1001001(uint8_t *codePtr)
 {
 	uint8_t low4bit;
 	low4bit = *codePtr & 0xf;
 
   return avr1001001Table [low4bit](codePtr);
-}
-
-int styORstz(uint8_t *codePtr)
-{
-	uint8_t isStyUnchanged;
-	isStyUnchanged = *codePtr & 0xf;
-	
-	if(isStyUnchanged == 0x8)
-		styUnchanged(codePtr);
-	else
-		stzUnchanged(codePtr);
 }
 
 int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr)
@@ -242,6 +233,28 @@ int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr)
 		fmuls(codePtr);
   else
     fmulsu(codePtr);
+}
+
+int lddyORlddz(uint8_t *codePtr)
+{
+	uint8_t isLddy;
+	isLddy = (*codePtr & 0x8) >> 3;
+	
+	if(isLddy)
+		lddy(codePtr);
+	else
+		lddz(codePtr);
+}
+
+int stdyORstdz(uint8_t *codePtr)
+{
+	uint8_t isStdy;
+	isStdy = (*codePtr & 0x8) >> 3;
+	
+	if(isStdy)
+		stdy(codePtr);
+	else
+		stdz(codePtr);
 }
 
 uint32_t getPc(uint8_t *progCounter)
@@ -2873,6 +2886,26 @@ int ldyPreDec(uint8_t *codePtr)
 
 /**
  * Instruction:
+ * 		LDD Rd, Y+q
+ *		10q0 qq0d dddd 1qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ */
+int lddy(uint8_t *codePtr)
+{
+	uint8_t rd, q;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
+	
+	r[rd] = sram[*yRegPtr + q];
+
+	return 2;
+}
+
+/**
+ * Instruction:
  * 		LD Rd, Z
  *		1000 000d dddd 0000
  * where
@@ -2923,6 +2956,26 @@ int ldzPreDec(uint8_t *codePtr)
 
 	*zRegPtr = *zRegPtr - 1;
 	r[rd] = sram[*zRegPtr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		LDD Rd, Z+q
+ *		10q0 qq0d dddd 0qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ */
+int lddz(uint8_t *codePtr)
+{
+	uint8_t rd, q;
+
+	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
+	
+	r[rd] = sram[*zRegPtr + q];
 
 	return 2;
 }
@@ -3045,6 +3098,26 @@ int styPreDec(uint8_t *codePtr)
 
 /**
  * Instruction:
+ * 		STD Y+q, Rr
+ *		10q0 qq1r rrrr 1qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ */
+int stdy(uint8_t *codePtr)
+{
+	uint8_t rr, q;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
+	
+	sram[*yRegPtr + q] = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
  * 		ST Z, Rr
  *		1000 001r rrrr 0000
  * where
@@ -3095,6 +3168,26 @@ int stzPreDec(uint8_t *codePtr)
 
 	*zRegPtr = *zRegPtr - 1;
 	sram[*zRegPtr] = r[rr];
+
+	return 2;
+}
+
+/**
+ * Instruction:
+ * 		STD Z+q, Rr
+ *		10q0 qq1r rrrr 0qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ */
+int stdz(uint8_t *codePtr)
+{
+	uint8_t rr, q;
+
+	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
+	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
+	
+	sram[*zRegPtr + q] = r[rr];
 
 	return 2;
 }

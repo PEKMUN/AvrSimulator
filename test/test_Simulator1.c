@@ -1515,6 +1515,35 @@ void test_AvrOperatorTable_given_ld_31_minusY(void)
 
 /**
  * Instruction:
+ * 		LDD Rd, Y+q
+ *		10q0 qq0d dddd 1qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ *
+ * Simulate ldd R17, Y+18
+ *		1000 1001 0001 1010
+ *      8 	   9      1     a
+ */
+void test_AvrOperatorTable_given_ldd_17_Y_plus_18(void)
+{
+  uint8_t codeMemory[] = {
+		0x1a, 0x89,								//ldd R17, Y+18
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  r[17] = 0;
+  *yRegPtr = 0x191;
+  sram[0x1a3] = 0x88;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x88, r[17]);
+}
+
+/**
+ * Instruction:
  * 		LD Rd, Z
  *		1000 000d dddd 0000
  * where
@@ -1596,6 +1625,35 @@ void test_AvrOperatorTable_given_ld_13_minusZ(void)
 	simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL_HEX8(0x66, r[13]);
+}
+
+/**
+ * Instruction:
+ * 		LDD Rd, Z+q
+ *		10q0 qq0d dddd 0qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ *
+ * Simulate ldd R17, Z+18
+ *		1000 1001 0001 0010
+ *      8 	   9      1     2
+ */
+void test_AvrOperatorTable_given_ldd_17_Z_plus_18(void)
+{
+  uint8_t codeMemory[] = {
+		0x12, 0x89,								//ldd R17, Z+18
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  r[17] = 0;
+  *zRegPtr = 0x254;
+  sram[0x266] = 0x72;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x72, r[17]);
 }
 
 /**
@@ -1770,6 +1828,35 @@ void test_AvrOperatorTable_given_st_minusY_11(void)
 
 /**
  * Instruction:
+ * 		STD Y+q, Rr
+ *		10q0 qq1r rrrr 1qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ *
+ * Simulate std Y+48, R12
+ *		1010 1010 1100 1000
+ *      a 	   a      c     8
+ */
+void test_AvrOperatorTable_given_std_Y_plus_48_12(void)
+{
+  uint8_t codeMemory[] = {
+		0xc8, 0xaa,								//std Y+48, R12
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  r[12] = 0xaa;
+  *yRegPtr = 0x655;
+  sram[0x685] = 0;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0xaa, sram[0x685]);
+}
+
+/**
+ * Instruction:
  * 		ST Z, Rr
  *		1000 001r rrrr 0000
  * where
@@ -1851,6 +1938,35 @@ void test_AvrOperatorTable_given_st_minusZ_8(void)
 	simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL_HEX8(0x98, sram[0x599]);
+}
+
+/**
+ * Instruction:
+ * 		STD Z+q, Rr
+ *		10q0 qq1r rrrr 0qqq
+ * where
+ *		0 <= ddddd <= 31
+ *		0 <= qqqqqq <= 63
+ *
+ * Simulate std Z+63, R24
+ *		1010 1111 1000 0111
+ *      a 	   f      8     7
+ */
+void test_AvrOperatorTable_given_std_Z_plus_63_24(void)
+{
+  uint8_t codeMemory[] = {
+		0x87, 0xaf,								//std Z+63, R24
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  r[24] = 0x6f;
+  *zRegPtr = 0x518;
+  sram[0x557] = 0;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL_HEX16(0x6f, sram[0x557]);
 }
 
 /**
