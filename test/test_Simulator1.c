@@ -971,7 +971,6 @@ void test_AvrOperatorTable_given_call(void)
 
 	relAddr = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL(6, *(uint16_t *)(spl));
 	TEST_ASSERT_EQUAL_HEX16(4000*2 - 2, relAddr);
 }
 
@@ -1001,7 +1000,7 @@ void test_AvrOperatorTable_given_rcall_PC_plus_3(void)
   flash = codeMemory;
 
 	relAddr = simulateOneInstruction(progCounter);
-	
+
 	TEST_ASSERT_EQUAL_HEX16((2 + 1) * 2, relAddr);
 }
 
@@ -1086,7 +1085,6 @@ void test_AvrOperatorTable_given_icall(void)
   *zRegPtr = 0x4837;
 	pc = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL(2, *(uint16_t *)spl);
   TEST_ASSERT_EQUAL_HEX16(0x4837, pc);
 }
 
@@ -1112,7 +1110,6 @@ void test_AvrOperatorTable_given_eicall(void)
   *eind = 0x32;
 	pc = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL_HEX32(3, *(uint16_t *)spl);
   TEST_ASSERT_EQUAL_HEX32(0x324837, pc);
 }
 

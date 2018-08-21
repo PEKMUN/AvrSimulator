@@ -2550,7 +2550,7 @@ int call(uint8_t *codePtr)
   
   *(uint16_t *)(spl) = getPc(codePtr) + 4;
   stackNow = getMcuStackPtr();
-  pushWord(getPc(codePtr) + 2);
+  pushWord(*(uint16_t *)(spl));
 	return getCodePtr(k*2) - codePtr;
 }
 
@@ -2586,9 +2586,15 @@ int rcall(uint8_t *codePtr)
  */
 int icall(uint8_t *codePtr)
 {
+	uint16_t stackBefore, stackNow;
   int pc;
+	
+	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr;
+	
   *(uint16_t *)(spl) = getPc(codePtr) + 2;
+  stackNow = getMcuStackPtr();
+  pushWord(*(uint16_t *)(spl));
   
 	return pc;
 }
@@ -2601,9 +2607,15 @@ int icall(uint8_t *codePtr)
 int eicall(uint8_t *codePtr)
 {
   int pc;
+	uint16_t stackBefore, stackNow;
+	
+	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
+
   *(uint16_t *)(spl) = getPc(codePtr) + 3;
-  
+  stackNow = getMcuStackPtr();
+  pushWord(*(uint16_t *)(spl));
+	
 	return pc;
 }
 
