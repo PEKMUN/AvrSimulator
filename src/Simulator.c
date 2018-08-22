@@ -146,13 +146,14 @@ int simulateOneInstruction(uint8_t *codePtr)
 }
 
 void initialiseSram()
-｛
-   uint16_t size;
-   for(size=0x0;size<0x900;size++)
-   ｛
-     sram[size] = 0;
-   ｝
-｝
+{
+	uint16_t size;
+	for(size=0x0;size<0x900;size++)
+  {
+		sram[size] = 0;
+	}
+}
+
 
 int instructionWith1001010(uint8_t *codePtr)
 {
