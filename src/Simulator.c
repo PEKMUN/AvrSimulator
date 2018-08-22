@@ -145,6 +145,11 @@ int simulateOneInstruction(uint8_t *codePtr)
 	return avrOperatorTable [*(codePtr + 1)](codePtr);
 }
 
+void initialiseSram()
+｛
+   sram = 0;
+｝
+
 int instructionWith1001010(uint8_t *codePtr)
 {
 	uint8_t low4bit;
