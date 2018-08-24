@@ -154,6 +154,15 @@ void initialiseSram()
 	}
 }
 
+void dataIram()
+{
+  uint16_t size;
+  while(size < 0x8ff)
+  {
+    printf("0x%x  %x %x %x %x %x %x %x %x", size, sram[size], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++]);
+    printf("\n");
+  }
+}
 
 int instructionWith1001010(uint8_t *codePtr)
 {

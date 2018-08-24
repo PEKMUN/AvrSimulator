@@ -155,6 +155,7 @@ uint16_t popWord();
 void initSimulator();
 int is2wordInstruction(uint8_t *codePtr);
 void initialiseSram();
+void dataIram();
 
 //Status Register
 int is8bitZero(uint8_t data8bit);

@@ -9,6 +9,12 @@ void setUp(void){}
 
 void tearDown(void){}
 
+void test_dataIram(void)
+{
+  sram[0x456] = 0x98;
+  dataIram();
+}
+
 void test_is2wordInstruction_given_codePtr_is_0(void)
 {
 	uint8_t code;
