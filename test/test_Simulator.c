@@ -9,10 +9,10 @@ void setUp(void){}
 
 void tearDown(void){}
 
-void test_dataIram(void)
+void xtest_dumpSram(void)
 {
   sram[0x456] = 0x98;
-  dataIram();
+  dumpSram();
 }
 
 void test_is2wordInstruction_given_codePtr_is_0(void)

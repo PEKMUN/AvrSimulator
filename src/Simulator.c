@@ -35,7 +35,7 @@ AvrOperator avrOperatorTable[256] = {
   [0x8a ... 0x8b] = stdyORstdz,
 	[0x8c ... 0x8d] = lddyORlddz,
   [0x8e ... 0x8f] = stdyORstdz,
-  [0x90 ... 0x91] = instructionWith1001000,  
+  [0x90 ... 0x91] = instructionWith1001000,
 	[0x92 ... 0x93] = instructionWith1001001,
   [0x94 ... 0x95] = instructionWith1001010,
   [0x96] = adiw,
@@ -98,9 +98,9 @@ AvrOperator avr1001000Table[16] = {
   [0x9] = ldyPostInc,
   [0xa] = ldyPreDec,
   [0xb] = NULL,
-  [0xc] = ldxUnchanged, 
+  [0xc] = ldxUnchanged,
 	[0xd] = ldxPostInc,
-  [0xe] = ldxPreDec, 
+  [0xe] = ldxPreDec,
 	[0xf] = pop,
 };
 
@@ -117,9 +117,9 @@ AvrOperator avr1001001Table[16] = {
   [0x9] = styPostInc,
   [0xa] = styPreDec,
   [0xb] = NULL,
-  [0xc] = stxUnchanged, 
+  [0xc] = stxUnchanged,
 	[0xd] = stxPostInc,
-  [0xe] = stxPreDec, 
+  [0xe] = stxPreDec,
 	[0xf] = push,
 };
 
@@ -154,13 +154,15 @@ void initialiseSram()
 	}
 }
 
-void dataIram()
-{
-  uint16_t size;
-  while(size < 0x8ff)
-  {
-    printf("0x%x  %x %x %x %x %x %x %x %x", size, sram[size], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++], sram[size++]);
-    printf("\n");
+void dumpSram() {
+  int i = 0;
+  for(i = 0; i < 0x900; i += 16) {
+    printf("0x%03x  %02x %02x %02x %02x %02x %02x %02x %02x "               \
+           "%02x %02x %02x %02x %02x %02x %02x %02x\n",                     \
+           i, sram[i], sram[i+1], sram[i+2], sram[i+3],                     \
+           sram[i+4], sram[i+5], sram[i+6], sram[i+7],                      \
+           sram[i+8], sram[i+9], sram[i+10], sram[i+11],                    \
+           sram[i+12], sram[i+13], sram[i+14], sram[i+15]);
   }
 }
 
@@ -220,7 +222,7 @@ int instructionWith0x9__9(uint8_t *codePtr)
       ijmp(codePtr);
     else
       eijmp(codePtr);
-  
+
 }
 
 int instructionWith1001000(uint8_t *codePtr)
@@ -243,7 +245,7 @@ int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr)
 {
 	uint8_t lowBit;
 	lowBit = ((*codePtr & 0x8) >> 3) | ((*codePtr & 0x80) >> 6);
-	
+
 	if(lowBit == 0x0)
 		mulsu(codePtr);
 	else if(lowBit == 0x01)
@@ -258,7 +260,7 @@ int lddyORlddz(uint8_t *codePtr)
 {
 	uint8_t isLddy;
 	isLddy = (*codePtr & 0x8) >> 3;
-	
+
 	if(isLddy)
 		lddy(codePtr);
 	else
@@ -269,7 +271,7 @@ int stdyORstdz(uint8_t *codePtr)
 {
 	uint8_t isStdy;
 	isStdy = (*codePtr & 0x8) >> 3;
-	
+
 	if(isStdy)
 		stdy(codePtr);
 	else
@@ -278,12 +280,12 @@ int stdyORstdz(uint8_t *codePtr)
 
 uint32_t getPc(uint8_t *progCounter)
 {
-	return (progCounter - flash); 
+	return (progCounter - flash);
 }
 
 uint8_t *getCodePtr(uint32_t pc)
 {
-	return (flash + pc); 
+	return (flash + pc);
 }
 
 uint16_t getMcuStackPtr()
@@ -400,7 +402,7 @@ int is16bitSigned(uint16_t result, uint16_t operand)
 }
 
 int handleStatusRegForAddImmWordOperation(uint16_t result, uint16_t operand)
-{	
+{
 	sreg->C = is16bitADIWCarry(result, operand);
 	sreg->Z = is16BitZero(result);
 	sreg->N = is16bitNeg(result);
@@ -430,7 +432,7 @@ int is16bitSBIWOverflow(uint16_t result, uint16_t operand)
 }
 
 int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
-{	
+{
 	sreg->C = is16bitSBIWCarry(result, operand);
 	sreg->Z = is16BitZero(result);
 	sreg->N = is16bitNeg(result);
@@ -440,7 +442,7 @@ int handleStatusRegForSubImmWordOperation(uint16_t result, uint16_t operand)
 }
 
 /**
- * C: 
+ * C:
  *    Rd7.Rr7+Rr7.!R7+!R7.Rd7
  */
 int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -450,7 +452,7 @@ int is8bitAdcAddCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 }
 
 /**
- * N: 
+ * N:
  *    R7
  */
 int is8bitNeg(uint8_t result)
@@ -460,7 +462,7 @@ int is8bitNeg(uint8_t result)
 }
 
 /**
- * V: 
+ * V:
  *    Rd7.Rr7.!R7+!Rd7.!Rr7.R7
  */
 int is8bitOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -483,7 +485,7 @@ int is8bitSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
 }
 
 /**
- * H: 
+ * H:
  *    Rd3.Rr3+Rr3.!R3+!R3.Rd3
  */
 int is8bitAdcAddHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -537,7 +539,7 @@ int handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(uint8_t result)
 }
 
 /**
- * C: 
+ * C:
  *    !Rd7.Rr7+Rr7.R7+R7.!Rd7
  */
 int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -547,17 +549,17 @@ int is8bitSubSubiSbcSbciCarry(uint8_t operand1, uint8_t operand2, uint8_t result
 }
 
 /**
- * H: 
+ * H:
  *    !Rd3.Rr3+Rr3.R3+R3.!Rd3
  */
 int is8bitSubSubiSbcSbciHalfCarry(uint8_t operand1, uint8_t operand2, uint8_t result)
 {
-  result = ((((~operand1) & operand2) | (operand2 & result) | (result & (~operand1))) & 0x8) >> 3; 
+  result = ((((~operand1) & operand2) | (operand2 & result) | (result & (~operand1))) & 0x8) >> 3;
   return result;
 }
 
 /**
- * V: 
+ * V:
  *    Rd7.!Rr7.!R7+!Rd7.Rr7.R7
  */
 int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -567,7 +569,7 @@ int is8bitSubSubiSbcSbciOverflow(uint8_t operand1, uint8_t operand2, uint8_t res
 }
 
 /**
- * S: 
+ * S:
  *    N^V
  */
 int is8bitSubSubiSbcSbciSigned(uint8_t operand1, uint8_t operand2, uint8_t result)
@@ -712,7 +714,7 @@ int handleStatusRegForClrOperation()
 int is16bitMulMulsMulsuCarry(uint16_t result)
 {
 	uint16_t c;
-	
+
 	c = result >> 15;
 	return c;
 }
@@ -730,7 +732,7 @@ int handleStatusRegForMulMulsMulsuOperation(uint16_t result)
 int is8bitLslRolCarry(uint8_t operand1)
 {
 	uint8_t c;
-	
+
 	c = operand1 >> 7;
 	return c;
 }
@@ -742,7 +744,7 @@ int is8bitLslRolCarry(uint8_t operand1)
 int is8bitLslRolOverflow(uint8_t operand1, uint8_t result)
 {
 	uint8_t n, c, v;
-	
+
 	n = is8bitNeg(result);
 	c = is8bitLslRolCarry(operand1);
 	v = n ^ c;
@@ -756,7 +758,7 @@ int is8bitLslRolOverflow(uint8_t operand1, uint8_t result)
 int is8bitLslRolSigned(uint8_t operand1, uint8_t result)
 {
 	uint8_t n, v, s;
-	
+
 	n = is8bitNeg(result);
 	v = is8bitLslRolOverflow(operand1, result);
 	s = n ^ v;
@@ -770,7 +772,7 @@ int is8bitLslRolSigned(uint8_t operand1, uint8_t result)
 int is8bitLslRolHalfCarry(uint8_t operand1)
 {
 	uint8_t h;
-	
+
 	h = (operand1 & 0x8) >> 3;
 	return h;
 }
@@ -792,7 +794,7 @@ int handleStatusRegForLslRolOperation(uint8_t operand1, uint8_t result)
 int is8bitLsrRorCarry(uint8_t operand1)
 {
 	uint8_t c;
-	
+
 	c = operand1 & 0x1;
 	return c;
 }
@@ -804,7 +806,7 @@ int is8bitLsrRorCarry(uint8_t operand1)
 int is8bitLsrOverflow(uint8_t operand1)
 {
 	uint8_t n, c, v;
-	
+
 	n = 0;
 	c = is8bitLsrRorCarry(operand1);
 	v = n ^ c;
@@ -818,7 +820,7 @@ int is8bitLsrOverflow(uint8_t operand1)
 int is8bitLsrSigned(uint8_t operand1)
 {
 	uint8_t n, v, s;
-	
+
 	n = 0;
 	v = is8bitLsrOverflow(operand1);
 	s = n ^ v;
@@ -841,7 +843,7 @@ int handleStatusRegForLsrOperation(uint8_t operand1, uint8_t result)
 int is8bitRorOverflow(uint8_t operand1, uint8_t result)
 {
 	uint8_t n, c, v;
-	
+
 	n = is8bitNeg(result);
 	c = is8bitLsrRorCarry(operand1);
 	v = n ^ c;
@@ -855,7 +857,7 @@ int is8bitRorOverflow(uint8_t operand1, uint8_t result)
 int is8bitRorSigned(uint8_t operand1, uint8_t result)
 {
 	uint8_t n, v, s;
-	
+
 	n = is8bitNeg(result);
 	v = is8bitRorOverflow(operand1, result);
 	s = n ^ v;
@@ -890,7 +892,7 @@ int handleStatusRegForRorBstOperation(uint8_t operand1)
 int add(uint8_t *codePtr)
 {
   uint8_t rd, rr, regVal;
-  
+
   rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
   regVal = r[rd];
@@ -930,10 +932,10 @@ int adc(uint8_t *codePtr)
 int and(uint8_t *codePtr)
 {
   uint8_t rd, rr;
-  
+
   rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-  
+
   r[rd] = r[rd] & r[rr];
   handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 2;
@@ -948,30 +950,30 @@ int and(uint8_t *codePtr)
  *    16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int andi(uint8_t *codePtr)
 {
   uint8_t rd, k;
-  
+
   rd = ((codePtr[0] & 0xf0) >> 4) + 16;
   k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
- 
+
   r[rd] = r[rd] & k;
   handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 2;
@@ -985,8 +987,8 @@ int andi(uint8_t *codePtr)
  *		0 <= KKKKKK <= 63
  * 		dd is {
  *			00 => 24,
- *			01 => 26, 
- *			10 => 28, 
+ *			01 => 26,
+ *			10 => 28,
  *			11 => 30
  *		}
  */
@@ -994,18 +996,18 @@ int adiw(uint8_t *codePtr)
 {
   uint8_t rd, k;
   uint16_t *word, before;
-  
+
   k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
   rd = ((*codePtr & 0x30) >> 3) + 24;
- 
+
   word = (uint16_t*)&r[rd];
   before = *word;
   *word += k;
-  
+
   r[rd] = *word;
   r[rd+1] = (*word & 0xff00) >> 8;
   handleStatusRegForAddImmWordOperation(*word, before);
-  
+
   return 2;
 }
 
@@ -1020,7 +1022,7 @@ int adiw(uint8_t *codePtr)
 int sub(uint8_t *codePtr)
 {
 	uint8_t rd, rr, regVal;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
   regVal = r[rd];
@@ -1038,27 +1040,27 @@ int sub(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int subi(uint8_t *codePtr)
 {
 	uint8_t rd, k, regVal;
-  
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
   regVal = r[rd];
@@ -1096,27 +1098,27 @@ int sbc(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int sbci(uint8_t *codePtr)
 {
 	uint8_t rd, k, regVal;
-	
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
   regVal = r[rd];
@@ -1133,16 +1135,16 @@ int sbci(uint8_t *codePtr)
  *		0 <= KKKKKK <= 63
  * 		dd is {
  *			00 => 24,
- *			01 => 26, 
- *			10 => 28, 
+ *			01 => 26,
+ *			10 => 28,
  *			11 => 30
  *		}
- */ 
+ */
 int sbiw(uint8_t *codePtr)
 {
 	uint8_t rd, k;
 	uint16_t word, before;
-  
+
 	k = (*codePtr & 0xf) | ((*codePtr & 0xc0) >> 2);
 	rd = ((*codePtr & 0x30) >> 3) + 24;
 
@@ -1151,7 +1153,7 @@ int sbiw(uint8_t *codePtr)
 	word -= k;
 
   handleStatusRegForSubImmWordOperation(word, before);
-  
+
 	r[rd] = word;
 	r[rd+1] = (word & 0xff00) >> 8;
 	return 2;
@@ -1171,7 +1173,7 @@ int or(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-	
+
 	r[rd] = r[rd] | r[rr];
 	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 2;
@@ -1186,21 +1188,21 @@ int or(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int ori(uint8_t *codePtr)
@@ -1229,7 +1231,7 @@ int eor(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-	
+
 	r[rd] = (~(r[rd]) & r[rr]) | (r[rd] & ~(r[rr]));
 	handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
 	return 2;
@@ -1281,9 +1283,9 @@ int neg(uint8_t *codePtr)
 int dec(uint8_t *codePtr)
 {
 	uint8_t rd;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+
 	r[rd] = r[rd] - 1;
 	handleStatusRegForDecOperation(r[rd]);
 	return 2;
@@ -1299,13 +1301,13 @@ int dec(uint8_t *codePtr)
 int inc(uint8_t *codePtr)
 {
 	uint8_t rd;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+
 	r[rd] = r[rd] + 1;
 	handleStatusRegForIncOperation(r[rd]);
 	return 2;
-} 
+}
 
 /**
  * Instruction:
@@ -1316,27 +1318,27 @@ int inc(uint8_t *codePtr)
  *     16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int cbr(uint8_t *codePtr)
 {
 	uint8_t rd, k;
-  
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
@@ -1354,21 +1356,21 @@ int cbr(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int sbr(uint8_t *codePtr)
@@ -1393,9 +1395,9 @@ int sbr(uint8_t *codePtr)
 int tst(uint8_t *codePtr)
 {
   uint16_t rd;
-  
+
   rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
-  
+
   r[rd] = r[rd] & r[rd];
   handleStatusRegForAndAndiOrOriEorCbrSbrTstOperation(r[rd]);
   return 2;
@@ -1411,9 +1413,9 @@ int tst(uint8_t *codePtr)
 int clr(uint8_t *codePtr)
 {
   uint16_t rd;
-  
+
   rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
-  
+
   r[rd] = r[rd] | r[rd];
   handleStatusRegForClrOperation();
   return 2;
@@ -1427,29 +1429,29 @@ int clr(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int ser(uint8_t *codePtr)
 {
 	uint8_t rd;
-  
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
-	
+
 	r[rd] = 0xff;
 	return 2;
 }
@@ -1466,10 +1468,10 @@ int mul(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	uint16_t result;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-	
+
 	result = r[rd] * r[rr];
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
@@ -1485,48 +1487,48 @@ int mul(uint8_t *codePtr)
  *      16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  *
  *      16 <= rrrr <= 31
  * 		rrrr is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int muls(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	int16_t result;
-	
+
 	rd = ((*codePtr & 0xf0) >> 4) + 16;
 	rr = (*codePtr & 0x0f) + 16;
 
@@ -1546,37 +1548,37 @@ int muls(uint8_t *codePtr)
  *      16 <= ddd <= 23
  * 		ddd is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  *
  *      16 <= rrr <= 23
  * 		rrr is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  */
 int mulsu(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	uint16_t result;
-	
+
 	rd = ((*codePtr & 0x70) >> 4) + 16;
 	rr = (*codePtr & 0x07) + 16;
 
 	result = (int8_t)r[rd] * r[rr];
-	
+
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
 	handleStatusRegForMulMulsMulsuOperation(result);
@@ -1594,7 +1596,7 @@ int lsl(uint8_t *codePtr)
 {
 	uint8_t rd, regVal;
 	uint16_t temp;
-  
+
 	rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
 	regVal = r[rd];
 	temp = ((uint16_t)r[rd] << 1);
@@ -1613,7 +1615,7 @@ int lsl(uint8_t *codePtr)
 int lsr(uint8_t *codePtr)
 {
 	uint8_t rd, temp, regVal;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	regVal = r[rd];
 	temp = r[rd];
@@ -1633,7 +1635,7 @@ int rol(uint8_t *codePtr)
 {
 	uint8_t rd, regVal;
 	uint16_t temp;
-  
+
 	rd = ((codePtr[1] & 0x3) << 7) | (codePtr[0] & 0xff);
 	regVal = r[rd];
 	temp = ((uint16_t)r[rd] << 1);
@@ -1652,9 +1654,9 @@ int rol(uint8_t *codePtr)
 int ror(uint8_t *codePtr)
 {
 	uint8_t rd, temp;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (sreg->C << 7);
 	sreg->C = temp & 0x1;
@@ -1672,9 +1674,9 @@ int ror(uint8_t *codePtr)
 int asr(uint8_t *codePtr)
 {
 	uint8_t rd, temp;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+
 	temp = r[rd];
 	r[rd] = (r[rd] >> 1) + (r[rd] & 0x80) ;
 	handleStatusRegForRorAsrOperation(temp, r[rd]);
@@ -1691,9 +1693,9 @@ int asr(uint8_t *codePtr)
 int swap(uint8_t *codePtr)
 {
 	uint8_t rd;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-	
+
 	r[rd] = ((r[rd] & 0x0f) << 4) + ((r[rd] & 0xf0) >> 4);
 	return 2;
 }
@@ -1708,38 +1710,38 @@ int swap(uint8_t *codePtr)
 int bset(uint8_t *codePtr)
 {
 	uint8_t s;
-  
+
 	s = (*codePtr & 0x70) >> 4;
-	
+
 	switch(s)
 	{
-		case 0b000: 
+		case 0b000:
 			sreg->C = 1;
 			break;
-		case 0b001: 
+		case 0b001:
 			sreg->Z = 1;
 			break;
-		case 0b010: 
+		case 0b010:
 			sreg->N = 1;
 			break;
-		case 0b011: 
+		case 0b011:
 			sreg->V = 1;
 			break;
-		case 0b100: 
+		case 0b100:
 			sreg->S = 1;
 			break;
-		case 0b101: 
+		case 0b101:
 			sreg->H = 1;
 			break;
-		case 0b110: 
+		case 0b110:
 			sreg->T = 1;
 			break;
-		case 0b111: 
+		case 0b111:
 			sreg->I = 1;
 			break;
-		default: 
+		default:
 			printf("error!");
-	} 
+	}
 	return 2;
 }
 
@@ -1753,38 +1755,38 @@ int bset(uint8_t *codePtr)
 int bclr(uint8_t *codePtr)
 {
 	uint8_t s;
-  
+
 	s = (*codePtr & 0x70) >> 4;
-	
+
 	switch(s)
 	{
-		case 0b000: 
+		case 0b000:
 			sreg->C = 0;
 			break;
-		case 0b001: 
+		case 0b001:
 			sreg->Z = 0;
 			break;
-		case 0b010: 
+		case 0b010:
 			sreg->N = 0;
 			break;
-		case 0b011: 
+		case 0b011:
 			sreg->V = 0;
 			break;
-		case 0b100: 
+		case 0b100:
 			sreg->S = 0;
 			break;
-		case 0b101: 
+		case 0b101:
 			sreg->H = 0;
 			break;
-		case 0b110: 
+		case 0b110:
 			sreg->T = 0;
 			break;
-		case 0b111: 
+		case 0b111:
 			sreg->I = 0;
 			break;
-		default: 
+		default:
 			printf("error!");
-	} 
+	}
 	return 2;
 }
 
@@ -1799,10 +1801,10 @@ int bclr(uint8_t *codePtr)
 int bst(uint8_t *codePtr)
 {
 	uint8_t rd, b;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	b = *codePtr & 0x7;
-	
+
 	sreg->T = (r[rd] & (1 << b)) >> b;
 
 	handleStatusRegForRorBstOperation(r[rd]);
@@ -1820,10 +1822,10 @@ int bst(uint8_t *codePtr)
 int bld(uint8_t *codePtr)
 {
 	uint8_t rd, b;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	b = *codePtr & 0x7;
-	
+
   r[rd] = (r[rd] & ~(1 << b)) + (sreg->T << b);
 	return 2;
 }
@@ -1969,7 +1971,7 @@ int set(uint8_t *codePtr)
 {
 	sreg->T = 1;
 	return 2;
-} 
+}
 
 /**
  * Instruction:
@@ -1980,7 +1982,7 @@ int clt(uint8_t *codePtr)
 {
 	sreg->T = 0;
 	return 2;
-} 
+}
 
 /**
  * Instruction:
@@ -1991,7 +1993,7 @@ int seh(uint8_t *codePtr)
 {
 	sreg->H = 1;
 	return 2;
-} 
+}
 
 /**
  * Instruction:
@@ -2002,7 +2004,7 @@ int clh(uint8_t *codePtr)
 {
 	sreg->H = 0;
 	return 2;
-} 
+}
 
 /**
  * Instruction:
@@ -2010,12 +2012,12 @@ int clh(uint8_t *codePtr)
  *		0010 11rd dddd rrrr
  * where
  *		0 <= ddddd <= 31
- *		0 <= rrrrr <= 31 
+ *		0 <= rrrrr <= 31
  */
 int mov(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
@@ -2033,12 +2035,12 @@ int mov(uint8_t *codePtr)
 int rjmp(uint8_t *codePtr)
 {
 	int k;
-  
-	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
-  
+
+	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);
+
   if(k & 0x800)
     k |= 0xfffff000;
- 
+
 	return (k+1) * 2;
 }
 
@@ -2072,61 +2074,61 @@ int brbs(uint8_t *codePtr)
 {
 	uint8_t k, s;
 	uint16_t signExt;
-  
-	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
+
+	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);
   s = (*codePtr & 0x7);
-  
+
   switch(s)
 	{
-		case 0b000: 
+		case 0b000:
 			if(sreg->C == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b001: 
+		case 0b001:
 			if(sreg->Z == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b010: 
+		case 0b010:
 			if(sreg->N == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b011: 
+		case 0b011:
 			if(sreg->V == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b100: 
+		case 0b100:
 			if(sreg->S == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b101: 
+		case 0b101:
 			if(sreg->H == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b110: 
+		case 0b110:
 			if(sreg->T == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		case 0b111: 
+		case 0b111:
 			if(sreg->I == 1)
         return ((k+1) * 2);
       else
         return 2;
 			break;
-		default: 
+		default:
 			printf("error!");
   }
 }
@@ -2143,65 +2145,65 @@ int brbc(uint8_t *codePtr)
 {
 	uint8_t s;
 	int16_t k;
-  
-	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5); 
-  s = (*codePtr & 0x7);  
+
+	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);
+  s = (*codePtr & 0x7);
 	if((k & 0x40) >> 6)
 		k = k | 0xff80;
 	else
 		k = k;
-  
+
   switch(s)
 	{
-		case 0b000: 
+		case 0b000:
 			if(sreg->C == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b001: 
+		case 0b001:
 			if(sreg->Z == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b010: 
+		case 0b010:
 			if(sreg->N == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b011: 
+		case 0b011:
 			if(sreg->V == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b100: 
+		case 0b100:
 			if(sreg->S == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b101: 
+		case 0b101:
 			if(sreg->H == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b110: 
+		case 0b110:
 			if(sreg->T == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		case 0b111: 
+		case 0b111:
 			if(sreg->I == 0)
         return ((k+1)*2);
       else
         return 2;
 			break;
-		default: 
+		default:
 			printf("error!");
   }
 }
@@ -2261,7 +2263,7 @@ int sleep(uint8_t *codePtr)
 int cp(uint8_t *codePtr)
 {
 	uint8_t rd, rr, result;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
@@ -2281,7 +2283,7 @@ int cp(uint8_t *codePtr)
 int cpc(uint8_t *codePtr)
 {
 	uint8_t rd, rr, result;
-  
+
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 
@@ -2299,27 +2301,27 @@ int cpc(uint8_t *codePtr)
  *    16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int cpi(uint8_t *codePtr)
 {
 	uint8_t rd, k, temp;
-  
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
@@ -2337,27 +2339,27 @@ int cpi(uint8_t *codePtr)
  *    16 <= dddd <= 31
  * 		dddd is {
  *			0000 => 16,
- *			0001 => 17, 
+ *			0001 => 17,
  *			0010 => 18,
- *			0011 => 19, 
+ *			0011 => 19,
  *			0100 => 20,
- *			0101 => 21, 
+ *			0101 => 21,
  *			0110 => 22,
- *			0111 => 23, 
+ *			0111 => 23,
  *			1000 => 24,
- *			1001 => 25, 
+ *			1001 => 25,
  *			1010 => 26,
- *			1011 => 27, 
+ *			1011 => 27,
  *			1100 => 28,
- *			1101 => 29, 
+ *			1101 => 29,
  *			1110 => 30,
- *			1111 => 31 
+ *			1111 => 31
  *		}
  */
 int ldi(uint8_t *codePtr)
 {
 	uint8_t rd, k;
-  
+
 	rd = ((codePtr[0] & 0xf0) >> 4) + 16;
 	k  = ((codePtr[1] & 0xf) << 4) | (codePtr[0] & 0xf);
 
@@ -2391,7 +2393,7 @@ int cpse(uint8_t *codePtr)
     else
       return 4;
   }
-  else 
+  else
     return 2;
 }
 
@@ -2414,7 +2416,7 @@ int sbrc(uint8_t *codePtr)
   rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   b = *codePtr & 0x7;
   r[rr] = (r[rr] & (1 << b)) >> b;
-  
+
 	if(r[rr] == 0)
   {
     if(is2wordInstruction(codePtr))
@@ -2422,7 +2424,7 @@ int sbrc(uint8_t *codePtr)
     else
       return 4;
   }
-  else 
+  else
     return 2;
 }
 
@@ -2445,7 +2447,7 @@ int sbrs(uint8_t *codePtr)
   rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   b = *codePtr & 0x7;
   r[rr] = (r[rr] & (1 << b)) >> b;
-  
+
 	if(r[rr] == 1)
   {
     if(is2wordInstruction(codePtr))
@@ -2453,7 +2455,7 @@ int sbrs(uint8_t *codePtr)
     else
       return 4;
   }
-  else 
+  else
     return 2;
 }
 
@@ -2476,7 +2478,7 @@ int sbic(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = (io[A] & (1 << b)) >> b;
-  
+
 	if(io[A] == 0)
   {
     if(is2wordInstruction(codePtr))
@@ -2484,7 +2486,7 @@ int sbic(uint8_t *codePtr)
     else
       return 4;
   }
-  else 
+  else
     return 2;
 }
 
@@ -2507,7 +2509,7 @@ int sbis(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = (io[A] & (1 << b)) >> b;
-  
+
 	if(io[A] == 1)
   {
     if(is2wordInstruction(codePtr))
@@ -2515,7 +2517,7 @@ int sbis(uint8_t *codePtr)
     else
       return 4;
   }
-  else 
+  else
     return 2;
 }
 
@@ -2561,12 +2563,12 @@ int call(uint8_t *codePtr)
 {
 	uint32_t k;
   uint16_t stackBefore, stackNow;
-  
+
   stackBefore = *(uint16_t *)spl;
 	k = *(uint32_t *)codePtr;
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
-  
+
   *(uint16_t *)(spl) = getPc(codePtr) + 4;
   stackNow = getMcuStackPtr();
   pushWord(*(uint16_t *)(spl));
@@ -2585,10 +2587,10 @@ int rcall(uint8_t *codePtr)
 {
   uint16_t stackBefore, stackNow;
 	int k;
-  
+
   stackBefore = *(uint16_t *)spl;
-	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);  
-  
+	k = ((codePtr[1] & 0xf) << 8) | (codePtr[0] & 0xff);
+
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
@@ -2607,14 +2609,14 @@ int icall(uint8_t *codePtr)
 {
 	uint16_t stackBefore, stackNow;
   int pc;
-	
+
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr;
-	
+
   *(uint16_t *)(spl) = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
   pushWord(*(uint16_t *)(spl));
-  
+
 	return pc;
 }
 
@@ -2627,14 +2629,14 @@ int eicall(uint8_t *codePtr)
 {
   int pc;
 	uint16_t stackBefore, stackNow;
-	
+
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
 
   *(uint16_t *)(spl) = getPc(codePtr) + 3;
   stackNow = getMcuStackPtr();
   pushWord(*(uint16_t *)(spl));
-	
+
 	return pc;
 }
 
@@ -2649,7 +2651,7 @@ int ret(uint8_t *codePtr)
 
   pc = sram[*(uint16_t *)spl] + 1;
   *(uint16_t *)(spl) = getPc(codePtr) - 2;
-  
+
 	return pc;
 }
 
@@ -2663,9 +2665,9 @@ int reti(uint8_t *codePtr)
   int pc;
   pc = sram[*(uint16_t *)spl] + 1;
   *(uint16_t *)(spl) = getPc(codePtr) - 2;
-  
+
   sreg->T = 1;
-  
+
 	return pc;
 }
 
@@ -2684,7 +2686,7 @@ int cbi(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = io[A] & ~(1 << b);
-	
+
 	return 2;
 }
 
@@ -2703,7 +2705,7 @@ int sbi(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = (io[A] | (1 << b));
-	
+
 	return 2;
 }
 
@@ -2714,39 +2716,39 @@ int sbi(uint8_t *codePtr)
  * where
  * 		dddd is {
  *			0000 => 0,
- *			0001 => 2, 
- *			0010 => 4, 
+ *			0001 => 2,
+ *			0010 => 4,
  *			0011 => 6,
  *			0100 => 8,
- *			0101 => 10, 
- *			0110 => 12, 
+ *			0101 => 10,
+ *			0110 => 12,
  *			0111 => 14,
  *			1000 => 16,
- *			1001 => 18, 
- *			1010 => 20, 
+ *			1001 => 18,
+ *			1010 => 20,
  *			1011 => 22,
  *			1100 => 24,
- *			1101 => 26, 
- *			1110 => 28, 
+ *			1101 => 26,
+ *			1110 => 28,
  *			1111 => 30,
  *		}
  *
  * 		rrrr is {
  *			0000 => 0,
- *			0001 => 2, 
- *			0010 => 4, 
+ *			0001 => 2,
+ *			0010 => 4,
  *			0011 => 6,
  *			0100 => 8,
- *			0101 => 10, 
- *			0110 => 12, 
+ *			0101 => 10,
+ *			0110 => 12,
  *			0111 => 14,
  *			1000 => 16,
- *			1001 => 18, 
- *			1010 => 20, 
+ *			1001 => 18,
+ *			1010 => 20,
  *			1011 => 22,
  *			1100 => 24,
- *			1101 => 26, 
- *			1110 => 28, 
+ *			1101 => 26,
+ *			1110 => 28,
  *			1111 => 30,
  *		}
  */
@@ -2756,10 +2758,10 @@ int movw(uint8_t *codePtr)
 
 	rd = ((*codePtr & 0xf0) >> 4) * 2;
 	rr = (*codePtr & 0xf) * 2;
-	
+
 	r[rd] = r[rr];
   r[rd+1] = r[rr+1];
-	
+
 	return 2;
 }
 
@@ -2777,7 +2779,7 @@ int in(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	A = ((codePtr[1] & 0x6) << 3) | (codePtr[0] & 0xf);
-	
+
 	r[rd] = io[A];
 
 	return 2;
@@ -2797,7 +2799,7 @@ int out(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	A = ((codePtr[1] & 0x6) << 3) | (codePtr[0] & 0xf);
-	
+
 	io[A] = r[rr];
 
 	return 2;
@@ -2892,7 +2894,7 @@ int ldyPostInc(uint8_t *codePtr)
 
 	r[rd] = sram[*yRegPtr];
   *yRegPtr = *yRegPtr + 1;
-  
+
 	return 2;
 }
 
@@ -2929,7 +2931,7 @@ int lddy(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
-	
+
 	r[rd] = sram[*yRegPtr + q];
 
 	return 2;
@@ -3005,7 +3007,7 @@ int lddz(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
-	
+
 	r[rd] = sram[*zRegPtr + q];
 
 	return 2;
@@ -3141,7 +3143,7 @@ int stdy(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
-	
+
 	sram[*yRegPtr + q] = r[rr];
 
 	return 2;
@@ -3217,7 +3219,7 @@ int stdz(uint8_t *codePtr)
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
-	
+
 	sram[*zRegPtr + q] = r[rr];
 
 	return 2;
@@ -3264,10 +3266,10 @@ int lpmPostInc(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
 	r[rd] = flashMemory[*zRegPtr];
 	*zRegPtr = *zRegPtr + 1;
-  
+
 	return 2;
 }
 
@@ -3283,10 +3285,10 @@ int lat(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
 	sram[*zRegPtr] = r[rd] ^ sram[*zRegPtr];
   r[rd] = sram[*zRegPtr];
-  
+
 	return 2;
 }
 
@@ -3302,10 +3304,10 @@ int las(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
 	sram[*zRegPtr] = r[rd] | sram[*zRegPtr];
   r[rd] = sram[*zRegPtr];
-  
+
 	return 2;
 }
 
@@ -3321,9 +3323,9 @@ int lac(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
 	sram[*zRegPtr] = (0xff - r[rd]) & sram[*zRegPtr];
-  
+
 	return 2;
 }
 
@@ -3339,10 +3341,10 @@ int xch(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
 	sram[*zRegPtr] = r[rd];
   r[rd] = sram[*zRegPtr];
-  
+
 	return 2;
 }
 
@@ -3358,10 +3360,10 @@ int push(uint8_t *codePtr)
   uint8_t rr;
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
   sram[*(uint16_t *)spl] = r[rr];
   substractStackPointer(1);
-  
+
   return 2;
 }
 
@@ -3377,10 +3379,10 @@ int pop(uint8_t *codePtr)
   uint8_t rd;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
-  
+
   r[rd] = sram[*(uint16_t *)spl];
   substractStackPointer(-1);
-  
+
   return 2;
 }
 
@@ -3392,35 +3394,35 @@ int pop(uint8_t *codePtr)
  *      16 <= ddd <= 23
  * 		ddd is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  *
  *      16 <= rrr <= 23
  * 		rrr is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  */
 int fmul(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	uint16_t result;
-  
+
 	rd = ((*codePtr & 0x70) >> 4) + 16;
 	rr = (*codePtr & 0x7) + 16;
-	
+
 	result = (r[rd] * r[rr]) << 1;
 	r[0] = result;
 	r[1] = (result & 0xff00) >> 8;
@@ -3436,32 +3438,32 @@ int fmul(uint8_t *codePtr)
  *      16 <= ddd <= 23
  * 		ddd is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  *
  *      16 <= rrr <= 23
  * 		rrr is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  */
 int fmuls(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	int16_t result;
-  
+
 	rd = ((*codePtr & 0x70) >> 4) + 16;
 	rr = (*codePtr & 0x7) + 16;
 
@@ -3480,32 +3482,32 @@ int fmuls(uint8_t *codePtr)
  *      16 <= ddd <= 23
  * 		ddd is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  *
  *      16 <= rrr <= 23
  * 		rrr is {
  *			000 => 16,
- *			001 => 17, 
+ *			001 => 17,
  *			010 => 18,
- *			011 => 19, 
+ *			011 => 19,
  *			100 => 20,
- *			101 => 21, 
+ *			101 => 21,
  *			110 => 22,
- *			111 => 23, 
+ *			111 => 23,
  *		}
  */
 int fmulsu(uint8_t *codePtr)
 {
 	uint8_t rd, rr;
 	int16_t result;
-  
+
 	rd = ((*codePtr & 0x70) >> 4) + 16;
 	rr = (*codePtr & 0x7) + 16;
 
