@@ -44,16 +44,16 @@ void test_pushWord_given_spl_0x12_sph_0x34(void)
  */
 void test_AvrOperatorTable_given_nop(void)
 {
-	uint8_t pc;
+	int relAddr;
 	uint8_t codeMemory[] = {
 		0x00, 0x00,
 	};
 	uint8_t *progCounter = codeMemory;
 	flash = codeMemory;
 
-	pc = simulateOneInstruction(progCounter);
+	relAddr = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL(2, pc);
+	TEST_ASSERT_EQUAL(2, relAddr);
 }
 
 /**
@@ -513,7 +513,7 @@ void test_AvrOperatorTable_given_add_r4_r7(void)
  */
 void test_AvrOperatorTable_given_cpse_r14_r15(void)
 {
-  uint8_t pc;
+  int relAddr;
   uint8_t codeMemory[] = {
 		0xef, 0x12,
 	};
@@ -523,9 +523,9 @@ void test_AvrOperatorTable_given_cpse_r14_r15(void)
   r[14] = 0x12;
   r[15] = 0x10;
   
-	pc = simulateOneInstruction(progCounter);
+	relAddr = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL(2, pc);
+	TEST_ASSERT_EQUAL(2, relAddr);
 }
 
 /**
@@ -546,7 +546,7 @@ void test_AvrOperatorTable_given_cpse_r14_r15(void)
  */
 void test_AvrOperatorTable_given_cpse_r16_r17(void)
 {
-  uint8_t pc;
+  int relAddr;
   uint8_t codeMemory[] = {
     //start:
 		0x01, 0x13,      //cpse r16, r17
@@ -558,9 +558,9 @@ void test_AvrOperatorTable_given_cpse_r16_r17(void)
   r[16] = 0x12;
   r[17] = 0x12;
   
-	pc = simulateOneInstruction(progCounter);
+	relAddr = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL(4, pc);
+	TEST_ASSERT_EQUAL(4, relAddr);
 }
 
 /**
@@ -581,7 +581,7 @@ void test_AvrOperatorTable_given_cpse_r16_r17(void)
  */
 void test_AvrOperatorTable_given_cpse_r18_r19(void)
 {
-  uint8_t pc;
+  int relAddr;
   uint8_t codeMemory[] = {
     //start:
 		0x23, 0x13,                   //cpse r16, r17
@@ -593,9 +593,9 @@ void test_AvrOperatorTable_given_cpse_r18_r19(void)
   r[18] = 0x12;
   r[19] = 0x12;
   
-	pc = simulateOneInstruction(progCounter);
+	relAddr = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL(6, pc);
+	TEST_ASSERT_EQUAL(6, relAddr);
 }
 
 /**

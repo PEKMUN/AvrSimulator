@@ -2135,12 +2135,12 @@ int brbc(uint8_t *codePtr)
 	uint8_t s;
 	int16_t k;
   
-	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5);  
-	if(k & 0x40 == 0x40)
+	k = ((codePtr[0] & 0xf8) >> 3) | ((codePtr[1] & 0x3) << 5); 
+  s = (*codePtr & 0x7);  
+	if((k & 0x40) >> 6)
 		k = k | 0xff80;
 	else
 		k = k;
-  s = (*codePtr & 0x7);
   
   switch(s)
 	{
