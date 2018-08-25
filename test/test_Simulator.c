@@ -42,6 +42,17 @@ void test_pushWord_given_spl_0x12_sph_0x34(void)
   TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+2]);
 }
 
+void test_popWord_given_spl_0x12_sph_0x34(void)
+{
+  *spl = 0x70;
+  *sph = 0x6;
+  
+  popWord();
+  
+  TEST_ASSERT_EQUAL(0x0, sram[getMcuStackPtr()-1]);
+  TEST_ASSERT_EQUAL(0x0, sram[getMcuStackPtr()-2]);
+}
+
 /**
  * Instruction:
  * 		NOP None
@@ -635,6 +646,39 @@ void test_AvrOperatorTable_given_cp_r4_r21(void)
 	TEST_ASSERT_EQUAL(0, sreg->V);
 	TEST_ASSERT_EQUAL(0, sreg->S);
 	TEST_ASSERT_EQUAL(0, sreg->H);
+}
+
+/**
+ * Instruction:
+ * 		CP Rd, Rr
+ *			0001 01rd dddd rrrr
+ * where
+ *			0 <= ddddd <= 31
+ *      0 <= rrrrr <= 31
+ *
+ * Simulate cp R13, R14
+ *			0001 0100 1101 1110
+ *			  1			 4			d				e
+ */
+void test_AvrOperatorTable_given_cp_r13_r14(void)
+{
+  uint8_t codeMemory[] = {
+		0xde, 0x14,
+	};
+	uint8_t *progCounter = codeMemory;
+	flash = codeMemory;
+	
+	r[13] = 0x30;
+	r[14] = 0x4c;
+	
+	simulateOneInstruction(progCounter);
+	
+	TEST_ASSERT_EQUAL(1, sreg->C);
+	TEST_ASSERT_EQUAL(0, sreg->Z);
+	TEST_ASSERT_EQUAL(1, sreg->N);
+	TEST_ASSERT_EQUAL(0, sreg->V);
+	TEST_ASSERT_EQUAL(1, sreg->S);
+	TEST_ASSERT_EQUAL(1, sreg->H);
 }
 
 /**
