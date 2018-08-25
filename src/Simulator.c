@@ -62,10 +62,8 @@ AvrOperator avrOperatorTable[256] = {
   [0xf4 ... 0xf7] = brbc,
   [0xf8 ... 0xf9] = bld,
   [0xfa ... 0xfb] = bst,
-  [0xfc] = sbrc,
-  [0xfd] = NULL,
-  [0xfe] = sbrs,
-  [0xff] = NULL,
+  [0xfc ... 0xfd] = sbrc,
+  [0xfe ... 0xff] = sbrs,
 };
 
 AvrOperator avr1001010Table[16] = {
