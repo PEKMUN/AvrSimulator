@@ -302,8 +302,8 @@ void pushWord(uint16_t data)
 {
   uint16_t index;
   index = substractStackPointer(2);
-  sram[index + 1] = data & 0x00ff;
-  sram[index + 2] = (data & 0xff00) >> 8;
+  sram[index + 2] = data & 0x00ff;
+  sram[index + 1] = (data & 0xff00) >> 8;
 }
 
 uint16_t popWord()
@@ -2594,7 +2594,7 @@ int rcall(uint8_t *codePtr)
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-  sram[*(uint16_t *)spl] = getPc(codePtr) + 2;
+  *(uint16_t *)spl = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
   pushWord(*(uint16_t *)(spl));
 	return (k+1)*2;

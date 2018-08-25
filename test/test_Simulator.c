@@ -38,8 +38,8 @@ void test_pushWord_given_spl_0x12_sph_0x34(void)
   
   pushWord(0x1234);
   
-  TEST_ASSERT_EQUAL(0x34, sram[getMcuStackPtr()+1]);
-  TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+2]);
+  TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+1]);
+  TEST_ASSERT_EQUAL(0x34, sram[getMcuStackPtr()+2]);
 }
 
 /**

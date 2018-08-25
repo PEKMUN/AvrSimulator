@@ -1176,6 +1176,33 @@ void test_AvrOperatorTable_given_ret(void)
 
 /**
  * Instruction:
+ * 		RET None
+ *		1001 0101 0000 1000
+ *
+ * Simulate ret None
+ *    1001 0101 0000 1000
+ *     9    5    0    8
+ */
+void test_AvrOperatorTable_given_ret_stack_pointer_is_0x08fb(void)
+{
+  int relAddr;
+  uint8_t codeMemory[] = {
+    0x08, 0x95,              		 //ret None
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  *spl = 0xfb;
+  *sph = 0x8;
+	sram[0x8fd] = 0x26;
+	relAddr = simulateOneInstruction(progCounter);
+	
+  TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
+  TEST_ASSERT_EQUAL_HEX16(0x27, relAddr);
+}
+
+/**
+ * Instruction:
  * 		RETI None
  *		1001 0101 0001 1000
  *
