@@ -31,7 +31,7 @@ void test_is2wordInstruction_given_codePtr_is_0(void)
 	TEST_ASSERT_EQUAL(0, code);
 }
 
-void test_pushWord_given_spl_0x12_sph_0x34(void)
+void test_pushWord_given_spl_0x4d_sph_0x5(void)
 {
   *spl = 0x4d;
   *sph = 0x5;

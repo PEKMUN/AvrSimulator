@@ -1194,6 +1194,7 @@ void test_AvrOperatorTable_given_ret_stack_pointer_is_0x08fb(void)
 
   *spl = 0xfb;
   *sph = 0x8;
+	sram[0x8fc] = 0x0;
 	sram[0x8fd] = 0x26;
 	relAddr = simulateOneInstruction(progCounter);
 	
@@ -1219,12 +1220,12 @@ void test_AvrOperatorTable_given_reti(void)
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
 
-  *spl = 0x21;
-  *sph = 0x43;
-  sram[0x4323] = 0x6b;
+  *spl = 0xfd;
+  *sph = 0x8;
+  sram[0x8ff] = 0x6b;
 	relAddr = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL_HEX16(0x4323, getMcuStackPtr());
+  TEST_ASSERT_EQUAL_HEX16(0x8ff, getMcuStackPtr());
   TEST_ASSERT_EQUAL_HEX16(0x6c, relAddr);
 }
 
@@ -1426,6 +1427,9 @@ void test_AvrOperatorTable_given_ld_20_X(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x93, sram[0x100]);
+	TEST_ASSERT_EQUAL_HEX16(0x00, r[26]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[27]);
 	TEST_ASSERT_EQUAL_HEX16(0x93, r[20]);
 }
 
@@ -1454,8 +1458,10 @@ void test_AvrOperatorTable_given_ld_20_Xplus(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x65, sram[0x120]);
 	TEST_ASSERT_EQUAL_HEX8(0x65, r[20]);
-  TEST_ASSERT_EQUAL_HEX16(0x121, *xRegPtr);
+  TEST_ASSERT_EQUAL_HEX16(0x21, r[26]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[27]);
 }
 
 /**
@@ -1483,7 +1489,10 @@ void test_AvrOperatorTable_given_ld_20_minusX(void)
 	
 	simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_HEX8(0x32, r[20]);
+	TEST_ASSERT_EQUAL_HEX16(0x32, sram[0x112-1]);
+	TEST_ASSERT_EQUAL_HEX16(0x11, r[26]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[27]);
+	TEST_ASSERT_EQUAL_HEX16(0x32, r[20]);
 }
 
 /**
@@ -1511,6 +1520,9 @@ void test_AvrOperatorTable_given_ld_31_Y(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x88, sram[0x191]);
+	TEST_ASSERT_EQUAL_HEX16(0x91, r[28]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[29]);
 	TEST_ASSERT_EQUAL_HEX16(0x88, r[31]);
 }
 
@@ -1539,8 +1551,10 @@ void test_AvrOperatorTable_given_ld_31_Yplus(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x98, sram[0x143]);
 	TEST_ASSERT_EQUAL_HEX8(0x98, r[31]);
-  TEST_ASSERT_EQUAL_HEX16(0x144, *yRegPtr);
+  TEST_ASSERT_EQUAL_HEX16(0x44, r[28]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[29]);
 }
 
 /**
@@ -1568,6 +1582,9 @@ void test_AvrOperatorTable_given_ld_31_minusY(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x76, sram[0x154-1]);
+	TEST_ASSERT_EQUAL_HEX16(0x53, r[28]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[29]);
 	TEST_ASSERT_EQUAL_HEX8(0x76, r[31]);
 }
 
@@ -1597,6 +1614,9 @@ void test_AvrOperatorTable_given_ldd_17_Y_plus_18(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x88, sram[0x191 + 18]);
+	TEST_ASSERT_EQUAL_HEX16(0x91, r[28]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[29]);
 	TEST_ASSERT_EQUAL_HEX16(0x88, r[17]);
 }
 
@@ -1625,6 +1645,9 @@ void test_AvrOperatorTable_given_ld_13_Z(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x98, sram[0x111]);
+	TEST_ASSERT_EQUAL_HEX16(0x11, r[30]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[31]);
 	TEST_ASSERT_EQUAL_HEX16(0x98, r[13]);
 }
 
@@ -1653,8 +1676,10 @@ void test_AvrOperatorTable_given_ld_13_Zplus(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x55, sram[0x143]);
 	TEST_ASSERT_EQUAL_HEX8(0x55, r[13]);
-  TEST_ASSERT_EQUAL_HEX16(0x144, *zRegPtr);
+  TEST_ASSERT_EQUAL_HEX16(0x44, r[30]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[31]);
 }
 
 /**
@@ -1682,6 +1707,9 @@ void test_AvrOperatorTable_given_ld_13_minusZ(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x66, sram[0x154-1]);
+	TEST_ASSERT_EQUAL_HEX16(0x53, r[30]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, r[31]);
 	TEST_ASSERT_EQUAL_HEX8(0x66, r[13]);
 }
 
@@ -1742,6 +1770,8 @@ void test_AvrOperatorTable_given_st_X_21(void)
 	
 	simulateOneInstruction(progCounter);
 	
+  TEST_ASSERT_EQUAL_HEX16(0xaa, r[26]);
+  TEST_ASSERT_EQUAL_HEX16(0x8, r[27]);
 	TEST_ASSERT_EQUAL_HEX16(0x11, sram[0x8aa]);
 }
 
@@ -1771,7 +1801,8 @@ void test_AvrOperatorTable_given_st_Xplus_21(void)
 	simulateOneInstruction(progCounter);
 	
 	TEST_ASSERT_EQUAL_HEX8(0x98, sram[0x543]);
-  TEST_ASSERT_EQUAL_HEX16(0x544, *xRegPtr);
+  TEST_ASSERT_EQUAL_HEX16(0x44, r[26]);
+  TEST_ASSERT_EQUAL_HEX16(0x5, r[27]);
 }
 
 /**
@@ -1799,6 +1830,8 @@ void test_AvrOperatorTable_given_st_minusX_21(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x42, r[26]);
+  TEST_ASSERT_EQUAL_HEX16(0x7, r[27]);
 	TEST_ASSERT_EQUAL_HEX8(0x67, sram[0x742]);
 }
 
@@ -1827,6 +1860,8 @@ void test_AvrOperatorTable_given_st_Y_11(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x55, r[28]);
+  TEST_ASSERT_EQUAL_HEX16(0x6, r[29]);
 	TEST_ASSERT_EQUAL_HEX16(0x8, sram[0x655]);
 }
 
@@ -1855,8 +1890,9 @@ void test_AvrOperatorTable_given_st_Yplus_11(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x5a, r[28]);
+  TEST_ASSERT_EQUAL_HEX16(0x1, r[29]);
   TEST_ASSERT_EQUAL_HEX8(0x98, sram[0x159]);
-	TEST_ASSERT_EQUAL_HEX16(0x15a, *yRegPtr);
 }
 
 /**
@@ -1884,6 +1920,8 @@ void test_AvrOperatorTable_given_st_minusY_11(void)
   
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x20, r[28]);
+  TEST_ASSERT_EQUAL_HEX16(0x3, r[29]);
 	TEST_ASSERT_EQUAL_HEX8(0x67, sram[0x320]);
 }
 
@@ -1913,6 +1951,8 @@ void test_AvrOperatorTable_given_std_Y_plus_48_12(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x55, r[28]);
+  TEST_ASSERT_EQUAL_HEX16(0x6, r[29]);
 	TEST_ASSERT_EQUAL_HEX16(0xaa, sram[0x685]);
 }
 
@@ -1941,6 +1981,8 @@ void test_AvrOperatorTable_given_st_Z_8(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x45, r[30]);
+  TEST_ASSERT_EQUAL_HEX16(0x3, r[31]);
 	TEST_ASSERT_EQUAL_HEX16(0x27, sram[0x345]);
 }
 
@@ -1969,8 +2011,9 @@ void test_AvrOperatorTable_given_st_Zplus_8(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x64, r[30]);
+  TEST_ASSERT_EQUAL_HEX16(0x8, r[31]);
 	TEST_ASSERT_EQUAL_HEX8(0x98, sram[0x863]);
-  TEST_ASSERT_EQUAL_HEX16(0x864, *zRegPtr);
 }
 
 /**
@@ -1998,6 +2041,8 @@ void test_AvrOperatorTable_given_st_minusZ_8(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x99, r[30]);
+  TEST_ASSERT_EQUAL_HEX16(0x5, r[31]);
 	TEST_ASSERT_EQUAL_HEX8(0x98, sram[0x599]);
 }
 
@@ -2027,6 +2072,8 @@ void test_AvrOperatorTable_given_std_Z_plus_63_24(void)
 	
 	simulateOneInstruction(progCounter);
 	
+	TEST_ASSERT_EQUAL_HEX16(0x18, r[30]);
+  TEST_ASSERT_EQUAL_HEX16(0x5, r[31]);
 	TEST_ASSERT_EQUAL_HEX16(0x6f, sram[0x557]);
 }
 
@@ -2241,11 +2288,11 @@ void test_AvrOperatorTable_given_push_12(void)
 
 	r[12] = 0x7d;
   *spl = 0x21;
-  *sph = 0x12;
+  *sph = 0x2;
 	
 	simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_HEX8(0x7d, sram[0x1221]);
+	TEST_ASSERT_EQUAL_HEX8(0x7d, sram[0x221]);
 }
 
 /**
@@ -2268,8 +2315,8 @@ void test_AvrOperatorTable_given_pop_27(void)
   flash = codeMemory;
 
   *spl = 0x3d;
-  *sph = 0x11;
-  sram[0x113d] = 0x58;
+  *sph = 0x1;
+  sram[0x13d] = 0x58;
 	
 	simulateOneInstruction(progCounter);
 	
