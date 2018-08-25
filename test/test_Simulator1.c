@@ -1133,7 +1133,7 @@ void test_AvrOperatorTable_given_ret(void)
 
   *spl = 0xfd;
   *sph = 0x8;
-	sram[0x8fd] = 0x24;
+	sram[0x8ff] = 0x24;
 	relAddr = simulateOneInstruction(progCounter);
 	
   TEST_ASSERT_EQUAL_HEX16(0x8ff, getMcuStackPtr());
@@ -1160,7 +1160,7 @@ void test_AvrOperatorTable_given_reti(void)
 
   *spl = 0x21;
   *sph = 0x43;
-  sram[0x4321] = 0x6b;
+  sram[0x4323] = 0x6b;
 	relAddr = simulateOneInstruction(progCounter);
 	
   TEST_ASSERT_EQUAL_HEX16(0x4323, getMcuStackPtr());

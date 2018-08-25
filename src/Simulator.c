@@ -2649,8 +2649,8 @@ int ret(uint8_t *codePtr)
 {
   int pc;
 	
-  pc = sram[*(uint16_t *)spl] + 1;
 	popWord();
+  pc = sram[*(uint16_t *)spl] + 1;
 	
 	return pc;
 }
@@ -2664,8 +2664,8 @@ int reti(uint8_t *codePtr)
 {
   int pc;
 	
+	popWord();	
   pc = sram[*(uint16_t *)spl] + 1;
-	popWord();
 
   sreg->T = 1;
 
