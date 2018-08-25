@@ -42,17 +42,6 @@ void test_pushWord_given_spl_0x12_sph_0x34(void)
   TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+2]);
 }
 
-void test_popWord_given_spl_0x12_sph_0x34(void)
-{
-  *spl = 0x70;
-  *sph = 0x6;
-  
-  popWord();
-  
-  TEST_ASSERT_EQUAL(0x0, sram[getMcuStackPtr()-1]);
-  TEST_ASSERT_EQUAL(0x0, sram[getMcuStackPtr()-2]);
-}
-
 /**
  * Instruction:
  * 		NOP None

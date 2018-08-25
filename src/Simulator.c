@@ -297,7 +297,7 @@ uint16_t getMcuStackPtr()
 
 uint16_t substractStackPointer(int value)
 {
-  return *(uint16_t *)spl -= 2;
+  return *(uint16_t *)spl -= value;
 }
 
 void pushWord(uint16_t data)
@@ -310,10 +310,7 @@ void pushWord(uint16_t data)
 
 uint16_t popWord()
 {
-  uint16_t index;
-  index = substractStackPointer(-2);
-	sram[index - 1] = 0x0;
-	sram[index - 2] = 0x0;
+	substractStackPointer(-2);
   return *(uint16_t *)spl;
 }
 
@@ -2597,7 +2594,7 @@ int rcall(uint8_t *codePtr)
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-  *(uint16_t *)(spl) = getPc(codePtr) + 2;
+  sram[*(uint16_t *)spl] = getPc(codePtr) + 2;
   stackNow = getMcuStackPtr();
   pushWord(*(uint16_t *)(spl));
 	return (k+1)*2;
@@ -2651,10 +2648,10 @@ int eicall(uint8_t *codePtr)
 int ret(uint8_t *codePtr)
 {
   int pc;
-
+	
   pc = sram[*(uint16_t *)spl] + 1;
-  *(uint16_t *)(spl) = getPc(codePtr) - 2;
-
+	popWord();
+	
 	return pc;
 }
 
@@ -2666,8 +2663,9 @@ int ret(uint8_t *codePtr)
 int reti(uint8_t *codePtr)
 {
   int pc;
+	
   pc = sram[*(uint16_t *)spl] + 1;
-  *(uint16_t *)(spl) = getPc(codePtr) - 2;
+	popWord();
 
   sreg->T = 1;
 

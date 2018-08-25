@@ -1066,33 +1066,6 @@ void test_AvrOperatorTable_given_rcall_PC_minus_4(void)
 
 /**
  * Instruction:
- * 		RCALL k
- *		1101 kkkk kkkk kkkk
- *
- * where
- *    -2K <= k <= 2K
- *
- * Simulate rcall 846
- *    1101 0011 0100 1110
- *     d    3    4    e
- */
-void test_AvrOperatorTable_given_rcall_846(void)
-{
-  int relAddr;
-  uint8_t codeMemory[] = {
-    0x05, 0xe0,              		 //ldi r16, 0x05
-    0x4e, 0xd3,              		 //rcall 846
-	};
-	uint8_t *progCounter = &codeMemory[2];
-  flash = codeMemory;
-
-	relAddr = simulateOneInstruction(progCounter);
-
-	TEST_ASSERT_EQUAL_HEX16((846 + 1) * 2, relAddr);
-}
-
-/**
- * Instruction:
  * 		ICALL None
  *		1001 0101 0000 1001
  *
@@ -1158,12 +1131,12 @@ void test_AvrOperatorTable_given_ret(void)
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
 
-  *spl = 0x48;
-  *sph = 0x32;
-  sram[0x3248] = 0x24;
+  *spl = 0xfd;
+  *sph = 0x8;
+	sram[0x8fd] = 0x24;
 	relAddr = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL_HEX16(-2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX16(0x8ff, getMcuStackPtr());
   TEST_ASSERT_EQUAL_HEX16(0x25, relAddr);
 }
 
@@ -1190,7 +1163,7 @@ void test_AvrOperatorTable_given_reti(void)
   sram[0x4321] = 0x6b;
 	relAddr = simulateOneInstruction(progCounter);
 	
-  TEST_ASSERT_EQUAL_HEX16(-2, *(uint16_t *)spl);
+  TEST_ASSERT_EQUAL_HEX16(0x4323, getMcuStackPtr());
   TEST_ASSERT_EQUAL_HEX16(0x6c, relAddr);
 }
 
