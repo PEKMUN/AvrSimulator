@@ -2409,13 +2409,14 @@ int cpse(uint8_t *codePtr)
  */
 int sbrc(uint8_t *codePtr)
 {
-	uint8_t rr, b;
+	uint8_t rr, b, temp;
 
   rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   b = *codePtr & 0x7;
-  r[rr] = (r[rr] & (1 << b)) >> b;
+	temp = r[rr];
+  temp = (temp & (1 << b)) >> b;
 
-	if(r[rr] == 0)
+	if(temp == 0)
   {
     if(is2wordInstruction(codePtr))
       return 6;
@@ -2440,13 +2441,14 @@ int sbrc(uint8_t *codePtr)
  */
 int sbrs(uint8_t *codePtr)
 {
-	uint8_t rr, b;
+	uint8_t rr, b, temp;
 
   rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
   b = *codePtr & 0x7;
-  r[rr] = (r[rr] & (1 << b)) >> b;
+	temp = r[rr];
+  temp = (temp & (1 << b)) >> b;
 
-	if(r[rr] == 1)
+	if(temp == 1)
   {
     if(is2wordInstruction(codePtr))
       return 6;
