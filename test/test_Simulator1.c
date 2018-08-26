@@ -1060,8 +1060,15 @@ void test_AvrOperatorTable_given_rcall_PC_plus_3(void)
 	uint8_t *progCounter = &codeMemory[2];
   flash = codeMemory;
 
+	*spl = 0xff;
+  *sph = 0x8;
+	sram[0x8fe] = 0x06;
+	sram[0x8ff] = 0x03;
 	relAddr = simulateOneInstruction(progCounter);
 
+	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
+	TEST_ASSERT_EQUAL_HEX16(0x06, sram[0x8fe]);
+	TEST_ASSERT_EQUAL_HEX16(0x03, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16((2 + 1) * 2, relAddr);
 }
 
