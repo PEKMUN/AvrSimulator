@@ -2594,7 +2594,7 @@ int rcall(uint8_t *codePtr)
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-	data = sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8;
+	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
 	pushWord(data);
   stackNow = getMcuStackPtr();
   
@@ -2651,7 +2651,7 @@ int ret(uint8_t *codePtr)
   int pc;
 	
 	popWord();
-  pc = sram[*(uint16_t *)spl] + 1;
+  pc = sram[*(uint16_t *)spl];
 	
 	return (pc * 2);
 }
@@ -2666,7 +2666,7 @@ int reti(uint8_t *codePtr)
   int pc;
 	
 	popWord();	
-  pc = sram[*(uint16_t *)spl] + 1;
+  pc = sram[*(uint16_t *)spl];
 
   sreg->I = 1;
 
