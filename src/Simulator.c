@@ -2652,7 +2652,7 @@ int ret(uint8_t *codePtr)
 	popWord();
   pc = sram[*(uint16_t *)spl] + 1;
 	
-	return pc;
+	return (pc * 2);
 }
 
 /**
@@ -2667,9 +2667,9 @@ int reti(uint8_t *codePtr)
 	popWord();	
   pc = sram[*(uint16_t *)spl] + 1;
 
-  sreg->T = 1;
+  sreg->I = 1;
 
-	return pc;
+	return (pc * 2);
 }
 
 /**
