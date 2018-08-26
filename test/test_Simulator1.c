@@ -1030,8 +1030,15 @@ void test_AvrOperatorTable_given_call(void)
 	uint8_t *progCounter = &codeMemory[2];
   flash = codeMemory;
 
+	*spl = 0xff;
+  *sph = 0x8;
+	sram[0x8fe] = 0x06;
+	sram[0x8ff] = 0x03;
 	relAddr = simulateOneInstruction(progCounter);
-	
+
+	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
+	TEST_ASSERT_EQUAL_HEX16(0x06, sram[0x8fe]);
+	TEST_ASSERT_EQUAL_HEX16(0x04, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16(4000*2 - 2, relAddr);
 }
 
@@ -1198,10 +1205,17 @@ void test_AvrOperatorTable_given_icall(void)
 	uint8_t *progCounter = codeMemory;
   flash = codeMemory;
 
-  *zRegPtr = 0x4837;
+  *spl = 0xfd;
+  *sph = 0x8;
+	*zRegPtr = 0x260;
+	sram[0x8fc] = 0x0;
+	sram[0x8fd] = 0x0e;
 	relAddr = simulateOneInstruction(progCounter);
-	
-  TEST_ASSERT_EQUAL_HEX16(0x4837, relAddr);
+
+	TEST_ASSERT_EQUAL_HEX16(0x8fb, getMcuStackPtr());
+	TEST_ASSERT_EQUAL_HEX16(0x00, sram[0x8fc]);
+	TEST_ASSERT_EQUAL_HEX16(0x0f, sram[0x8fd]);
+  TEST_ASSERT_EQUAL_HEX16(0x260, relAddr);
 }
 
 /**
@@ -1224,8 +1238,15 @@ void test_AvrOperatorTable_given_eicall(void)
 
   *zRegPtr = 0x4837;
   *eind = 0x32;
+	*spl = 0xfd;
+  *sph = 0x8;
+	sram[0x8fc] = 0x0;
+	sram[0x8fd] = 0x0e;
 	relAddr = simulateOneInstruction(progCounter);
-	
+
+	TEST_ASSERT_EQUAL_HEX16(0x8fb, getMcuStackPtr());
+	TEST_ASSERT_EQUAL_HEX16(0x00, sram[0x8fc]);
+	TEST_ASSERT_EQUAL_HEX16(0x0f, sram[0x8fd]);
   TEST_ASSERT_EQUAL_HEX32(0x324837, relAddr);
 }
 
@@ -1249,14 +1270,14 @@ void test_AvrOperatorTable_given_ret(void)
 
   *spl = 0xfd;
   *sph = 0x8;
-	sram[0x8fe] = 0x0;
+	sram[0x8fe] = 0x1;
 	sram[0x8ff] = 0x22;
 	relAddr = simulateOneInstruction(progCounter);
 	
-	TEST_ASSERT_EQUAL_HEX16(0x0, sram[0x8fe]);
+	TEST_ASSERT_EQUAL_HEX16(0x1, sram[0x8fe]);
 	TEST_ASSERT_EQUAL_HEX16(0x22, sram[0x8ff]);
   TEST_ASSERT_EQUAL_HEX16(0x8ff, getMcuStackPtr());
-  TEST_ASSERT_EQUAL_HEX16(0x22, relAddr);
+  TEST_ASSERT_EQUAL_HEX16(0x244, relAddr);
 }
 
 /**
@@ -1284,7 +1305,7 @@ void test_AvrOperatorTable_given_ret_stack_pointer_is_0x08fb(void)
 	relAddr = simulateOneInstruction(progCounter);
 	
   TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
-  TEST_ASSERT_EQUAL_HEX16(0x26, relAddr);
+  TEST_ASSERT_EQUAL_HEX16(0x4c, relAddr);
 }
 
 /**
