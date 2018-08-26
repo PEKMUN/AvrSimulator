@@ -315,12 +315,11 @@ uint16_t popWord()
 void initSimulator()
 {
   *(uint16_t *)spl = 0x8ff;
+	initialiseSram();
 }
 
 int is2wordInstruction(uint8_t *codePtr)
 {
-  codePtr += 2;
-
   if((*(uint16_t *)codePtr & 0xf000) == 0x9000)
   {
     if((*(uint16_t *)codePtr & 0x0e00) == 0x400 || (*(uint16_t *)codePtr & 0x0e00) == 0x200)
@@ -2383,7 +2382,8 @@ int cpse(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
-
+	codePtr += 2;
+	
 	if(r[rd] == r[rr])
   {
     if(is2wordInstruction(codePtr))
@@ -2415,6 +2415,7 @@ int sbrc(uint8_t *codePtr)
   b = *codePtr & 0x7;
 	temp = r[rr];
   temp = (temp & (1 << b)) >> b;
+	codePtr += 2;
 
 	if(temp == 0)
   {
@@ -2447,7 +2448,8 @@ int sbrs(uint8_t *codePtr)
   b = *codePtr & 0x7;
 	temp = r[rr];
   temp = (temp & (1 << b)) >> b;
-
+	codePtr += 2;
+	
 	if(temp == 1)
   {
     if(is2wordInstruction(codePtr))
@@ -2478,7 +2480,8 @@ int sbic(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = (io[A] & (1 << b)) >> b;
-
+	codePtr += 2;
+	
 	if(io[A] == 0)
   {
     if(is2wordInstruction(codePtr))
@@ -2509,6 +2512,7 @@ int sbis(uint8_t *codePtr)
   A = (*codePtr & 0xf8) >> 3;
   b = *codePtr & 0x7;
   io[A] = (io[A] & (1 << b)) >> b;
+	codePtr += 2;
 
 	if(io[A] == 1)
   {
@@ -2562,16 +2566,16 @@ int eijmp(uint8_t *codePtr)
 int call(uint8_t *codePtr)
 {
 	uint32_t k;
-  uint16_t stackBefore, stackNow;
+  uint16_t stackBefore, stackNow, data;
 
   stackBefore = *(uint16_t *)spl;
 	k = *(uint32_t *)codePtr;
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
 
-  *(uint16_t *)(spl) = getPc(codePtr) + 4;
-  stackNow = getMcuStackPtr();
-  pushWord(*(uint16_t *)(spl));
+	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
+  pushWord(data);
+	stackNow = getMcuStackPtr();
 	return getCodePtr(k*2) - codePtr;
 }
 
@@ -2608,15 +2612,15 @@ int rcall(uint8_t *codePtr)
  */
 int icall(uint8_t *codePtr)
 {
-	uint16_t stackBefore, stackNow;
+	uint16_t stackBefore, stackNow, data;
   int pc;
 
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr;
 
-  *(uint16_t *)(spl) = getPc(codePtr) + 2;
+	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
+	pushWord(data);
   stackNow = getMcuStackPtr();
-  pushWord(*(uint16_t *)(spl));
 
 	return pc;
 }
@@ -2629,14 +2633,14 @@ int icall(uint8_t *codePtr)
 int eicall(uint8_t *codePtr)
 {
   int pc;
-	uint16_t stackBefore, stackNow;
+	uint16_t stackBefore, stackNow, data;
 
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
 
-  *(uint16_t *)(spl) = getPc(codePtr) + 3;
+  data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
+	pushWord(data);
   stackNow = getMcuStackPtr();
-  pushWord(*(uint16_t *)(spl));
 
 	return pc;
 }
@@ -2651,9 +2655,9 @@ int ret(uint8_t *codePtr)
   int pc;
 	
 	popWord();
-  pc = sram[*(uint16_t *)spl];
+  pc = sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8;
 	
-	return pc;
+	return (pc * 2);
 }
 
 /**
