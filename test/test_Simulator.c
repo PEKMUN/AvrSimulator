@@ -36,6 +36,18 @@ void test_pushWord_given_spl_0x4d_sph_0x5(void)
   TEST_ASSERT_EQUAL(0x34, sram[getMcuStackPtr()+2]);
 }
 
+void test_popWord_given_data_0x1234(void)
+{
+	uint32_t x;
+	*spl = 0xfd;
+  *sph = 0x8;
+  pushWord(0x1234);
+  
+	x = popWord();
+	
+  TEST_ASSERT_EQUAL_HEX32(0x1234, x);
+}
+
 /**
  * Instruction:
  * 		NOP None

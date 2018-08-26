@@ -151,7 +151,7 @@ uint8_t *getCodePtr(uint32_t pc);
 uint16_t getMcuStackPtr();
 uint16_t substractStackPointer(int value);
 void pushWord(uint16_t data);
-uint16_t popWord();
+uint32_t popWord();
 void initSimulator();
 int is2wordInstruction(uint8_t *codePtr);
 void initialiseSram();

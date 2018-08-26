@@ -306,10 +306,13 @@ void pushWord(uint16_t data)
   sram[index + 1] = (data & 0xff00) >> 8;
 }
 
-uint16_t popWord()
+uint32_t popWord()
 {
-	substractStackPointer(-2);
-  return *(uint16_t *)spl;
+	uint16_t index;
+	uint32_t data;
+	index = substractStackPointer(-2);
+	data = ((sram[index - 1]) << 8) | sram[index];
+  return data;
 }
 
 void initSimulator()
