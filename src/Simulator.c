@@ -152,9 +152,9 @@ void initialiseSram()
 	}
 }
 
-void dumpSram() {
-  int i = 0;
-  for(i = 0; i < 0x900; i += 16) {
+void dumpSram(int startAddr, int byteCount) {
+  int i;
+  for(i = startAddr; i < startAddr + byteCount; i += 16) {
     printf("0x%03x  %02x %02x %02x %02x %02x %02x %02x %02x "               \
            "%02x %02x %02x %02x %02x %02x %02x %02x\n",                     \
            i, sram[i], sram[i+1], sram[i+2], sram[i+3],                     \
