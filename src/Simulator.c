@@ -2660,7 +2660,8 @@ int ret(uint8_t *codePtr)
 	pc = popWord();
   //pc = sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8;
 	
-	return pc * 2;
+	printf("getPc(codePtr): %x\n", getPc(codePtr));
+	return (pc - (getPc(codePtr) / 2)) * 2;
 }
 
 /**
