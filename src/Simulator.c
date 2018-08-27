@@ -2569,15 +2569,14 @@ int eijmp(uint8_t *codePtr)
 int call(uint8_t *codePtr)
 {
 	uint32_t k;
-  uint16_t stackBefore, stackNow, data;
+  uint16_t stackBefore, stackNow;
 
   stackBefore = *(uint16_t *)spl;
 	k = *(uint32_t *)codePtr;
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
 
-	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
-  pushWord(data);
+  pushWord((getPc(codePtr) + 2) / 2);
 	stackNow = getMcuStackPtr();
 	return getCodePtr(k*2) - codePtr;
 }
@@ -2592,7 +2591,7 @@ int call(uint8_t *codePtr)
  */
 int rcall(uint8_t *codePtr)
 {
-  uint16_t stackBefore, stackNow, data;
+  uint16_t stackBefore, stackNow;
 	int k;
 
   stackBefore = *(uint16_t *)spl;
@@ -2601,7 +2600,6 @@ int rcall(uint8_t *codePtr)
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-	//data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
 	pushWord((getPc(codePtr) + 2) / 2);
   stackNow = getMcuStackPtr();
   
@@ -2615,14 +2613,13 @@ int rcall(uint8_t *codePtr)
  */
 int icall(uint8_t *codePtr)
 {
-	uint16_t stackBefore, stackNow, data;
+	uint16_t stackBefore, stackNow;
   int pc;
 
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr;
 
-	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
-	pushWord(data);
+	pushWord((getPc(codePtr) + 2) / 2);
   stackNow = getMcuStackPtr();
 
 	return pc;
@@ -2636,13 +2633,12 @@ int icall(uint8_t *codePtr)
 int eicall(uint8_t *codePtr)
 {
   int pc;
-	uint16_t stackBefore, stackNow, data;
+	uint16_t stackBefore, stackNow;
 
 	stackBefore = *(uint16_t *)spl;
   pc = *zRegPtr | ((*(uint32_t *)eind & 0x3f) << 16);
 
-  data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
-	pushWord(data);
+	pushWord((getPc(codePtr) + 2) / 2);
   stackNow = getMcuStackPtr();
 
 	return pc;
@@ -2658,9 +2654,7 @@ int ret(uint8_t *codePtr)
   int pc;
 	
 	pc = popWord();
-  //pc = sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8;
-	
-	printf("getPc(codePtr): %x\n", getPc(codePtr));
+
 	return (pc - (getPc(codePtr) / 2)) * 2;
 }
 
@@ -2673,12 +2667,10 @@ int reti(uint8_t *codePtr)
 {
   int pc;
 	
-	popWord();	
-  pc = sram[*(uint16_t *)spl];
-
+	pc = popWord();	
   sreg->I = 1;
 
-	return (pc * 2);
+	return (pc - (getPc(codePtr) / 2)) * 2;
 }
 
 /**
