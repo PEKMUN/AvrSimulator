@@ -2601,8 +2601,8 @@ int rcall(uint8_t *codePtr)
   if((k & 0x800) >> 11)
     k |= 0xfffff000;
 
-	data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
-	pushWord(data);
+	//data = (sram[*(uint16_t *)spl] | (sram[*(uint16_t *)spl - 1]) << 8) + 1;
+	pushWord((getPc(codePtr) + 1) * 2);
   stackNow = getMcuStackPtr();
   
 	return (k+1)*2;

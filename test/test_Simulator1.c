@@ -1074,8 +1074,8 @@ void test_AvrOperatorTable_given_rcall_PC_plus_3(void)
 	relAddr = simulateOneInstruction(progCounter);
 
 	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
-	TEST_ASSERT_EQUAL_HEX16(0x06, sram[0x8fe]);
-	TEST_ASSERT_EQUAL_HEX16(0x04, sram[0x8ff]);
+	TEST_ASSERT_EQUAL_HEX16(0x00, sram[0x8fe]);
+	TEST_ASSERT_EQUAL_HEX16(0x06, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16((2 + 1) * 2, relAddr);
 }
 
@@ -1109,13 +1109,13 @@ void test_AvrOperatorTable_given_rcall_PC_minus_4(void)
 
 	*spl = 0xff;
   *sph = 0x8;
-	sram[0x8fe] = 0x00;
-	sram[0x8ff] = 0x21;
+	//sram[0x8fe] = 0x00;
+	//sram[0x8ff] = 0x21;
 	relAddr = simulateOneInstruction(progCounter);
 
 	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
 	TEST_ASSERT_EQUAL_HEX16(0x00, sram[0x8fe]);
-	TEST_ASSERT_EQUAL_HEX16(0x22, sram[0x8ff]);
+	TEST_ASSERT_EQUAL_HEX16(0x1a, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16((-5 + 1) * 2, relAddr);
 }
 
@@ -1183,7 +1183,7 @@ void test_AvrOperatorTable_given_rcall_PC_minus_0x20(void)
 
 	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
 	TEST_ASSERT_EQUAL_HEX16(0x00, sram[0x8fe]);
-	TEST_ASSERT_EQUAL_HEX16(0x23, sram[0x8ff]);
+	TEST_ASSERT_EQUAL_HEX16(0x86, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16((-33 + 1) * 2, relAddr);
 }
 
