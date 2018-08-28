@@ -317,8 +317,8 @@ uint32_t popWord()
 
 void initSimulator()
 {
-  *(uint16_t *)spl = 0x8ff;
 	initialiseSram();
+  *(uint16_t *)spl = 0x8ff;
 }
 
 int is2wordInstruction(uint8_t *codePtr)
