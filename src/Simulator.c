@@ -140,7 +140,10 @@ uint8_t *flash = flashMemory;
 
 int simulateOneInstruction(uint8_t *codePtr)
 {
-	return avrOperatorTable [*(codePtr + 1)](codePtr);
+  if(*(codePtr + 1) >= 0x29 && *(codePtr + 1) <= 0x2b)
+    throwSimpleError(INVALID_INSTRUCTION, NULL);
+  else
+    return avrOperatorTable [*(codePtr + 1)](codePtr);
 }
 
 void initialiseSram()
@@ -2576,7 +2579,7 @@ int call(uint8_t *codePtr)
 
 	k = ((k & 0xffff0000) >> 16) | ((k & 0x1f0) << 13) | ((k & 0x1) << 16);
 
-  pushWord((getPc(codePtr) + 2) / 2);
+  pushWord((getPc(codePtr) + 4) / 2);
 	stackNow = getMcuStackPtr();
 	return getCodePtr(k*2) - codePtr;
 }

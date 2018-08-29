@@ -9,7 +9,26 @@ void setUp(void){}
 
 void tearDown(void){}
 
-void test_is2wordInstruction_given_codePtr_is_0(void)
+void test_simulateOneInstruction_given_codePtr_is_0x2aef(void)
+{
+  CEXCEPTION_T e;
+  uint8_t codeMemory[] = {
+		0xef, 0x2a,
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  Try {
+    simulateOneInstruction(progCounter);
+    TEST_FAIL_MESSAGE("Expect INVALID_INSTRUCTION. But no exception thrown.");
+  } Catch(e) {
+    printf(e->errorMsg);
+    TEST_ASSERT_EQUAL(INVALID_INSTRUCTION, e->errorCode);
+    freeError(e);
+  }
+}
+
+void test_is2wordInstruction(void)
 {
 	uint8_t code;
   uint8_t codeMemory[] = {

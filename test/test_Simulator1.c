@@ -1036,7 +1036,7 @@ void test_AvrOperatorTable_given_call(void)
 
 	TEST_ASSERT_EQUAL_HEX16(0x8fd, getMcuStackPtr());
 	TEST_ASSERT_EQUAL_HEX16(0x0, sram[0x8fe]);
-	TEST_ASSERT_EQUAL_HEX16(0x02, sram[0x8ff]);
+	TEST_ASSERT_EQUAL_HEX16(0x03, sram[0x8ff]);
 	TEST_ASSERT_EQUAL_HEX16(4000*2 - 2, relAddr);
 }
 
