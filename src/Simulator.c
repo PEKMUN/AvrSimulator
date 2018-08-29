@@ -140,10 +140,11 @@ uint8_t *flash = flashMemory;
 
 int simulateOneInstruction(uint8_t *codePtr)
 {
-  if(*(codePtr + 1) >= 0x29 && *(codePtr + 1) <= 0x2b)
+  AvrOperator op = avrOperatorTable [*(codePtr + 1)];
+  if(op == NULL)
     throwSimpleError(INVALID_INSTRUCTION, NULL);
-  else
-    return avrOperatorTable [*(codePtr + 1)](codePtr);
+
+  return avrOperatorTable [*(codePtr + 1)](codePtr);
 }
 
 void initialiseSram()
@@ -171,6 +172,10 @@ int instructionWith1001010(uint8_t *codePtr)
 {
 	uint8_t low4bit;
 	low4bit = *codePtr & 0xf;
+  AvrOperator op = avr1001010Table [low4bit];
+
+  if(op == NULL)
+    throwSimpleError(INVALID_INSTRUCTION, NULL);
 
   return avr1001010Table [low4bit](codePtr);
 }
@@ -2389,7 +2394,7 @@ int cpse(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	rr = ((codePtr[1] & 0x2) << 3) | (codePtr[0] & 0xf);
 	codePtr += 2;
-	
+
 	if(r[rd] == r[rr])
   {
     if(is2wordInstruction(codePtr))
@@ -2455,7 +2460,7 @@ int sbrs(uint8_t *codePtr)
 	temp = r[rr];
   temp = (temp & (1 << b)) >> b;
 	codePtr += 2;
-	
+
 	if(temp == 1)
   {
     if(is2wordInstruction(codePtr))
@@ -2487,7 +2492,7 @@ int sbic(uint8_t *codePtr)
   b = *codePtr & 0x7;
   io[A] = (io[A] & (1 << b)) >> b;
 	codePtr += 2;
-	
+
 	if(io[A] == 0)
   {
     if(is2wordInstruction(codePtr))
@@ -2605,7 +2610,7 @@ int rcall(uint8_t *codePtr)
 
 	pushWord((getPc(codePtr) + 2) / 2);
   stackNow = getMcuStackPtr();
-  
+
 	return (k+1)*2;
 }
 
@@ -2655,7 +2660,7 @@ int eicall(uint8_t *codePtr)
 int ret(uint8_t *codePtr)
 {
   int pc;
-	
+
 	pc = popWord();
 
 	return (pc - (getPc(codePtr) / 2)) * 2;
@@ -2669,8 +2674,8 @@ int ret(uint8_t *codePtr)
 int reti(uint8_t *codePtr)
 {
   int pc;
-	
-	pc = popWord();	
+
+	pc = popWord();
   sreg->I = 1;
 
 	return (pc - (getPc(codePtr) / 2)) * 2;
