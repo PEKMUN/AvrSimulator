@@ -66,7 +66,7 @@ void test_instructionWith1001000_given_codePtr_is_0x9006(void)
   }
 }
 
-void xtest_instructionWith1001001_given_codePtr_is_0x930b(void)
+void test_instructionWith1001001_given_codePtr_is_0x930b(void)
 {
   CEXCEPTION_T e;
   uint8_t codeMemory[] = {
