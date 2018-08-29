@@ -235,6 +235,10 @@ int instructionWith1001000(uint8_t *codePtr)
 {
 	uint8_t low4bit;
 	low4bit = *codePtr & 0xf;
+  AvrOperator op = avr1001000Table [low4bit];
+
+  if(op == NULL)
+    throwSimpleError(INVALID_INSTRUCTION, NULL);
 
   return avr1001000Table [low4bit](codePtr);
 }
@@ -243,6 +247,10 @@ int instructionWith1001001(uint8_t *codePtr)
 {
 	uint8_t low4bit;
 	low4bit = *codePtr & 0xf;
+  AvrOperator op = avr1001000Table [low4bit];
+
+  //if(op == NULL)
+    //throwSimpleError(INVALID_INSTRUCTION, NULL);
 
   return avr1001001Table [low4bit](codePtr);
 }
