@@ -101,16 +101,46 @@ void test_is2wordInstruction(void)
 	TEST_ASSERT_EQUAL(0, code);
 }
 
-void test_pushWord_given_spl_0x4d_sph_0x5(void)
+void test_is2wordInstruction_given_push_r19_and_sbiw_r30_0x33_should_return_0(void)
+{
+  int is2Word = 0xff;
+  uint8_t codeMemory[] = {
+    0x3f, 0x93,         // push	r19             ; instruction under test
+    0xf3, 0x97,         // sbiw	r30:r31, $33    ; dummy instruction
+  };
+  // Is 'push r19' a 2-word instruction?
+  is2Word = is2wordInstruction(flash = codeMemory);
+  // Expect to return 0 (meaning false)
+  TEST_ASSERT_EQUAL(0, is2Word);
+}
+
+/**
+ *  Before                   After
+ *  ------                   -----
+ *
+ *  SP -> 0x54d   0x00             0x54d   0x34
+ *        0x54c   0x00             0x54c   0x12
+ *        0x54b   ?          SP -> 0x54b   ?
+ *
+ */
+void test_pushWord_given_0x1234_and_SP_is_0x54d_expect_the_word_is_pushed_in_big_endian_format(void)
 {
   *spl = 0x4d;
   *sph = 0x5;
 
+  // Clear SRAM memory at 0x054e and 0x054d
+  sram[0x54d] = 0;
+  sram[0x54d-1] = 0;
+  // Do the push
   pushWord(0x1234);
-
-  TEST_ASSERT_EQUAL(0x12, sram[getMcuStackPtr()+1]);
-  TEST_ASSERT_EQUAL(0x34, sram[getMcuStackPtr()+2]);
+  // Verify that the stack has been reduced by 2
+  TEST_ASSERT_EQUAL_HEX16(0x54d-2, *(uint16_t *)spl);
+  // Verify that 0x1234 was pushed onto the stack in Big-Endian format
+  // (meaning MSB is in the low memory address)
+  TEST_ASSERT_EQUAL_HEX8(0x12, sram[0x54d-1]);
+  TEST_ASSERT_EQUAL_HEX8(0x34, sram[0x54d]);
 }
+
 
 void test_popWord_given_data_0x1234(void)
 {
