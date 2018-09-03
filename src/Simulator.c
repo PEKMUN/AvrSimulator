@@ -354,14 +354,19 @@ void initSimulator()
 
 int is2wordInstruction(uint8_t *codePtr)
 {
-  if((*(uint16_t *)codePtr & 0xf000) == 0x9000)
-  {
-    if((*(uint16_t *)codePtr & 0x0e00) == 0x400 || (*(uint16_t *)codePtr & 0x0e00) == 0x200)
-    {
-      if((*(uint16_t *)codePtr & 0xf) == 0x0 || (*(uint16_t *)codePtr & 0xe) == 0xc || (*(uint16_t *)codePtr & 0xe) == 0xe)
-        return 1;
-    }
-  }
+	if((*(uint32_t *)codePtr & 0xf000) == 0x9000)
+	{
+		if((*(uint32_t *)codePtr & 0xf00) == 0x400 || (*(uint32_t *)codePtr & 0xf00) == 0x500)
+		{
+			if((*(uint32_t *)codePtr & 0xe) == 0xc || (*(uint32_t *)codePtr & 0xe) == 0xe)
+				return 1;
+		}	
+		else if((*(uint32_t *)codePtr & 0x0e00) == 0x200 || (*(uint32_t *)codePtr & 0x0e00) == 0x300)
+		{
+			if((*(uint32_t *)codePtr & 0xf) == 0x0)
+				return 1;
+		}
+	}
   return 0;
 }
 
@@ -3391,12 +3396,13 @@ int xch(uint8_t *codePtr)
 int push(uint8_t *codePtr)
 {
   uint8_t rr;
+	uint16_t index;
 
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-  sram[*(uint16_t *)spl] = r[rr];
-  substractStackPointer(1);
-
+	index = substractStackPointer(1);
+  sram[index+1] = r[rr];
+  
   return 2;
 }
 
@@ -3410,12 +3416,13 @@ int push(uint8_t *codePtr)
 int pop(uint8_t *codePtr)
 {
   uint8_t rd;
+	uint16_t index;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-  r[rd] = sram[*(uint16_t *)spl];
-  substractStackPointer(-1);
-
+	index = substractStackPointer(-1);
+  r[rd] = sram[index - 1];
+  
   return 2;
 }
 
