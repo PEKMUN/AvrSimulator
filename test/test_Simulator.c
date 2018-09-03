@@ -114,6 +114,45 @@ void test_is2wordInstruction_given_push_r19_and_sbiw_r30_0x33_should_return_0(vo
   TEST_ASSERT_EQUAL(0, is2Word);
 }
 
+void test_is2wordInstruction_given_sts_0x0_r31_and_sbiw_r30_0x33_should_return_1(void)
+{
+  int is2Word = 0xff;
+  uint8_t codeMemory[] = {
+    0xf0, 0x93, 0x00, 0x00,        // sts	$0,r19								; instruction under test
+    0xf3, 0x97,												// sbiw	r30:r31, $33    ; dummy instruction
+  };
+  // Is 'sts	$0,r19' a 2-word instruction?
+  is2Word = is2wordInstruction(flash = codeMemory);
+  // Expect to return 1 (meaning true)
+  TEST_ASSERT_EQUAL(1, is2Word);
+}
+
+void test_is2wordInstruction_given_call_0x3_and_sbiw_r30_0x33_should_return_1(void)
+{
+  int is2Word = 0xff;
+  uint8_t codeMemory[] = {
+    0x0e, 0x94, 0x03, 0x00,        // call $3										; instruction under test
+    0xf3, 0x97,												// sbiw	r30:r31, $33    ; dummy instruction
+  };
+  // Is 'call $3' a 2-word instruction?
+  is2Word = is2wordInstruction(flash = codeMemory);
+  // Expect to return 1 (meaning true)
+  TEST_ASSERT_EQUAL(1, is2Word);
+}
+
+void test_is2wordInstruction_given_jmp_0x32_and_sbiw_r30_0x33_should_return_1(void)
+{
+  int is2Word = 0xff;
+  uint8_t codeMemory[] = {
+    0x0c, 0x94, 0x32, 0x00,        // call $32									; instruction under test
+    0xf3, 0x97,												// sbiw	r30:r31, $33    ; dummy instruction
+  };
+  // Is 'call $32' a 2-word instruction?
+  is2Word = is2wordInstruction(flash = codeMemory);
+  // Expect to return 1 (meaning true)
+  TEST_ASSERT_EQUAL(1, is2Word);
+}
+
 /**
  *  Before                   After
  *  ------                   -----
