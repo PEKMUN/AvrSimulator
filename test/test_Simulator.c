@@ -9,6 +9,61 @@ void setUp(void){}
 
 void tearDown(void){}
 
+void test_writeSram_given_sph_0x3e_spl_0xf4(void)
+{
+	uint8_t data;
+	*spl = 0xf4;
+  *sph = 0x3e;
+	data = 0x18;
+	
+	writeSram(*(uint16_t *)spl, data);
+	
+	TEST_ASSERT_EQUAL(0xe, *sph);
+	TEST_ASSERT_EQUAL(0xf4, *spl);
+	TEST_ASSERT_EQUAL(0x0, sram[0xef4]);
+}
+
+void test_writeSram_given_sph_0x24_spl_0xf4(void)
+{
+	uint8_t data;
+	*spl = 0xf4;
+  *sph = 0x24;
+	data = 0x18;
+	sram[0xef4] = 0x0;
+	
+	writeSram(*(uint16_t *)spl, data);
+	
+	TEST_ASSERT_EQUAL(0x4, *sph);
+	TEST_ASSERT_EQUAL(0xf4, *spl);
+	TEST_ASSERT_EQUAL(0x18, sram[0x4f4]);
+}
+
+void test_readSram_given_sph_0xe_spl_0x67(void)
+{
+	*spl = 0x67;
+  *sph = 0xe;
+	sram[0xe67] = 0x98;
+	
+	readSram(*(uint16_t *)spl);
+	
+	TEST_ASSERT_EQUAL(0xe, *sph);
+	TEST_ASSERT_EQUAL(0x67, *spl);
+	TEST_ASSERT_EQUAL(0x0, sram[0xe67]);
+}
+
+void test_readSram_given_sph_0x8_spl_0x67(void)
+{
+	*spl = 0x67;
+  *sph = 0x8;
+	sram[0x867] = 0x98;
+	
+	readSram(*(uint16_t *)spl);
+	
+	TEST_ASSERT_EQUAL(0x8, *sph);
+	TEST_ASSERT_EQUAL(0x67, *spl);
+	TEST_ASSERT_EQUAL(0x98, sram[0x867]);
+}
+
 void test_simulateOneInstruction_given_codePtr_is_0x2aef(void)
 {
   CEXCEPTION_T e;
@@ -105,7 +160,7 @@ void test_is2wordInstruction_given_push_r19_and_sbiw_r30_0x33_should_return_0(vo
 {
   int is2Word = 0xff;
   uint8_t codeMemory[] = {
-    0x3f, 0x93,         // push	r19             ; instruction under test
+    0x3f, 0x93,         // push	r19             		; instruction under test
     0xf3, 0x97,         // sbiw	r30:r31, $33    ; dummy instruction
   };
   // Is 'push r19' a 2-word instruction?
@@ -118,7 +173,7 @@ void test_is2wordInstruction_given_sts_0x0_r31_and_sbiw_r30_0x33_should_return_1
 {
   int is2Word = 0xff;
   uint8_t codeMemory[] = {
-    0xf0, 0x93, 0x00, 0x00,        // sts	$0,r19								; instruction under test
+    0xf0, 0x93, 0x00, 0x00,        // sts	$0,r19							; instruction under test
     0xf3, 0x97,												// sbiw	r30:r31, $33    ; dummy instruction
   };
   // Is 'sts	$0,r19' a 2-word instruction?
@@ -131,7 +186,7 @@ void test_is2wordInstruction_given_call_0x3_and_sbiw_r30_0x33_should_return_1(vo
 {
   int is2Word = 0xff;
   uint8_t codeMemory[] = {
-    0x0e, 0x94, 0x03, 0x00,        // call $3										; instruction under test
+    0x0e, 0x94, 0x03, 0x00,        // call $3									; instruction under test
     0xf3, 0x97,												// sbiw	r30:r31, $33    ; dummy instruction
   };
   // Is 'call $3' a 2-word instruction?

@@ -7,8 +7,6 @@
 #define SRAM_SIZE   0x900
 #define FLASH_SIZE  (256 * K)
 
-//#define spRegPtr		(uint16_t *)(sram[*(uint16_t *)spl])
-
 typedef int (*AvrOperator)(uint8_t *codePtr);
 typedef struct SregRegister SregRegister;
 struct SregRegister{
@@ -146,6 +144,8 @@ int mulsuORfmulORfmulsORfmulsu(uint8_t *codePtr);
 int lddyORlddz(uint8_t *codePtr);
 int stdyORstdz(uint8_t *codePtr);
 
+void writeSram(int address, uint8_t data);
+uint8_t readSram(int address);
 uint32_t getPc(uint8_t *progCounter);
 uint8_t *getCodePtr(uint32_t pc);
 uint16_t getMcuStackPtr();

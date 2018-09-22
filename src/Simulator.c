@@ -138,6 +138,22 @@ uint8_t *eind = &sram[0x5c];
 uint8_t *pc = flashMemory;
 uint8_t *flash = flashMemory;
 
+void writeSram(int address, uint8_t data)
+{
+	address = address & 0xfff;
+	*(uint16_t *)spl = address;
+	if((address >= 0x0) && (address < 0x900))
+		sram[address] = data;
+}
+
+uint8_t readSram(int address)
+{
+	if((address >= 0x0) && (address < 0x900))
+		return sram[address];
+	else
+		return sram[address] = 0x0;
+}
+
 int simulateOneInstruction(uint8_t *codePtr)
 {
   AvrOperator op = avrOperatorTable [*(codePtr + 1)];
