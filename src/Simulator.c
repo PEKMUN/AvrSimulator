@@ -2872,6 +2872,7 @@ int ldxUnchanged(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*xRegPtr);
 	r[rd] = sram[*xRegPtr];
 
 	return 2;
@@ -2890,6 +2891,7 @@ int ldxPostInc(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*xRegPtr);
 	r[rd] = sram[*xRegPtr];
   *xRegPtr = *xRegPtr + 1;
 
@@ -2910,6 +2912,7 @@ int ldxPreDec(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	*xRegPtr = *xRegPtr - 1;
+	readSram(*xRegPtr);
 	r[rd] = sram[*xRegPtr];
 
 	return 2;
@@ -2928,6 +2931,7 @@ int ldyUnchanged(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*yRegPtr);
 	r[rd] = sram[*yRegPtr];
 
 	return 2;
@@ -2946,6 +2950,7 @@ int ldyPostInc(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*yRegPtr);
 	r[rd] = sram[*yRegPtr];
   *yRegPtr = *yRegPtr + 1;
 
@@ -2966,6 +2971,7 @@ int ldyPreDec(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	*yRegPtr = *yRegPtr - 1;
+	readSram(*yRegPtr);
 	r[rd] = sram[*yRegPtr];
 
 	return 2;
@@ -2986,6 +2992,7 @@ int lddy(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
 
+	readSram(*yRegPtr + q);
 	r[rd] = sram[*yRegPtr + q];
 
 	return 2;
@@ -3004,6 +3011,7 @@ int ldzUnchanged(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*zRegPtr);
 	r[rd] = sram[*zRegPtr];
 
 	return 2;
@@ -3022,6 +3030,7 @@ int ldzPostInc(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
+	readSram(*zRegPtr);
 	r[rd] = sram[*zRegPtr];
   *zRegPtr = *zRegPtr + 1;
 
@@ -3042,6 +3051,7 @@ int ldzPreDec(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	*zRegPtr = *zRegPtr - 1;
+	readSram(*zRegPtr);
 	r[rd] = sram[*zRegPtr];
 
 	return 2;
@@ -3062,6 +3072,7 @@ int lddz(uint8_t *codePtr)
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
 
+	readSram(*zRegPtr + q);
 	r[rd] = sram[*zRegPtr + q];
 
 	return 2;
@@ -3081,6 +3092,7 @@ int stxUnchanged(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*xRegPtr] = r[rr];
+	writeSram(*xRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3099,6 +3111,7 @@ int stxPostInc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*xRegPtr] = r[rr];
+	writeSram(*xRegPtr, r[rr]);
 	*xRegPtr = *xRegPtr + 1;
 
 	return 2;
@@ -3119,6 +3132,7 @@ int stxPreDec(uint8_t *codePtr)
 
 	*xRegPtr = *xRegPtr - 1;
 	sram[*xRegPtr] = r[rr];
+	writeSram(*xRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3137,6 +3151,7 @@ int styUnchanged(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*yRegPtr] = r[rr];
+	writeSram(*yRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3155,6 +3170,7 @@ int styPostInc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*yRegPtr] = r[rr];
+	writeSram(*yRegPtr, r[rr]);
 	*yRegPtr = *yRegPtr + 1;
 
 	return 2;
@@ -3179,6 +3195,7 @@ int styPreDec(uint8_t *codePtr)
 
 	*yRegPtr = *yRegPtr - 1;
 	sram[*yRegPtr] = r[rr];
+	writeSram(*yRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3199,6 +3216,7 @@ int stdy(uint8_t *codePtr)
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
 
 	sram[*yRegPtr + q] = r[rr];
+	writeSram(*yRegPtr + q, r[rr]);
 
 	return 2;
 }
@@ -3217,6 +3235,7 @@ int stzUnchanged(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*zRegPtr] = r[rr];
+	writeSram(*zRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3235,6 +3254,7 @@ int stzPostInc(uint8_t *codePtr)
 	rr = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*zRegPtr] = r[rr];
+	writeSram(*zRegPtr, r[rr]);
 	*zRegPtr = *zRegPtr + 1;
 
 	return 2;
@@ -3255,6 +3275,7 @@ int stzPreDec(uint8_t *codePtr)
 
 	*zRegPtr = *zRegPtr - 1;
 	sram[*zRegPtr] = r[rr];
+	writeSram(*zRegPtr, r[rr]);
 
 	return 2;
 }
@@ -3275,6 +3296,7 @@ int stdz(uint8_t *codePtr)
 	q = (codePtr[1] & 0x20) | ((codePtr[1] & 0xc) << 1) | (codePtr[0] & 0x7);
 
 	sram[*zRegPtr + q] = r[rr];
+	writeSram(*zRegPtr + q, r[rr]);
 
 	return 2;
 }
@@ -3330,7 +3352,7 @@ int lpmPostInc(uint8_t *codePtr)
 /**
  * Instruction:
  * 		LAT Z, Rd
- *		1001 000r rrrr 0111
+ *		1001 000d dddd 0111
  * where
  *		0 <= ddddd <= 31
  */
@@ -3340,8 +3362,8 @@ int lat(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	sram[*zRegPtr] = r[rd] ^ sram[*zRegPtr];
-  r[rd] = sram[*zRegPtr];
+	readSram(*zRegPtr);
+	r[rd] = r[rd] ^ sram[*zRegPtr];
 
 	return 2;
 }
@@ -3349,7 +3371,7 @@ int lat(uint8_t *codePtr)
 /**
  * Instruction:
  * 		LAS Z, Rd
- *		1001 001r rrrr 0101
+ *		1001 001d dddd 0101
  * where
  *		0 <= ddddd <= 31
  */
@@ -3359,8 +3381,8 @@ int las(uint8_t *codePtr)
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
-	sram[*zRegPtr] = r[rd] | sram[*zRegPtr];
-  r[rd] = sram[*zRegPtr];
+	readSram(*zRegPtr);
+	r[rd] = r[rd] | sram[*zRegPtr];
 
 	return 2;
 }
@@ -3368,17 +3390,19 @@ int las(uint8_t *codePtr)
 /**
  * Instruction:
  * 		LAC Z, Rd
- *		1001 001r rrrr 0101
+ *		1001 001d dddd 0101
  * where
  *		0 <= ddddd <= 31
  */
 int lac(uint8_t *codePtr)
 {
-  uint8_t rd;
+  uint8_t rd, data;
 
 	rd = ((codePtr[1] & 0x1) << 4) | ((codePtr[0] & 0xf0) >> 4);
 
 	sram[*zRegPtr] = (0xff - r[rd]) & sram[*zRegPtr];
+	data = (0xff - r[rd]) & sram[*zRegPtr];
+	writeSram(*zRegPtr, data);
 
 	return 2;
 }

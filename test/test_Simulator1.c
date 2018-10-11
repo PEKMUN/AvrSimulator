@@ -1538,6 +1538,37 @@ void test_AvrOperatorTable_given_ld_20_X(void)
 
 /**
  * Instruction:
+ * 		LD Rd, X
+ *		1001 000d dddd 1100
+ * where
+ *		0 <= ddddd <= 31
+ *
+ * Simulate ld R1, X
+ *		1001 0000 0001 1100
+ *      9 	   0      1     c
+ */
+void test_AvrOperatorTable_given_ld_1_X(void)
+{
+  uint8_t codeMemory[] = {
+		0x1c, 0x90,								//ld R1, X
+	};
+	uint8_t *progCounter = codeMemory;
+  flash = codeMemory;
+
+  r[20] = 0;
+  *xRegPtr = 0x987;
+  sram[0x987] = 0x93;
+
+	simulateOneInstruction(progCounter);
+
+	TEST_ASSERT_EQUAL_HEX16(0x0, sram[0x987]);
+	TEST_ASSERT_EQUAL_HEX16(0x87, r[26]);
+	TEST_ASSERT_EQUAL_HEX16(0x9, r[27]);
+	TEST_ASSERT_EQUAL_HEX16(0x0, r[20]);
+}
+
+/**
+ * Instruction:
  * 		LD Rd, X+
  *		1001 000d dddd 1101
  * where
